@@ -1,0 +1,120 @@
+/* Header.css – slim 64px header */
+:root {
+--header-height: 64px;
+}
+
+.header {
+position: sticky; /* or fixed if you prefer /
+top: 0;
+z-index: 1000;
+background: #ffca08; / keep your theme color */
+border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Keep padding horizontal only */
+.header .container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 16px;
+}
+
+.header-content {
+height: var(--header-height);
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+}
+
+
+.logo {
+display: flex;
+align-items: center;
+}
+
+.logo-img {
+height: 64px;
+width: auto;
+display: block;
+}
+/* Desktop nav */
+.desktop-nav {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.nav-link,
+.dropdown-link {
+background: none;
+border: 0;
+padding: 8px 10px;
+font-size: 14px;
+line-height: 1;
+border-radius: 8px;
+cursor: pointer;
+}
+
+.nav-link.active {
+background: rgba(0,0,0,0.06);
+}
+
+.cta-button {
+padding: 8px 14px;
+font-size: 14px;
+line-height: 1;
+border: 0;
+border-radius: 18px;
+background: #2f2f2f;
+color: #fff;
+cursor: pointer;
+}
+
+/* Mobile */
+.mobile-nav { display: none; }
+.dropdown-toggle {
+background: none;
+border: 0;
+padding: 8px;
+display: inline-flex;
+flex-direction: column;
+gap: 3px;
+cursor: pointer;
+}
+.hamburger-line {
+width: 20px;
+height: 2px;
+background: #2f2f2f;
+border-radius: 1px;
+}
+
+/* Make dropdown overlay instead of pushing content */
+.dropdown-menu {
+position: absolute;
+top: var(--header-height);
+right: 16px;
+width: min(90vw, 280px);
+background: #fff;
+border: 1px solid rgba(0,0,0,0.08);
+box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+border-radius: 10px;
+overflow: hidden;
+}
+.dropdown-content {
+padding: 8px;
+display: grid;
+gap: 6px;
+}
+.mobile-cta {
+width: 100%;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+.desktop-nav { display: none; }
+.mobile-nav { display: block; }
+.logo-img { height: 66px; }
+}
+
+/* Prevent the section after header from adding big top margins */
+header + * { margin-top: 0 !important; }

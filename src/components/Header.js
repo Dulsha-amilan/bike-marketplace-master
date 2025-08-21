@@ -1,6 +1,8 @@
-// components/Header.js - Updated with Biker Gear navigation
+// components/Header.js - Updated with logo image
 import React, { useState, useEffect, useRef } from 'react';
 import LanguageToggle from './LanguageToggle';
+import bikeekaLogo from '../Images/bikeeka.com logos.png'; // <-- your logo
+import './Header.css';
 
 const Header = ({ language, setLanguage, translations, currentPage, setCurrentPage }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,10 +29,18 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <div className="logo">
-            <h2 onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>
-              🏍️ BikeHub LK
-            </h2>
+          {/* Logo */}
+          <div
+            className="logo"
+            onClick={() => setCurrentPage('home')}
+            style={{ cursor: 'pointer' }}
+            aria-label="Go to home"
+          >
+            <img
+              src={bikeekaLogo}
+              alt="bikeeka.com logo"
+              className="logo-img"
+            />
           </div>
           
           {/* Desktop Navigation */}
