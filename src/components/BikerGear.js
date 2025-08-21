@@ -11,7 +11,7 @@ const BikerGear = ({ translations }) => {
     condition: '',
     verifiedSeller: false
   });
-
+//add
   const categories = [
     { id: 'all', name: translations.allCategories, icon: '🧢' },
     { id: 'helmets', name: translations.helmets, icon: '⛑️' },
