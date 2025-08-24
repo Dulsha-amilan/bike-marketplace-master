@@ -1,4 +1,4 @@
-// App.js - Updated with biker gear navigation
+// App.js - Updated with glass Filters section
 
 import React, { useState } from 'react';
 import Header from './components/Header';
@@ -10,6 +10,7 @@ import BikerGear from './components/BikerGear';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 import './styles/globals.css';
+import heroVideo from './components/video/cs.mp4';
 
 function App() {
   const [language, setLanguage] = useState('english');
@@ -27,11 +28,11 @@ function App() {
       home: "Home",
       spareParts: "Spare Parts",
       bikerGear: "Biker Gear",
-      
+
       // Biker Gear translations
       bikerGearTitle: "Biker Gear & Helmets",
       bikerGearSubtitle: "Safety gear and accessories for every rider",
-      
+
       // Categories
       helmets: "Helmets",
       gloves: "Gloves",
@@ -39,13 +40,13 @@ function App() {
       boots: "Boots",
       rainGear: "Rain Gear",
       reflectiveVests: "Reflective Vests",
-      
+
       // Helmet types
       helmetTypes: "Helmet Types",
       fullFace: "Full Face",
       halfFace: "Half Face",
       modular: "Modular",
-      
+
       // Filters
       size: "Size",
       allSizes: "All Sizes",
@@ -53,11 +54,11 @@ function App() {
       allPrices: "All Prices",
       verifiedSeller: "Verified Seller Only",
       verified: "Verified",
-      
+
       // Listing
       availableGear: "Available Gear",
       featured: "Featured",
-      
+
       // Common
       allCategories: "All Categories",
       allBrands: "All Brands",
@@ -73,17 +74,16 @@ function App() {
       brand: "Brand",
       condition: "Condition",
       categories: "Categories",
-      
+
       // Existing translations
       title: "Sri Lanka's Bike Marketplace",
       subtitle: "Buy and Sell Bikes Online",
       postAd: "Post Your Ad",
-      featured: "Featured Listings",
       model: "Model",
       price: "Price",
       location: "Location",
       search: "Search",
-      
+
       // Footer translations
       footerDescription: "Sri Lanka's largest online marketplace for buying and selling motorcycles and scooters.",
       quickLinks: "Quick Links",
@@ -113,11 +113,11 @@ function App() {
       home: "මුල් පිටුව",
       spareParts: "අමතර කොටස්",
       bikerGear: "බයිකර් ගියර්",
-      
+
       // Biker Gear translations
       bikerGearTitle: "බයිකර් ගියර් සහ හිස්වැසුම්",
       bikerGearSubtitle: "සෑම යතුරුපැදි කරුවෙකුටම ආරක්ෂණ උපකරණ",
-      
+
       // Categories
       helmets: "හිස්වැසුම්",
       gloves: "අත්වැසුම්",
@@ -125,13 +125,13 @@ function App() {
       boots: "බූට්",
       rainGear: "වර්ෂා ගියර්",
       reflectiveVests: "පරාවර්තන කබාය",
-      
+
       // Helmet types
       helmetTypes: "හිස්වැසුම් වර්ග",
       fullFace: "සම්පූර්ණ මුහුණ",
       halfFace: "අර්ධ මුහුණ",
       modular: "මොඩියුලර්",
-      
+
       // Filters
       size: "ප්‍රමාණය",
       allSizes: "සියලු ප්‍රමාණ",
@@ -139,11 +139,11 @@ function App() {
       allPrices: "සියලු මිල",
       verifiedSeller: "සත්‍යාපිත විකිණුම්කරු පමණයි",
       verified: "සත්‍යාපිත",
-      
+
       // Listing
       availableGear: "ලබා ගත හැකි ගියර්",
       featured: "විශේෂාංගගත",
-      
+
       // Common
       allCategories: "සියලු කාණ්ඩ",
       allBrands: "සියලු සන්නාම",
@@ -159,7 +159,7 @@ function App() {
       brand: "සන්නාමය",
       condition: "තත්වය",
       categories: "වර්ග",
-      
+
       // Existing translations
       title: "ශ්‍රී ලංකාවේ බයිසිකල් වෙළඳපොළ",
       subtitle: "අන්තර්ජාලයෙන් බයිසිකල් මිලදී ගන්න සහ විකුණන්න",
@@ -169,7 +169,7 @@ function App() {
       price: "මිල",
       location: "ස්ථානය",
       search: "සොයන්න",
-      
+
       // Footer translations
       footerDescription: "ශ්‍රී ලංකාවේ විශාලතම මෝටර් සයිකල් සහ ස්කූටර් මිලදී ගැනීම සහ විකිණීම සඳහා වන අන්තර්ජාල වෙළඳපොළ.",
       quickLinks: "ඉක්මන් සබැඳි",
@@ -207,17 +207,47 @@ function App() {
         return (
           <>
             <div className="hero-section">
-              <div className="container">
+              {/* Background video */}
+              <video
+                className="hero-bg-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+              >
+                <source src={heroVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+
+              {/* Dark overlay to improve text contrast */}
+              <div className="hero-overlay"></div>
+
+              {/* Existing content */}
+              <div className="container hero-content">
                 <h1 className="hero-title">{translations[language].title}</h1>
                 <p className="hero-subtitle">{translations[language].subtitle}</p>
-                <SearchBar 
+                <SearchBar
                   searchFilters={searchFilters}
                   setSearchFilters={setSearchFilters}
                   translations={translations[language]}
                 />
               </div>
             </div>
-            <QuickFilters translations={translations[language]} />
+
+            {/* Glass Filters section */}
+            <section
+              className="filters-section"
+              aria-label={`${translations[language].categories} filters`}
+            >
+              <div className="container">
+                <div className="glass-filters">
+                  <QuickFilters translations={translations[language]} />
+                </div>
+              </div>
+            </section>
+
             <FeaturedListings translations={translations[language]} />
           </>
         );
@@ -225,10 +255,10 @@ function App() {
   };
 
   return (
- <div className="App">
-      <Header 
-        language={language} 
-        setLanguage={setLanguage} 
+    <div className="App">
+      <Header
+        language={language}
+        setLanguage={setLanguage}
         translations={translations[language]}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -236,13 +266,13 @@ function App() {
       <main className="main-content">
         {renderCurrentPage()}
       </main>
-      <Footer 
-        language={language} 
-        setLanguage={setLanguage} 
+      <Footer
+        language={language}
+        setLanguage={setLanguage}
         translations={translations[language]}
       />
-      <Chatbot 
-        language={language} 
+      <Chatbot
+        language={language}
         translations={translations[language]}
       />
     </div>
