@@ -1,7 +1,7 @@
 // data/chatbotData.js
 export const chatbotResponses = {
   english: {
-    greeting: "Hello! Welcome to BikeHub LK! 🏍️ I'm here to help you find the perfect motorcycle, spare parts, or safety gear. What are you looking for today?",
+    greeting: "Hello! Welcome toBIKE EKA.COM! 🏍️ I'm here to help you find the perfect motorcycle, spare parts, or safety gear. What are you looking for today?",
     
     spareParts: "Great choice! We have a wide range of spare parts including:\n• Engine parts (pistons, filters, etc.)\n• Tyres & rims\n• Lights & electrical components\n• Chains & sprockets\n• Seats, tanks & mirrors\n\nWould you like me to help you find something specific?",
     
@@ -17,13 +17,13 @@ export const chatbotResponses = {
     
     contact: "📞 Contact Information:\n• Phone: +94 11 234 5678\n• Email: info@bikehublk.com\n• WhatsApp: +94 77 123 4567\n• Address: 123 Main Street, Colombo 03\n\nSupport hours: 9:00 AM - 8:00 PM (Mon-Sat)",
     
-    thanks: "You're welcome! 😊 Is there anything else I can help you with today? I'm here to make your BikeHub LK experience as smooth as possible!",
+    thanks: "You're welcome! 😊 Is there anything else I can help you with today? I'm here to make yourBIKE EKA.COM experience as smooth as possible!",
     
     default: "I understand you're looking for information about motorcycles! 🏍️ I can help you with:\n• Finding bikes & spare parts\n• Safety gear recommendations\n• Buying & selling advice\n• Pricing information\n• Contact details\n\nWhat specific information do you need?"
   },
   
   sinhala: {
-    greeting: "ආයුබෝවන්! BikeHub LK වෙත සාදරයෙන් පිළිගනිමු! 🏍️ මම ඔබට සුදුසුම මෝටර් සයිකලයක්, අමතර කොටස් හෝ ආරක්ෂණ උපකරණ සොයා ගැනීමට උදව් කිරීමට මෙහි සිටිමි. අද ඔබ සොයන්නේ කුමක්ද?",
+    greeting: "ආයුබෝවන්!BIKE EKA.COM වෙත සාදරයෙන් පිළිගනිමු! 🏍️ මම ඔබට සුදුසුම මෝටර් සයිකලයක්, අමතර කොටස් හෝ ආරක්ෂණ උපකරණ සොයා ගැනීමට උදව් කිරීමට මෙහි සිටිමි. අද ඔබ සොයන්නේ කුමක්ද?",
     
     spareParts: "හොඳ තේරීමක්! අප සතුව පුළුල් පරාසයක අමතර කොටස් ඇත:\n• එන්ජින් කොටස් (පිස්ටන්, ෆිල්ටර් ආදිය)\n• ටයර් සහ රිම්\n• ලයිට් සහ විදුලි කොටස්\n• දම්වැල් සහ ස්ප්‍රොකට්\n• ආසන, ටැංකි සහ කණ්ණාඩි\n\nමම ඔබට විශේෂිත දෙයක් සොයා ගැනීමට උදව් කරන්නද?",
     
@@ -39,7 +39,7 @@ export const chatbotResponses = {
     
     contact: "📞 සම්පර්ක තොරතුරු:\n• දුරකථනය: +94 11 234 5678\n• ඊමේල්: info@bikehublk.com\n• WhatsApp: +94 77 123 4567\n• ලිපිනය: 123 ප්‍රධාන වීදිය, කොළඹ 03\n\nසහාය පැය: පෙ.ව. 9:00 - රාත්‍රි 8:00 (සඳුදා-සෙනසුරුදා)",
     
-    thanks: "ඔබට සාදරයෙන් පිළිගනිමු! 😊 අද මට ඔබට උදව් කළ හැකි වෙනත් කිසිවක් තිබේද? ඔබේ BikeHub LK අත්දැකීම හැකි තරම් සුමට කිරීමට මම මෙහි සිටිමි!",
+    thanks: "ඔබට සාදරයෙන් පිළිගනිමු! 😊 අද මට ඔබට උදව් කළ හැකි වෙනත් කිසිවක් තිබේද? ඔබේBIKE EKA.COM අත්දැකීම හැකි තරම් සුමට කිරීමට මම මෙහි සිටිමි!",
     
     default: "ඔබ මෝටර් සයිකල් පිළිබඳ තොරතුරු සොයන බව මට තේරුම්! 🏍️ මට ඔබට උදව් කළ හැක:\n• බයිසිකල් සහ අමතර කොටස් සොයා ගැනීම\n• ආරක්ෂණ ගියර් නිර්දේශ\n• මිලදී ගැනීමේ සහ විකිණීමේ උපදෙස්\n• මිල ගණන් තොරතුරු\n• සම්පර්ක විස්තර\n\nඔබට අවශ්‍ය නිශ්චිත තොරතුරු මොනවාද?"
   }

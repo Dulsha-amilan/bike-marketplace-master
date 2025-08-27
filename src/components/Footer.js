@@ -10,7 +10,7 @@ const Footer = ({ language, setLanguage, translations }) => {
           {/* Logo and Description */}
           <div className="footer-section">
             <div className="footer-logo">
-              <h3>🏍️ BikeHub LK</h3>
+              <h3>🏍️BIKE EKA.COM</h3>
             </div>
             <p className="footer-description">
               {translations.footerDescription}
@@ -79,7 +79,7 @@ const Footer = ({ language, setLanguage, translations }) => {
         {/* Footer Bottom */}
         <div className="footer-bottom">
           <div className="footer-bottom-content">
-            <p>&copy; 2024 BikeHub LK. {translations.allRightsReserved}</p>
+            <p>&copy; 2024BIKE EKA.COM. {translations.allRightsReserved}</p>
             <div className="footer-bottom-links">
               <a href="#terms">{translations.termsConditions}</a>
               <span className="separator">|</span>

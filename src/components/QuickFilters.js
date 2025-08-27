@@ -5,9 +5,8 @@ const QuickFilters = ({ translations }) => {
   const filters = [
     { id: 'scooters', name: 'Scooters', icon: '🛵' },
     { id: 'trail', name: 'Trail', icon: '🏍️' },
-    { id: 'classic', name: 'Classic', icon: '🏍️' },
     { id: 'sport', name: 'Sport', icon: '🏁' },
-    { id: 'cruiser', name: 'Cruiser', icon: '🛣️' },
+    { id: 'cruiser', name: 'Classic / Cruiser', icon: '🏍️' },
     { id: 'electric', name: 'Electric', icon: '⚡' }
   ];
 
