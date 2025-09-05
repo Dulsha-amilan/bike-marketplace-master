@@ -1,6 +1,8 @@
-// App.js - Updated with glass Filters section
+// App.js - Updated with glass Filters section + CategoryList + VehicleDetails routes
 
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import QuickFilters from './components/QuickFilters';
@@ -9,8 +11,13 @@ import SpareParts from './components/SpareParts';
 import BikerGear from './components/BikerGear';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
+
 import './styles/globals.css';
 import heroVideo from './components/video/cs.mp4';
+
+import CategoryList from './components/CategoryList';
+import VehicleDetails from './components/VehicleDetails';
+import { sampleVehicles } from './data/sampleVehicles';
 
 function App() {
   const [language, setLanguage] = useState('english');
@@ -24,16 +31,13 @@ function App() {
 
   const translations = {
     english: {
-      // Existing translations...
       home: "Home",
       spareParts: "Spare Parts",
       bikerGear: "Biker Gear",
 
-      // Biker Gear translations
       bikerGearTitle: "Biker Gear & Helmets",
       bikerGearSubtitle: "Safety gear and accessories for every rider",
 
-      // Categories
       helmets: "Helmets",
       gloves: "Gloves",
       jackets: "Jackets",
@@ -41,13 +45,11 @@ function App() {
       rainGear: "Rain Gear",
       reflectiveVests: "Reflective Vests",
 
-      // Helmet types
       helmetTypes: "Helmet Types",
       fullFace: "Full Face",
       halfFace: "Half Face",
       modular: "Modular",
 
-      // Filters
       size: "Size",
       allSizes: "All Sizes",
       priceRange: "Price Range",
@@ -55,11 +57,9 @@ function App() {
       verifiedSeller: "Verified Seller Only",
       verified: "Verified",
 
-      // Listing
       availableGear: "Available Gear",
       featured: "Featured",
 
-      // Common
       allCategories: "All Categories",
       allBrands: "All Brands",
       allConditions: "All Conditions",
@@ -75,7 +75,6 @@ function App() {
       condition: "Condition",
       categories: "Categories",
 
-      // Existing translations
       title: "Sri Lanka's Bike Marketplace",
       subtitle: "Buy and Sell Bikes Online",
       postAd: "Post Your Ad",
@@ -84,7 +83,6 @@ function App() {
       location: "Location",
       search: "Search",
 
-      // Footer translations
       footerDescription: "Sri Lanka's largest online marketplace for buying and selling motorcycles and scooters.",
       quickLinks: "Quick Links",
       aboutUs: "About Us",
@@ -109,16 +107,13 @@ function App() {
       allRightsReserved: "All rights reserved."
     },
     sinhala: {
-      // Existing translations...
       home: "මුල් පිටුව",
       spareParts: "අමතර කොටස්",
       bikerGear: "බයිකර් ගියර්",
 
-      // Biker Gear translations
       bikerGearTitle: "බයිකර් ගියර් සහ හිස්වැසුම්",
       bikerGearSubtitle: "සෑම යතුරුපැදි කරුවෙකුටම ආරක්ෂණ උපකරණ",
 
-      // Categories
       helmets: "හිස්වැසුම්",
       gloves: "අත්වැසුම්",
       jackets: "ජැකට්",
@@ -126,13 +121,11 @@ function App() {
       rainGear: "වර්ෂා ගියර්",
       reflectiveVests: "පරාවර්තන කබාය",
 
-      // Helmet types
       helmetTypes: "හිස්වැසුම් වර්ග",
       fullFace: "සම්පූර්ණ මුහුණ",
       halfFace: "අර්ධ මුහුණ",
       modular: "මොඩියුලර්",
 
-      // Filters
       size: "ප්‍රමාණය",
       allSizes: "සියලු ප්‍රමාණ",
       priceRange: "මිල පරාසය",
@@ -140,11 +133,9 @@ function App() {
       verifiedSeller: "සත්‍යාපිත විකිණුම්කරු පමණයි",
       verified: "සත්‍යාපිත",
 
-      // Listing
       availableGear: "ලබා ගත හැකි ගියර්",
       featured: "විශේෂාංගගත",
 
-      // Common
       allCategories: "සියලු කාණ්ඩ",
       allBrands: "සියලු සන්නාම",
       allConditions: "සියලු තත්වයන්",
@@ -155,12 +146,11 @@ function App() {
       priceAsc: "මිල: අඩු සිට වැඩි",
       priceDesc: "මිල: වැඩි සිට අඩු",
       newest: "අලුත්ම පළමුව",
-      contactSeller: "විකුණනවාට සම්බන්ධ වන්න",
+      contactSeller: "විකුණුම්කරු අමතන්න",
       brand: "සන්නාමය",
       condition: "තත්වය",
       categories: "වර්ග",
 
-      // Existing translations
       title: "ශ්‍රී ලංකාවේ බයිසිකල් වෙළඳපොළ",
       subtitle: "අන්තර්ජාලයෙන් බයිසිකල් මිලදී ගන්න සහ විකුණන්න",
       postAd: "ඔබේ දැන්වීම පළ කරන්න",
@@ -170,7 +160,6 @@ function App() {
       location: "ස්ථානය",
       search: "සොයන්න",
 
-      // Footer translations
       footerDescription: "ශ්‍රී ලංකාවේ විශාලතම මෝටර් සයිකල් සහ ස්කූටර් මිලදී ගැනීම සහ විකිණීම සඳහා වන අන්තර්ජාල වෙළඳපොළ.",
       quickLinks: "ඉක්මන් සබැඳි",
       aboutUs: "අප ගැන",
@@ -207,7 +196,6 @@ function App() {
         return (
           <>
             <div className="hero-section">
-              {/* Background video */}
               <video
                 className="hero-bg-video"
                 autoPlay
@@ -220,11 +208,7 @@ function App() {
                 <source src={heroVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-
-              {/* Dark overlay to improve text contrast */}
               <div className="hero-overlay"></div>
-
-              {/* Existing content */}
               <div className="container hero-content">
                 <h1 className="hero-title">{translations[language].title}</h1>
                 <p className="hero-subtitle">{translations[language].subtitle}</p>
@@ -236,7 +220,6 @@ function App() {
               </div>
             </div>
 
-            {/* Glass Filters section */}
             <section
               className="filters-section"
               aria-label={`${translations[language].categories} filters`}
@@ -255,27 +238,31 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Header
-        language={language}
-        setLanguage={setLanguage}
-        translations={translations[language]}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-      <main className="main-content">
-        {renderCurrentPage()}
-      </main>
-      <Footer
-        language={language}
-        setLanguage={setLanguage}
-        translations={translations[language]}
-      />
-      <Chatbot
-        language={language}
-        translations={translations[language]}
-      />
-    </div>
+    <Router>
+      <div className="App">
+        <Header
+          language={language}
+          setLanguage={setLanguage}
+          translations={translations[language]}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={renderCurrentPage()} />
+            <Route path="/browse/:type" element={<CategoryList allVehicles={sampleVehicles} />} />
+            <Route path="/vehicle/:id" element={<VehicleDetails allVehicles={sampleVehicles} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+        <Footer
+          language={language}
+          setLanguage={setLanguage}
+          translations={translations[language]}
+        />
+        <Chatbot language={language} translations={translations[language]} />
+      </div>
+    </Router>
   );
 }
 

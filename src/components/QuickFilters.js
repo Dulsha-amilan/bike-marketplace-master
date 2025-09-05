@@ -1,27 +1,26 @@
-// components/QuickFilters.js
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { FaFlagCheckered, FaMotorcycle } from 'react-icons/fa';
+import { MdElectricScooter, MdElectricBolt, MdTerrain } from 'react-icons/md';
 
-const QuickFilters = ({ translations }) => {
+const QuickFilters = () => {
   const filters = [
-    { id: 'scooters', name: 'Scooters', icon: '🛵' },
-    { id: 'trail', name: 'Trail', icon: '🏍️' },
-    { id: 'sport', name: 'Sport', icon: '🏁' },
-    { id: 'cruiser', name: 'Classic / Cruiser', icon: '🏍️' },
-    { id: 'electric', name: 'Electric', icon: '⚡' }
+    { id: 'scooters', name: 'Scooters', Icon: MdElectricScooter },
+    { id: 'trail', name: 'Trail', Icon: MdTerrain },
+    { id: 'sport', name: 'Sport', Icon: FaFlagCheckered },
+    { id: 'cruiser', name: 'Classic / Cruiser', Icon: FaMotorcycle },
+    { id: 'electric', name: 'Electric', Icon: MdElectricBolt },
   ];
 
   return (
     <section className="quick-filters">
-      <div className="container">
-        <h3>Quick Filters</h3>
-        <div className="filters-grid">
-          {filters.map(filter => (
-            <button key={filter.id} className="filter-btn">
-              <span className="filter-icon">{filter.icon}</span>
-              <span className="filter-name">{filter.name}</span>
-            </button>
-          ))}
-        </div>
+      <div className="filters-grid">
+        {filters.map(({ id, name, Icon }) => (
+          <Link key={id} to={`/browse/${id}`} className="filter-card" aria-label={name}>
+            <Icon className="filter-card-icon" aria-hidden="true" />
+            <span className="filter-card-name">{name}</span>
+          </Link>
+        ))}
       </div>
     </section>
   );

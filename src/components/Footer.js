@@ -1,6 +1,8 @@
 // components/Footer.js
 import React from 'react';
 import LanguageToggle from './LanguageToggle';
+import { FaFacebook, FaYoutube } from 'react-icons/fa';
+import { FiPhone, FiMail, FiMapPin } from 'react-icons/fi';
 
 const Footer = ({ language, setLanguage, translations }) => {
   return (
@@ -15,14 +17,28 @@ const Footer = ({ language, setLanguage, translations }) => {
             <p className="footer-description">
               {translations.footerDescription}
             </p>
+
+            {/* Social Links with real icons */}
             <div className="social-links">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link facebook">
-                <span className="social-icon">📘</span>
-                Facebook
+              <a
+                href="https://www.facebook.com/share/1GUCohtzxN/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link facebook"
+                aria-label="Facebook"
+              >
+                <FaFacebook className="social-icon" aria-hidden="true" />
+                <span>Facebook</span>
               </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-link youtube">
-                <span className="social-icon">📺</span>
-                YouTube
+              <a
+                href="https://www.youtube.com/@ClemPerera"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link youtube"
+                aria-label="YouTube"
+              >
+                <FaYoutube className="social-icon" aria-hidden="true" />
+                <span>YouTube</span>
               </a>
             </div>
           </div>
@@ -68,10 +84,21 @@ const Footer = ({ language, setLanguage, translations }) => {
                 setLanguage={setLanguage} 
               />
             </div>
+
+            {/* Contact Info with real icons (no emojis) */}
             <div className="contact-info">
-              <p>📞 +94 11 234 5678</p>
-              <p>📧 info@bikehublk.com</p>
-              <p>📍 Colombo, Sri Lanka</p>
+              <p>
+                <FiPhone className="contact-icon" aria-hidden="true" />
+                <a href="tel:+94714029197" aria-label="Call 0714029197">0714029197</a>
+              </p>
+              <p>
+                <FiMail className="contact-icon" aria-hidden="true" />
+                <a href="mailto:info@bikehublk.com" aria-label="Email info@bikehublk.com">info@bikehublk.com</a>
+              </p>
+              <p>
+                <FiMapPin className="contact-icon" aria-hidden="true" />
+                <span>Rathnapura, Sri Lanka</span>
+              </p>
             </div>
           </div>
         </div>
@@ -79,7 +106,7 @@ const Footer = ({ language, setLanguage, translations }) => {
         {/* Footer Bottom */}
         <div className="footer-bottom">
           <div className="footer-bottom-content">
-            <p>&copy; 2024BIKE EKA.COM. {translations.allRightsReserved}</p>
+            <p>&copy; 2024 BIKE EKA.COM. {translations.allRightsReserved}</p>
             <div className="footer-bottom-links">
               <a href="#terms">{translations.termsConditions}</a>
               <span className="separator">|</span>
