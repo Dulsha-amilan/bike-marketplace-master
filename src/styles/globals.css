@@ -2987,3 +2987,35 @@ body {
 @media (max-width: 420px) {
   .category-page .mobile-filter-btn { padding: 8px 10px; }
 }
+/* Safari/iOS viewport fixes and smooth scrolling in drawers */
+html, body {
+  height: -webkit-fill-available; /* iOS Safari */
+}
+
+.category-page .mobile-filters-drawer {
+  height: 85vh; /* fallback */
+}
+@supports (height: 100dvh) {
+  .category-page .mobile-filters-drawer {
+    height: 85dvh; /* iOS 16+ dynamic viewport */
+  }
+}
+.category-page .mobile-filters-drawer.open {
+  transform: translate3d(0, 0, 0); /* GPU boost for Safari */
+}
+.category-page .drawer-body {
+  -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
+}
+
+/* Add safe-area paddings to avoid UI chrome overlap on iOS */
+.category-page .mobile-filters-drawer,
+.category-page .drawer-footer,
+.vehicle-details .vd-right,
+.vehicle-details .contact-card {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+/* Ensure topbars/cards don’t overlap in Safari due to font metrics */
+.category-page .mobile-filter-btn {
+  line-height: 1;
+}
