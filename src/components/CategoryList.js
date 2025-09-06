@@ -1,5 +1,4 @@
-// pages/CategoryList.jsx
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import VehicleCard from '../components/VehicleCard';
 import { FiFilter, FiX } from 'react-icons/fi';
@@ -16,12 +15,16 @@ const CategoryList = ({ allVehicles }) => {
   const { type } = useParams();
   const label = LABELS[type] || 'Bikes';
 
+  useEffect(() => {
+    // Scroll to top when switching categories (Safari-safe)
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [type]);
+
   const vehiclesOfType = useMemo(
     () => allVehicles.filter(v => v.type === type),
     [allVehicles, type]
   );
 
-  // Derive filters from data
   const locations = useMemo(
     () => Array.from(new Set(vehiclesOfType.map(v => v.location))).sort(),
     [vehiclesOfType]
@@ -31,7 +34,6 @@ const CategoryList = ({ allVehicles }) => {
     [vehiclesOfType]
   );
 
-  // Filter state
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedMakes, setSelectedMakes] = useState([]);
   const [priceMin, setPriceMin] = useState('');
@@ -42,8 +44,28 @@ const CategoryList = ({ allVehicles }) => {
   const [sortBy, setSortBy] = useState('newest');
   const [applyVersion, setApplyVersion] = useState(0);
 
-  // Mobile filters drawer
   const [isMobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Lock body scroll when drawer is open (better on Safari)
+  useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverflow = html.style.overflow;
+
+    if (isMobileFiltersOpen) {
+      body.style.overflow = 'hidden';
+      html.style.overflow = 'hidden';
+    } else {
+      body.style.overflow = prevBodyOverflow || '';
+      html.style.overflow = prevHtmlOverflow || '';
+    }
+
+    return () => {
+      body.style.overflow = prevBodyOverflow || '';
+      html.style.overflow = prevHtmlOverflow || '';
+    };
+  }, [isMobileFiltersOpen]);
 
   const handleCheck = (value, listSetter) => {
     listSetter(prev =>
@@ -128,7 +150,6 @@ const CategoryList = ({ allVehicles }) => {
 
   const count = filteredVehicles.length;
 
-  // Mini component for filter form (desktop + drawer)
   const FilterForm = ({ isMobile = false }) => (
     <div className="sidebar-content">
       <div className="sidebar-section">
@@ -201,7 +222,6 @@ const CategoryList = ({ allVehicles }) => {
   return (
     <main className="category-page">
       <div className="container">
-        {/* Topbar - mobile: only Filters (Sort disabled) */}
         <div className="list-topbar">
           <button className="btn btn-primary mobile-filter-btn" onClick={() => setMobileFiltersOpen(true)} type="button">
             <FiFilter className="icon" aria-hidden="true" />
@@ -219,6 +239,7 @@ const CategoryList = ({ allVehicles }) => {
               <div className="list-count">
                 <strong>{count}</strong> {label} for sale in Sri Lanka
               </div>
+              {/* Sort disabled on mobile; visible only on desktop */}
               <div className="sort-controls desktop-only">
                 <label htmlFor="sortBy2" className="sort-label">Sort by</label>
                 <select

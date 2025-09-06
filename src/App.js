@@ -1,5 +1,4 @@
-// App.js - Updated with glass Filters section + CategoryList + VehicleDetails routes
-
+// App.js - Updated with glass Filters section + CategoryList + VehicleDetails routes + ScrollToTop
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -16,8 +15,9 @@ import './styles/globals.css';
 import heroVideo from './components/video/cs.mp4';
 
 import CategoryList from './components/CategoryList';
-import VehicleDetails from './components/VehicleDetails';
+import VehicleDetails from './components/VehicleDetails'; // ensure path matches your file
 import { sampleVehicles } from './data/sampleVehicles';
+import ScrollToTop from './components/ScrollToTop'; // NEW
 
 function App() {
   const [language, setLanguage] = useState('english');
@@ -34,32 +34,26 @@ function App() {
       home: "Home",
       spareParts: "Spare Parts",
       bikerGear: "Biker Gear",
-
       bikerGearTitle: "Biker Gear & Helmets",
       bikerGearSubtitle: "Safety gear and accessories for every rider",
-
       helmets: "Helmets",
       gloves: "Gloves",
       jackets: "Jackets",
       boots: "Boots",
       rainGear: "Rain Gear",
       reflectiveVests: "Reflective Vests",
-
       helmetTypes: "Helmet Types",
       fullFace: "Full Face",
       halfFace: "Half Face",
       modular: "Modular",
-
       size: "Size",
       allSizes: "All Sizes",
       priceRange: "Price Range",
       allPrices: "All Prices",
       verifiedSeller: "Verified Seller Only",
       verified: "Verified",
-
       availableGear: "Available Gear",
       featured: "Featured",
-
       allCategories: "All Categories",
       allBrands: "All Brands",
       allConditions: "All Conditions",
@@ -74,7 +68,6 @@ function App() {
       brand: "Brand",
       condition: "Condition",
       categories: "Categories",
-
       title: "Sri Lanka's Bike Marketplace",
       subtitle: "Buy and Sell Bikes Online",
       postAd: "Post Your Ad",
@@ -82,7 +75,6 @@ function App() {
       price: "Price",
       location: "Location",
       search: "Search",
-
       footerDescription: "Sri Lanka's largest online marketplace for buying and selling motorcycles and scooters.",
       quickLinks: "Quick Links",
       aboutUs: "About Us",
@@ -110,32 +102,26 @@ function App() {
       home: "මුල් පිටුව",
       spareParts: "අමතර කොටස්",
       bikerGear: "බයිකර් ගියර්",
-
       bikerGearTitle: "බයිකර් ගියර් සහ හිස්වැසුම්",
       bikerGearSubtitle: "සෑම යතුරුපැදි කරුවෙකුටම ආරක්ෂණ උපකරණ",
-
       helmets: "හිස්වැසුම්",
       gloves: "අත්වැසුම්",
       jackets: "ජැකට්",
       boots: "බූට්",
       rainGear: "වර්ෂා ගියර්",
       reflectiveVests: "පරාවර්තන කබාය",
-
       helmetTypes: "හිස්වැසුම් වර්ග",
       fullFace: "සම්පූර්ණ මුහුණ",
       halfFace: "අර්ධ මුහුණ",
       modular: "මොඩියුලර්",
-
       size: "ප්‍රමාණය",
       allSizes: "සියලු ප්‍රමාණ",
       priceRange: "මිල පරාසය",
       allPrices: "සියලු මිල",
       verifiedSeller: "සත්‍යාපිත විකිණුම්කරු පමණයි",
       verified: "සත්‍යාපිත",
-
-      availableGear: "ලබා ගත හැකි ගියර්",
+      availableGear: "ලഭා ගත හැකි ගියර්",
       featured: "විශේෂාංගගත",
-
       allCategories: "සියලු කාණ්ඩ",
       allBrands: "සියලු සන්නාම",
       allConditions: "සියලු තත්වයන්",
@@ -150,7 +136,6 @@ function App() {
       brand: "සන්නාමය",
       condition: "තත්වය",
       categories: "වර්ග",
-
       title: "ශ්‍රී ලංකාවේ බයිසිකල් වෙළඳපොළ",
       subtitle: "අන්තර්ජාලයෙන් බයිසිකල් මිලදී ගන්න සහ විකුණන්න",
       postAd: "ඔබේ දැන්වීම පළ කරන්න",
@@ -159,7 +144,6 @@ function App() {
       price: "මිල",
       location: "ස්ථානය",
       search: "සොයන්න",
-
       footerDescription: "ශ්‍රී ලංකාවේ විශාලතම මෝටර් සයිකල් සහ ස්කූටර් මිලදී ගැනීම සහ විකිණීම සඳහා වන අන්තර්ජාල වෙළඳපොළ.",
       quickLinks: "ඉක්මන් සබැඳි",
       aboutUs: "අප ගැන",
@@ -239,6 +223,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop /> {/* NEW: scroll-to-top on navigation (Safari-friendly) */}
       <div className="App">
         <Header
           language={language}
