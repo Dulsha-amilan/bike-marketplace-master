@@ -27,31 +27,7 @@ export const sampleVehicles = [
     color: 'blue',
     phone: '0778316226',
   },
-  {
-    id: 'sco-2',
-    type: 'scooters',
-    make: 'Yadea',
-    model: 'electric scooter',
-    year: 2024,
-    registerYear: 2024,
-    title: 'Yadea Electric Scooter 2024',
-    price: 550000,
-    mileageKm: 0,
-    location: 'Colombo',
-    postedAt: '2025-09-05',
-    image: 'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t39.30808-6/541359739_811189958257152_2790729732712317470_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=454cf4&_nc_eui2=AeFRRptUZlFHDKlLRyTduvicdEiNTHjgSQF0SI1MeOBJAVvM2ZvF3z8Nwf9QOvsKR2sckqhoQa-b8mQqfepDUhbh&_nc_ohc=rWKCEa557_IQ7kNvwHNNB9w&_nc_oc=AdmJkPbzS1oYoil6J9GU-3IfVQk9eFmIgKFLfEyW5y3sm7Qwex_h-0hIYwH_fFK7oSE&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=06E5tFvOsqevZ9Qnzk0f-Q&oh=00_AfYCD6Dpdnu8_MLTfnzrWWhMqPQnyVuu5otk-m4mIR0pfQ&oe=68C1059E',
-    gallery: [
-      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t39.30808-6/541359739_811189958257152_2790729732712317470_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=454cf4&_nc_eui2=AeFRRptUZlFHDKlLRyTduvicdEiNTHjgSQF0SI1MeOBJAVvM2ZvF3z8Nwf9QOvsKR2sckqhoQa-b8mQqfepDUhbh&_nc_ohc=rWKCEa557_IQ7kNvwHNNB9w&_nc_oc=AdmJkPbzS1oYoil6J9GU-3IfVQk9eFmIgKFLfEyW5y3sm7Qwex_h-0hIYwH_fFK7oSE&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=06E5tFvOsqevZ9Qnzk0f-Q&oh=00_AfYCD6Dpdnu8_MLTfnzrWWhMqPQnyVuu5otk-m4mIR0pfQ&oe=68C1059E',
-      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t39.30808-6/515501526_787307273978754_4055851507462607073_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=104&ccb=1-7&_nc_sid=946e27&_nc_eui2=AeGEaTU7lLnR6oPkIlpVzeGIJKaqwdAqCMckpqrB0CoIx1htHkd6wFqZXSgDtj6FHDD3zrGMybA9AWQ39uM0qn8j&_nc_ohc=df4qHIkgFkcQ7kNvwHqrVl7&_nc_oc=AdkjO0R1UDQPgeEqVoWSMpxMIduK7BxmfW26-hGWSAy4F857Q-iOmx13GFYElNBewjg&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=06E5tFvOsqevZ9Qnzk0f-Q&oh=00_AfYsfNuGl5eh0LOaWfk_l6Br6vR_X-UBo8LPvg0o2tmzlQ&oe=68C0F1F0',
-      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t39.30808-6/515437358_787307420645406_5043730853487034258_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=102&ccb=1-7&_nc_sid=946e27&_nc_eui2=AeETH2R8d1vPxyFufb3LF7QASDzSu_yqftVIPNK7_Kp-1Wdn9k-cysaoKWt6w8RBZ1gu9NUrsJkRL2RhrZCk8tqT&_nc_ohc=x--096HzVhkQ7kNvwFJPJUY&_nc_oc=AdkIn-WE5Tqpg5F6OXK0leZ1h_Y95ctPUjzr9IxWwxaYKq407tRRaT4Crnxd60K3AOU&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=06E5tFvOsqevZ9Qnzk0f-Q&oh=00_AfaTDCsJ-3iNdFTtkDpjb0J3KVAwBDGr9dLXIdnX5TNW_Q&oe=68C11B4F',
-    ],
-    engineCapacityCc: 0,
-    transmission: 'Automatic',
-    condition: 'Used',
-    fuelType: 'Electric',
-    color: 'Black',
-    phone: '-',
-  },
+
 
   // TRAIL
   {
@@ -125,7 +101,34 @@ export const sampleVehicles = [
     condition: 'Used',
     fuelType: 'Petrol',
     color: 'Kawasaki Green',
-    phone: '',
+    phone: '0778482609',
+  },
+ {
+    id: 'trl-4',
+    type: 'Trail',
+    make: 'Honda',
+    model: 'XR Baja 250',
+    year: 2007,
+    registerYear: 2014,
+    title: 'Honda XR 250 Baja',
+    price: 1480000,
+    mileageKm: 72000,
+    location: 'Moronthuduwa North',
+    postedAt: '2025-09-08',
+    image: 'https://drive.google.com/file/d/1UT-VpKwh2oLiqmXJw5xWEaOe-bMpzLcH/view?usp=drive_link',
+    gallery: [
+      'https://drive.google.com/file/d/1tlu4hCIJ6eld95RdGDdVVieKmXFItHE7/view?usp=drive_link',
+'https://drive.google.com/file/d/1bxQfy_CGzhu0TYRJInGUrisp1Q9Bd1fG/view?usp=drive_link',
+'https://drive.google.com/file/d/1rMfS70_cAIfDOA7HbDZ_o1vslz2c_NFm/view?usp=drive_link',
+'https://drive.google.com/file/d/1hcvbHgT9b94bvHCA--bJCyDp6Psqavmd/view?usp=drive_link',
+      'https://drive.google.com/file/d/1SmVdOaaCofkfqaa24B_8k5NJDDp6yuDF/view?usp=drive_link',],
+
+    engineCapacityCc: 250,
+    transmission: 'Manual',
+    condition: 'Used',
+    fuelType: 'Petrol',
+    color: 'white',
+    phone: '0712720807 ',
   },
 
   // SPORT
@@ -137,7 +140,7 @@ export const sampleVehicles = [
     year: 2003,
     registerYear: 2006,
     title: 'HONDA CBR MC22 (gullarm)',
-    price: 1380000 ,
+    price: 1380000,
     mileageKm: 50000,
     location: 'Matara',
     postedAt: '2025-09-02',
@@ -171,7 +174,7 @@ gallery: [ 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/539570863_74056
 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/538414040_740568855617686_3862565977094765539_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=111&ccb=1-7&_nc_sid=946e27&_nc_ohc=Tp5XdvGM960Q7kNvwGHKgNh&_nc_oc=Admb-rzsS06nDM_24NUtUgBupC7BP5TlajUGKgf3hgZis5NagaRdbW-F82lIPi6tdLJDp22xyqfge2czTnpYz0D_&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=chd_TiB-f45_MAspssqdRQ&oh=00_AfZG_h6bUicz0aUpFfCvJ3AAagFFir-0Ba8F0DofWZ-rNw&oe=68C2282F',
 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/535890534_740569028951002_8243266912044923893_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=110&ccb=1-7&_nc_sid=946e27&_nc_ohc=ako3MVzloZ8Q7kNvwFJLIXA&_nc_oc=Adlf1YHsteCiTpNtaAkZyUpkpWvwA2ihHdaWcJtitVS-U8tg21KzAjgKlQP7GyHk9FwuX_XmJsbqjKsYsxUTIDHh&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=chd_TiB-f45_MAspssqdRQ&oh=00_AfZgt-kc8YHgJzMX4xwnFpQlRmNUGvRdOw6xx3KCj3TvUw&oe=68C21F92',],
 
-    engineCapacityCc: 150 ,
+    engineCapacityCc: 150,
     transmission: 'Manual',
     condition: 'Used',
     fuelType: 'Petrol',
@@ -218,8 +221,8 @@ gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/541424477_146081
     image: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/533718668_122238682916165093_3167559643626585342_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=110&ccb=1-7&_nc_sid=454cf4&_nc_ohc=mnLbyV25M3wQ7kNvwHfHXiH&_nc_oc=AdncULTIEiyLz5H5dINV89u1azaFkrs23dXe7LjfEEOvc7eqWEB_89f_DiF7OY5v0n75nYdx_8xZbPBtiKUbN3Kt&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_AfaSiwkFB31kx1pnuN7YZuyEN4r7hdQ5GxOpZZPJCMNrmw&oe=68C251C9',
 
 gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/533718668_122238682916165093_3167559643626585342_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=110&ccb=1-7&_nc_sid=454cf4&_nc_ohc=mnLbyV25M3wQ7kNvwHfHXiH&_nc_oc=AdncULTIEiyLz5H5dINV89u1azaFkrs23dXe7LjfEEOvc7eqWEB_89f_DiF7OY5v0n75nYdx_8xZbPBtiKUbN3Kt&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_AfaSiwkFB31kx1pnuN7YZuyEN4r7hdQ5GxOpZZPJCMNrmw&oe=68C251C9',
-         'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/518311984_122233663916165093_1173330916831872449_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=946e27&_nc_ohc=6mkG6D5KmKcQ7kNvwFHzFow&_nc_oc=AdlA5sCkJYNo0UaHGM-tDlSTFLzfYNMBcpzT1GcG-WSV86KHB-IKCryChCxJhR8SC2-5mNKjphoLSe4D9HjRzkvH&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_Afa5tJFnBhtYTRhB3f4Q7EB9vwpgUZACN4ZaRitgXV6ibg&oe=68C227F5',
-         'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/518722043_122233663856165093_2935292447242466045_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=105&ccb=1-7&_nc_sid=946e27&_nc_ohc=RbpXmu6NAU8Q7kNvwFHhQIN&_nc_oc=AdkWMPLvMblkfvfxU-TergVCnpzP1B5Wd6Y4RJFHP0-xuEi6SEIG-DeqnUbT0nNbf1WKk_DMFRUiB_TatcTuodR7&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_AfZFt7V_V4CiThBsA9dv0aTGbR1TReR7xEW1sV4X3xgsOw&oe=68C228F5',],
+'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/518311984_122233663916165093_1173330916831872449_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=946e27&_nc_ohc=6mkG6D5KmKcQ7kNvwFHzFow&_nc_oc=AdlA5sCkJYNo0UaHGM-tDlSTFLzfYNMBcpzT1GcG-WSV86KHB-IKCryChCxJhR8SC2-5mNKjphoLSe4D9HjRzkvH&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_Afa5tJFnBhtYTRhB3f4Q7EB9vwpgUZACN4ZaRitgXV6ibg&oe=68C227F5',
+'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/518722043_122233663856165093_2935292447242466045_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=105&ccb=1-7&_nc_sid=946e27&_nc_ohc=RbpXmu6NAU8Q7kNvwFHhQIN&_nc_oc=AdkWMPLvMblkfvfxU-TergVCnpzP1B5Wd6Y4RJFHP0-xuEi6SEIG-DeqnUbT0nNbf1WKk_DMFRUiB_TatcTuodR7&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=-7Wq1ukDegvGJo3dvUv8iQ&oh=00_AfZFt7V_V4CiThBsA9dv0aTGbR1TReR7xEW1sV4X3xgsOw&oe=68C228F5',],
 
 
     engineCapacityCc: 250,
@@ -256,6 +259,31 @@ gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/539283689_489786
     color: 'Black',
     phone: '0715875861',
   },
+ {
+    id: 'cru-4',
+    type: 'cruiser',
+    make: 'Yamaha',
+    model: ' DRAGSTAR 400',
+    year: 2000,
+    registerYear: 2021,
+    title: 'YAMAHA DRAGSTAR 400 or XVS 400',
+    price:  0,
+    mileageKm: 4000,
+    location: 'Kothalawala',
+    postedAt: '2025-08-12',
+image: 'https://drive.google.com/file/d/11rfysM53yaFuAgwfEuOEMFMDRDaov2R-/view?usp=drive_link',
+
+gallery: ['https://drive.google.com/file/d/1vmf7bGWmTz1YbueE0WonuOusNQPiIqpF/view?usp=drive_link ',
+'https://drive.google.com/file/d/1tS3JkinR_cN3GwstlhkqLXNcjqFye-8T/view?usp=drive_link',
+'https://drive.google.com/file/d/14BGVDVwFP0o7irAkcPzDvSN6hj86yoBl/view?usp=drive_link',],
+
+    engineCapacityCc: 400,
+    transmission: 'Manual',
+    condition: 'Used',
+    fuelType: 'Petrol',
+    color: 'Black',
+    phone: ' 0774443874 ',
+  },
 
   // ELECTRIC
   {
@@ -284,7 +312,7 @@ gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/539283689_489786
     make: 'yadea ',
     model: 'yadea T5',
     year: 2025,
-    registerYear: 20,
+    registerYear: 2025,
     title: ' Yadea T5',
     price: 130000,
     mileageKm: 0,
@@ -304,7 +332,7 @@ gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/539283689_489786
     make: ' ARS',
     model: ' ARS',
     year: 2025,
-    registerYear: 2020,
+    registerYear: 2025,
     title: ' ARS',
     price: 298000,
     mileageKm: 0,
