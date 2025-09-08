@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFlagCheckered, FaMotorcycle } from 'react-icons/fa';
-import { MdElectricScooter, MdElectricBolt, MdTerrain } from 'react-icons/md';
+import { MdElectricScooter, MdElectricBolt, MdTerrain, MdSpeed } from 'react-icons/md';
 
 const QuickFilters = () => {
   const filters = [
@@ -10,6 +10,7 @@ const QuickFilters = () => {
     { id: 'sport', name: 'Sport', Icon: FaFlagCheckered },
     { id: 'cruiser', name: 'Classic / Cruiser', Icon: FaMotorcycle },
     { id: 'electric', name: 'Electric', Icon: MdElectricBolt },
+    { id: 'high-capacity', name: 'High Capacity', Icon: MdSpeed }, // NEW
   ];
 
   return (

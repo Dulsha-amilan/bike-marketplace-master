@@ -4,11 +4,12 @@ import VehicleCard from '../components/VehicleCard';
 import { FiFilter, FiX } from 'react-icons/fi';
 
 const LABELS = {
-  scooters: 'Scooters',
+  scooters: 'Scooter',
   trail: 'Trail Bikes',
   sport: 'Sports Bikes',
   cruiser: 'Classic / Cruiser',
   electric: 'Electric Bikes',
+  'high-capacity': 'High Capacity', // NEW
 };
 
 const CategoryList = ({ allVehicles }) => {
@@ -20,10 +21,29 @@ const CategoryList = ({ allVehicles }) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [type]);
 
-  const vehiclesOfType = useMemo(
-    () => allVehicles.filter(v => v.type === type),
-    [allVehicles, type]
-  );
+  // Support computed "High Capacity" category by engine CC
+  const vehiclesOfType = useMemo(() => {
+    if (type === 'high-capacity') {
+      const THRESHOLD = 250; // Adjust to 400/500 if you prefer
+      const getCc = v => {
+        const raw =
+          v.engineCc ??
+          v.displacementCc ??
+          v.cc ??
+          (v.engine && v.engine.cc) ??
+          (v.specs && v.specs.engine && v.specs.engine.cc);
+        if (raw == null) return null;
+        const match = String(raw).match(/[\d.]+/);
+        const num = match ? Number(match[0]) : null;
+        return Number.isFinite(num) ? num : null;
+      };
+      return allVehicles.filter(v => {
+        const cc = getCc(v);
+        return cc != null && cc >= THRESHOLD;
+      });
+    }
+    return allVehicles.filter(v => v.type === type);
+  }, [allVehicles, type]);
 
   const locations = useMemo(
     () => Array.from(new Set(vehiclesOfType.map(v => v.location))).sort(),
