@@ -4,12 +4,13 @@ import VehicleCard from '../components/VehicleCard';
 import { FiFilter, FiX } from 'react-icons/fi';
 
 const LABELS = {
-  scooters: 'Scooter',
-  trail: 'Trail Bikes',
-  sport: 'Sports Bikes',
+  scooters: 'Scooters',
+  trail: 'Trail',
+  sport: 'Sport',
   cruiser: 'Classic / Cruiser',
-  electric: 'Electric Bikes',
-  'high-capacity': 'High Capacity', // NEW
+  electric: 'Electric',
+  'high-capacity': 'High Capacity',
+  'atv-adv': 'ATV / ADV',
 };
 
 const CategoryList = ({ allVehicles }) => {
@@ -17,40 +18,74 @@ const CategoryList = ({ allVehicles }) => {
   const label = LABELS[type] || 'Bikes';
 
   useEffect(() => {
-    // Scroll to top when switching categories (Safari-safe)
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [type]);
 
-  // Support computed "High Capacity" category by engine CC
   const vehiclesOfType = useMemo(() => {
+    const getCc = v => {
+      const raw =
+        v.engineCc ??
+        v.displacementCc ??
+        v.cc ??
+        (v.engine && v.engine.cc) ??
+        (v.specs && v.specs.engine && v.specs.engine.cc);
+      if (raw == null) return null;
+      const match = String(raw).match(/[\d.]+/);
+      const num = match ? Number(match[0]) : null;
+      return Number.isFinite(num) ? num : null;
+    };
+
+    const isAtvAdv = v => {
+      const toStr = x => (x == null ? '' : String(x).toLowerCase());
+      const arrToStr = a => (Array.isArray(a) ? a.map(toStr).join(' ') : '');
+      const haystack = [
+        toStr(v.type),
+        toStr(v.subtype),
+        toStr(v.category),
+        toStr(v.bodyType),
+        toStr(v.segment),
+        toStr(v.title),
+        toStr(v.name),
+        toStr(v.model),
+        toStr(v.modelName),
+        arrToStr(v.categories),
+        arrToStr(v.tags),
+      ].join(' ');
+
+      return /\batv\b|\bquad\b|four[-\s]?wheeler|\badv\b|\badventure\b|dual[-\s]?sport/.test(haystack);
+    };
+
     if (type === 'high-capacity') {
-      const THRESHOLD = 250; // Adjust to 400/500 if you prefer
-      const getCc = v => {
-        const raw =
-          v.engineCc ??
-          v.displacementCc ??
-          v.cc ??
-          (v.engine && v.engine.cc) ??
-          (v.specs && v.specs.engine && v.specs.engine.cc);
-        if (raw == null) return null;
-        const match = String(raw).match(/[\d.]+/);
-        const num = match ? Number(match[0]) : null;
-        return Number.isFinite(num) ? num : null;
-      };
+      const THRESHOLD = 250;
       return allVehicles.filter(v => {
         const cc = getCc(v);
         return cc != null && cc >= THRESHOLD;
       });
     }
+
+    if (type === 'atv-adv') {
+      return allVehicles.filter(
+        v =>
+          v.type === 'atv-adv' ||
+          v.type === 'atv' ||
+          v.type === 'adv' ||
+          v.type === 'adventure' ||
+          v.type === 'dual-sport' ||
+          isAtvAdv(v)
+      );
+    }
+
     return allVehicles.filter(v => v.type === type);
   }, [allVehicles, type]);
 
   const locations = useMemo(
-    () => Array.from(new Set(vehiclesOfType.map(v => v.location))).sort(),
+    () =>
+      Array.from(new Set(vehiclesOfType.map(v => v.location).filter(Boolean))).sort(),
     [vehiclesOfType]
   );
   const makes = useMemo(
-    () => Array.from(new Set(vehiclesOfType.map(v => v.make))).sort(),
+    () =>
+      Array.from(new Set(vehiclesOfType.map(v => v.make).filter(Boolean))).sort(),
     [vehiclesOfType]
   );
 
@@ -66,7 +101,6 @@ const CategoryList = ({ allVehicles }) => {
 
   const [isMobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Lock body scroll when drawer is open (better on Safari)
   useEffect(() => {
     const body = document.body;
     const html = document.documentElement;
@@ -101,6 +135,7 @@ const CategoryList = ({ allVehicles }) => {
     setYearMin('');
     setYearMax('');
     setKeywords('');
+    setSortBy('newest');
     setApplyVersion(v => v + 1);
   };
 
@@ -132,7 +167,7 @@ const CategoryList = ({ allVehicles }) => {
 
     if (keywords.trim()) {
       const q = keywords.toLowerCase();
-      list = list.filter(v => v.title.toLowerCase().includes(q));
+      list = list.filter(v => (v.title || '').toLowerCase().includes(q));
     }
 
     const priceOrInfinity = (p, dir = 'asc') => {
@@ -259,7 +294,6 @@ const CategoryList = ({ allVehicles }) => {
               <div className="list-count">
                 <strong>{count}</strong> {label} for sale in Sri Lanka
               </div>
-              {/* Sort disabled on mobile; visible only on desktop */}
               <div className="sort-controls desktop-only">
                 <label htmlFor="sortBy2" className="sort-label">Sort by</label>
                 <select
@@ -284,7 +318,6 @@ const CategoryList = ({ allVehicles }) => {
         </div>
       </div>
 
-      {/* Drawer */}
       <div className={`mobile-filters-drawer ${isMobileFiltersOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-label="Filters">
         <div className="drawer-header">
           <strong>Filters</strong>

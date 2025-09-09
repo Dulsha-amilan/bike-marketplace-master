@@ -1,4 +1,4 @@
-// App.js - Updated with glass Filters section + CategoryList + VehicleDetails routes + ScrollToTop
+// App.js - Updated with glass SearchBar + glass Filters + CategoryList + VehicleDetails routes + ScrollToTop
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -68,7 +68,7 @@ function App() {
       brand: "Brand",
       condition: "Condition",
       categories: "Categories",
-      title: "Sri Lanka's Bike Marketplace",
+      title: "Your All-in-One Bike Marketplace",
       subtitle: "Buy and Sell Bikes Online",
       postAd: "Post Your Ad",
       model: "Model",
@@ -120,7 +120,7 @@ function App() {
       allPrices: "සියලු මිල",
       verifiedSeller: "සත්‍යාපිත විකිණුම්කරු පමණයි",
       verified: "සත්‍යාපිත",
-      availableGear: "ලഭා ගත හැකි ගියර්",
+      availableGear: "ලභා ගත හැකි ගියර්",
       featured: "විශේෂාංගගත",
       allCategories: "සියලු කාණ්ඩ",
       allBrands: "සියලු සන්නාම",
@@ -196,11 +196,15 @@ function App() {
               <div className="container hero-content">
                 <h1 className="hero-title">{translations[language].title}</h1>
                 <p className="hero-subtitle">{translations[language].subtitle}</p>
-                <SearchBar
-                  searchFilters={searchFilters}
-                  setSearchFilters={setSearchFilters}
-                  translations={translations[language]}
-                />
+
+                {/* Glass: brand / model / priceRange / location */}
+                <div className="glass-search glass-panel">
+                  <SearchBar
+                    searchFilters={searchFilters}
+                    setSearchFilters={setSearchFilters}
+                    translations={translations[language]}
+                  />
+                </div>
               </div>
             </div>
 
@@ -209,7 +213,8 @@ function App() {
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
-                <div className="glass-filters">
+                {/* Glass filters wrapper */}
+                <div className="glass-filters glass-panel">
                   <QuickFilters translations={translations[language]} />
                 </div>
               </div>

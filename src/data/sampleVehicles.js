@@ -17,8 +17,8 @@ export const sampleVehicles = [
     gallery: [
       'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/540280126_790597833478881_7968250371798622062_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=101&ccb=1-7&_nc_sid=247b10&_nc_eui2=AeFroPIYT6Bssa6bl3woDm1PyLlV-yevoUnIuVX7J6-hSdZa9ixIbLFzS7MnactsBrgzvcoyP7dzXGedymdDlIbX&_nc_ohc=S9ACviMDeCAQ7kNvwGGTOz8&_nc_oc=Adm1Ml_GJJDLxkQvNoOSC7ThrTTlbD98qrAApM5qT1O0tvNW8kjUb3Sib3Ilzdb8OAM&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfZTPr-oiOCzArxS61vugXcHwF4k0YLOlmwVehVMbRe93Q&oe=68C11744',
       'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/541332473_764054032878269_8363279829419649781_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_sid=247b10&_nc_eui2=AeH0c58q6yBCowhRdgVIB2UOdmok_cPK0Nt2aiT9w8rQ29LewFvsCo_QUFhGuBLT_D6pRLxfQ9HTXOWN0uvcGXsH&_nc_ohc=052CGoHkQy8Q7kNvwGpDcZy&_nc_oc=AdlwWbFk57RQXHs8GcWaZHq5I7k9SnKnxJ_VoY38dfOQ-5C6hEhwO4SQrNpoAfOKda8&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfacnK8cqd9vSEdsy6eCQ9Tj1sfk4o3CQLy1OueUZrh96Q&oe=68C10FB4',
-      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/541577491_4048858155386823_1680614188994489075_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_sid=247b10&_nc_eui2=AeH5q6BmvgiTtf3x_BKS_NTNLPVSPDEG1qgs9VI8MQbWqH0RCgSqm7CKbqbNrJxmGKnd57G5-LuIBHYwPz7dkKbG&_nc_ohc=B0wuktTHivAQ7kNvwGy7bgP&_nc_oc=AdnSwrCbd4EaKO5XiOGJZ7YEbyXfIyiOlXDv_0maD9rKlXoEsNhAsGewA78Wpv9mbe0&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfYMbgcG0x0d1NjNAvBj1K7HG7hKgrfqMr6C6wMPaLXjUw&oe=68C115A1',
-      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/541307476_1451556776092788_7215880224160336914_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=107&ccb=1-7&_nc_sid=247b10&_nc_eui2=AeFA-y6HVKEMR7pHM7SO2PDEjYydI87a65qNjJ0jztrrmo4ZLxE69xp-Ebvg0ZP5FxEdKXKZhdXgP3cOC04TJ1B8&_nc_ohc=Vu_0d3xa4BYQ7kNvwHSBHt3&_nc_oc=Adn2fCiywPfv1iw9oE6mjJIl-RMzjTqviY0WCqB2kug38Las0lvMCPBR_Rjvx-sJseo&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfbTBhdOK-tC00A-vGiJP0BWe4VQLfvN5n18SaKD57ZlMQ&oe=68C102B4',
+      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/541577491_4048858155386823_1680614188994489075_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_eui2=AeH5q6BmvgiTtf3x_BKS_NTNLPVSPDEG1qgs9VI8MQbWqH0RCgSqm7CKbqbNrJxmGKnd57G5-LuIBHYwPz7dkKbG&_nc_ohc=B0wuktTHivAQ7kNvwGy7bgP&_nc_oc=AdnSwrCbd4EaKO5XiOGJZ7YEbyXfIyiOlXDv_0maD9rKlXoEsNhAsGewA78Wpv9mbe0&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfYMbgcG0x0d1NjNAvBj1K7HG7hKgrfqMr6C6wMPaLXjUw&oe=68C115A1',
+      'https://z-p3-scontent.fcmb7-1.fna.fbcdn.net/v/t45.5328-4/541307476_1451556776092788_7215880224160336914_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=107&ccb=1-7&_nc_eui2=AeFA-y6HVKEMR7pHM7SO2PDEjYydI87a65qNjJ0jztrrmo4ZLxE69xp-Ebvg0ZP5FxEdKXKZhdXgP3cOC04TJ1B8&_nc_ohc=Vu_0d3xa4BYQ7kNvwHSBHt3&_nc_oc=Adn2fCiywPfv1iw9oE6mjJIl-RMzjTqviY0WCqB2kug38Las0lvMCPBR_Rjvx-sJseo&_nc_zt=23&_nc_ht=z-p3-scontent.fcmb7-1.fna&_nc_gid=Ur1tXkqKGHljvGwFrJ6bDg&oh=00_AfbTBhdOK-tC00A-vGiJP0BWe4VQLfvN5n18SaKD57ZlMQ&oe=68C102B4',
     ],
     engineCapacityCc: 125,
     transmission: 'Automatic',
@@ -27,7 +27,6 @@ export const sampleVehicles = [
     color: 'blue',
     phone: '0778316226',
   },
-
 
   // TRAIL
   {
@@ -46,7 +45,7 @@ export const sampleVehicles = [
     gallery: [
       'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/533030778_791782976693410_6341506145220744651_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=247b10&_nc_ohc=4ElFqo0XG3QQ7kNvwEd0el5&_nc_oc=AdnT3iNMW3niYrubocZCi0BYJ1GCpkdaQLDaDFWxweQxkegbDsyeImwRm7EhKek5kik&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=e-sN8Xk5TUhpfoJcG1hrbg&oh=00_AfZNiFDhD7QIDwqQM6YB2n0-SNtS5jSD4so9664-6EQbbw&oe=68C23433',
       'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/533028512_1463981298250096_1234601462593163370_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=109&ccb=1-7&_nc_sid=247b10&_nc_ohc=YwE3v3nLaFsQ7kNvwFa0WOi&_nc_oc=Adnl4RwvtiVm7Nfc6ifLhnsGg69OcbmOOpoVVEfavyVbctLVJYmQWvEywMRoRBXn4xo&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=e-sN8Xk5TUhpfoJcG1hrbg&oh=00_AfYZpnAo33TBb0nRFHiTRxDbPSy3lXdFsVT2N57qB6KjXw&oe=68C22BBD',
-      'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/533097670_761384240135771_2759439098522428235_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=247b10&_nc_ohc=LLhfCPw8AEgQ7kNvwHWaAUz&_nc_oc=Adnqi4UwvxXKbogzzMMOzZ3VzJpOYhZzS9thclnJcyPRIAj61JybNSjtiqmi-ybz-U8&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=e-sN8Xk5TUhpfoJcG1hrbg&oh=00_Afbaxb0PlAEECbIJgiDVyNE91V6puZV_OVFIfNsIpeP2kw&oe=68C24897',
+      'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/533097670_761384240135771_2759439098522428235_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_ohc=LLhfCPw8AEgQ7kNvwHWaAUz&_nc_oc=Adnqi4UwvxXKbogzzMMOzZ3VzJpOYhZzS9thclnJcyPRIAj61JybNSjtiqmi-ybz-U8&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=e-sN8Xk5TUhpfoJcG1hrbg&oh=00_Afbaxb0PlAEECbIJgiDVyNE91V6puZV_OVFIfNsIpeP2kw&oe=68C24897',
     ],
     engineCapacityCc: 250,
     transmission: 'Manual',
@@ -54,30 +53,6 @@ export const sampleVehicles = [
     fuelType: 'Petrol',
     color: 'Orange',
     phone: '0783357042',
-  },
-  {
-    id: 'trl-2',
-    type: 'trail',
-    make: 'KAWASAKI',
-    model: 'KDX 125',
-    year: 1996,
-    registerYear: 160,
-    title: 'KAWASAKI KDX 125 🎌',
-    price: 390000,
-    mileageKm: 50000,
-    location: 'Bandarawela',
-    postedAt: '2025-08-30',
-    image: 'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/507716062_1271722184958271_1887898662413628803_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=247b10&_nc_ohc=SSGdrd7rv7gQ7kNvwGrwWjI&_nc_oc=AdmXgbq2ySG_1-tvBoMHFkc4XxM_vmZQFTrKrEaACIF549QQRvOcoTaHwG__-_e_4zA&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=pd2fjHi4BXyPTWiF6w9dyQ&oh=00_AfbrNbmEnCjpBYgwvmqTScJsyr3CFqaXxH7s0d_mUycY4A&oe=68C25660',
-    gallery: [
-      'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/506951153_653060181094644_4671004741140806353_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=101&ccb=1-7&_nc_sid=247b10&_nc_ohc=VqkEJy12Ty8Q7kNvwHqsr93&_nc_oc=AdlAfhDeOpHmycAu1zZDZGc7aS9ZAJJ4CbOAWFJhFaEQLKqdhzdYCKgTi-7S_WE_leM&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=pd2fjHi4BXyPTWiF6w9dyQ&oh=00_AfZqTceHDiBnhTR0uXRELfaNSrHGpJ1KmKA4aw8Dcy4zyA&oe=68C224FB',
-      'https://scontent.fcmb2-2.fna.fbcdn.net/v/t45.5328-4/507358629_715122398112581_7138927458165436155_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=104&ccb=1-7&_nc_sid=247b10&_nc_ohc=hu2B6SauuqAQ7kNvwHqCjun&_nc_oc=Adn0SAdIf6rmaQ9OQLgKp-YlTMw-PqqDLT0t5dqLXXTJmdV86YPIAkjmEw0kUJ55Ve0&_nc_zt=23&_nc_ht=scontent.fcmb2-2.fna&_nc_gid=pd2fjHi4BXyPTWiF6w9dyQ&oh=00_AfZZz4WvZ4QiOFEMg4WKYkxJlufXGz_I0gAnL1O8FWePLA&oe=68C229D0',
-    ],
-    engineCapacityCc: 125,
-    transmission: 'Manual',
-    condition: 'Used',
-    fuelType: 'Petrol',
-    color: 'Kawasaki Green',
-    phone: '075-1309076',
   },
   {
     id: 'trl-3',
@@ -115,13 +90,14 @@ export const sampleVehicles = [
     mileageKm: 72000,
     location: 'Moronthuduwa North',
     postedAt: '2025-09-08',
-    image: 'https://drive.google.com/file/d/1UT-VpKwh2oLiqmXJw5xWEaOe-bMpzLcH/view?usp=drive_link',
+    image: 'https://drive.google.com/uc?export=view&id=1UT-VpKwh2oLiqmXJw5xWEaOe-bMpzLcH',
     gallery: [
-      'https://drive.google.com/file/d/1tlu4hCIJ6eld95RdGDdVVieKmXFItHE7/view?usp=drive_link',
-'https://drive.google.com/file/d/1bxQfy_CGzhu0TYRJInGUrisp1Q9Bd1fG/view?usp=drive_link',
-'https://drive.google.com/file/d/1rMfS70_cAIfDOA7HbDZ_o1vslz2c_NFm/view?usp=drive_link',
-'https://drive.google.com/file/d/1hcvbHgT9b94bvHCA--bJCyDp6Psqavmd/view?usp=drive_link',
-      'https://drive.google.com/file/d/1SmVdOaaCofkfqaa24B_8k5NJDDp6yuDF/view?usp=drive_link',],
+      'https://drive.google.com/uc?export=view&id=1tlu4hCIJ6eld95RdGDdVVieKmXFItHE7',
+      'https://drive.google.com/uc?export=view&id=1bxQfy_CGzhu0TYRJInGUrisp1Q9Bd1fG',
+      'https://drive.google.com/uc?export=view&id=1rMfS70_cAIfDOA7HbDZ_o1vslz2c_NFm',
+      'https://drive.google.com/uc?export=view&id=1hcvbHgT9b94bvHCA--bJCyDp6Psqavmd',
+      'https://drive.google.com/uc?export=view&id=1SmVdOaaCofkfqaa24B_8k5NJDDp6yuDF',
+    ],
 
     engineCapacityCc: 250,
     transmission: 'Manual',
@@ -265,17 +241,18 @@ gallery: ['https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/539283689_489786
     make: 'Yamaha',
     model: ' DRAGSTAR 400',
     year: 2000,
-    registerYear: 2021,
-    title: 'YAMAHA DRAGSTAR 400 or XVS 400',
-    price:  0,
+ 
+    title: 'YAMAHA DRAGSTAR 400 or XVS 400\n',
+    price:  70000,
     mileageKm: 4000,
     location: 'Kothalawala',
     postedAt: '2025-08-12',
-image: 'https://drive.google.com/file/d/11rfysM53yaFuAgwfEuOEMFMDRDaov2R-/view?usp=drive_link',
-
-gallery: ['https://drive.google.com/file/d/1vmf7bGWmTz1YbueE0WonuOusNQPiIqpF/view?usp=drive_link ',
-'https://drive.google.com/file/d/1tS3JkinR_cN3GwstlhkqLXNcjqFye-8T/view?usp=drive_link',
-'https://drive.google.com/file/d/14BGVDVwFP0o7irAkcPzDvSN6hj86yoBl/view?usp=drive_link',],
+image: 'https://drive.google.com/uc?export=view&id=11rfysM53yaFuAgwfEuOEMFMDRDaov2R-',
+  gallery: [
+    'https://drive.google.com/uc?export=view&id=1vmf7bGWmTz1YbueE0WonuOusNQPiIqpF',
+    'https://drive.google.com/uc?export=view&id=1tS3JkinR_cN3GwstlhkqLXNcjqFye-8T',
+    'https://drive.google.com/uc?export=view&id=14BGVDVwFP0o7irAkcPzDvSN6hj86yoBl'
+  ],
 
     engineCapacityCc: 400,
     transmission: 'Manual',
@@ -312,7 +289,7 @@ gallery: ['https://drive.google.com/file/d/1vmf7bGWmTz1YbueE0WonuOusNQPiIqpF/vie
     make: 'yadea ',
     model: 'yadea T5',
     year: 2025,
-    registerYear: 2025,
+  
     title: ' Yadea T5',
     price: 130000,
     mileageKm: 0,
@@ -332,7 +309,7 @@ gallery: ['https://drive.google.com/file/d/1vmf7bGWmTz1YbueE0WonuOusNQPiIqpF/vie
     make: ' ARS',
     model: ' ARS',
     year: 2025,
-    registerYear: 2025,
+   
     title: ' ARS',
     price: 298000,
     mileageKm: 0,
