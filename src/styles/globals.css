@@ -362,57 +362,20 @@ body {
   object-fit: cover;          /* cover the entire area */
   z-index: 0;
 }
+
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(1200px 600px at 50% 0%, rgba(0, 0, 0, 0.55), transparent 60%),
-              linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
+  background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.25));
+  z-index: 1;
 }
-/* Buttons in glass search */
-.glass-search .btn,
-.glass-search button[type="submit"] {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-weight: 700;
-  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-.glass-search .btn:hover,
-.glass-search button[type="submit"]:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
-}
-.glass-search .btn:active,
-.glass-search button[type="submit"]:active {
-  transform: translateY(0);
-}
-.glass-search {
-  margin-top: 18px;
-  padding: 14px;
-}
-@media (min-width: 768px) {
-  .glass-search {
-    padding: 16px;
-  }
-}
+
 .hero-content {
   position: relative;
-  z-index: 1;
-  padding: 80px 0 48px;
-}
-.glass-panel {
-  position: relative;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06)) border-box;
-  box-shadow:
-    0 10px 30px rgba(2, 6, 23, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  backdrop-filter: saturate(160%) blur(14px);
-  -webkit-backdrop-filter: saturate(160%) blur(14px); /* Safari */
+  z-index: 2;                 /* keep content above video/overlay */
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #fff;
 }
 
 .hero-title, .hero-subtitle {
@@ -2602,19 +2565,19 @@ body {
   display: grid;
   gap: 12px;
 }
-.vehicle-card {
+.vehicle-card1 {
   display: grid;
-  grid-template-columns: 220px 1fr 160px;
-  gap: 16px;
+  grid-template-columns: 320px 2fr 260px;
+  gap: 66px;
   align-items: center;
   background: linear-gradient(90deg, #fffbed 0%, #ffffff 40%);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--brand);
+  border-left: 23px solid var(--brand);
   border-radius: 12px;
-  padding: 12px;
+  padding: 15px;
 }
 @media (max-width: 800px) {
-  .vehicle-card {
+  .vehicle-card1 {
     grid-template-columns: 1fr;
     text-align: left;
   }
@@ -2784,7 +2747,7 @@ body {
 }
 
 /* Desktop card layout */
-.category-page .vehicle-card {
+.category-page .vehicle-card1 {
   display: grid;
   grid-template-columns: 220px 1fr 160px;
   gap: 16px;
@@ -2914,7 +2877,7 @@ body {
 
 /* Tighter layout under 768px */
 @media (max-width: 768px) {
-  .category-page .vehicle-card {
+  .category-page .vehicle-card1 {
     grid-template-columns: 1fr;
     gap: 10px;
   }
@@ -2944,8 +2907,288 @@ body {
   }
 }
 
+/* src/components/AddVehicleForm.css */
 
+.add-vehicle-page {
+  padding: 24px 0 48px;
+}
 
+.add-vehicle-page h1 {
+  font-size: 20px;
+  margin: 0 0 14px;
+}
+
+/* Card */
+.add-vehicle-page .vehicle-form {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.add-vehicle-page .vehicle-form * {
+  box-sizing: border-box;
+}
+
+/* Grid */
+.add-vehicle-page .vehicle-form .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 820px) {
+  .add-vehicle-page .vehicle-form .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.add-vehicle-page .vehicle-form .full {
+  grid-column: 1 / -1;
+}
+
+/* Labels + fields */
+.add-vehicle-page .vehicle-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.add-vehicle-page .vehicle-form label > span {
+  color: #64748b; /* muted */
+  font-weight: 600;
+}
+
+/* Inputs */
+.add-vehicle-page .vehicle-form input[type="text"],
+.add-vehicle-page .vehicle-form input[type="tel"],
+.add-vehicle-page .vehicle-form input[type="number"],
+.add-vehicle-page .vehicle-form input[type="url"],
+.add-vehicle-page .vehicle-form input[type="file"],
+.add-vehicle-page .vehicle-form select,
+.add-vehicle-page .vehicle-form textarea {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #0f172a;
+  background: #fff;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.add-vehicle-page .vehicle-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.add-vehicle-page .vehicle-form input[type="file"] {
+  padding: 8px;
+}
+
+.add-vehicle-page .vehicle-form input:focus,
+.add-vehicle-page .vehicle-form select:focus,
+.add-vehicle-page .vehicle-form textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Number inputs: remove spinners (optional) */
+.add-vehicle-page .vehicle-form input[type="number"]::-webkit-outer-spin-button,
+.add-vehicle-page .vehicle-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.add-vehicle-page .vehicle-form input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Checkbox inline */
+.add-vehicle-page .vehicle-form .checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 26px;
+}
+
+/* Uploads box */
+.add-vehicle-page .vehicle-form .uploads {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+@media (max-width: 820px) {
+  .add-vehicle-page .vehicle-form .uploads {
+    grid-template-columns: 1fr;
+  }
+}
+
+.add-vehicle-page .vehicle-form .hint {
+  margin-top: 6px;
+  color: #16a34a;
+  font-size: 13px;
+}
+
+.add-vehicle-page .vehicle-form .tiny-note {
+  grid-column: 1 / -1;
+  color: #64748b;
+  font-size: 12px;
+  margin: 2px 2px 0;
+}
+
+/* Error */
+.add-vehicle-page .vehicle-form .form-error {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+/* Actions */
+.add-vehicle-page .vehicle-form .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Buttons */
+.add-vehicle-page .btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .02s ease;
+}
+
+.add-vehicle-page .btn:hover {
+  background: #f8fafc;
+  border-color: #dbe0e6;
+}
+
+.add-vehicle-page .btn:active {
+  transform: translateY(1px);
+}
+
+.add-vehicle-page .btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.add-vehicle-page .btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* Success view */
+.add-vehicle-page .success-card h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.add-vehicle-page .success-card p {
+  margin: 0 0 12px;
+  color: #475569;
+}
+
+.add-vehicle-page .success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+/* --- Simple beautify for key fields --- */
+
+/* Make the “Title” field span the full row */
+.add-vehicle-page .vehicle-form .grid label:has(> input[name="title"]) {
+  grid-column: 1 / -1;
+}
+
+/* Consistent look for these common fields */
+.add-vehicle-page .vehicle-form input[name="title"],
+.add-vehicle-page .vehicle-form input[name="make"],
+.add-vehicle-page .vehicle-form input[name="model"],
+.add-vehicle-page .vehicle-form input[name="transmission"],
+.add-vehicle-page .vehicle-form input[name="fuelType"],
+.add-vehicle-page .vehicle-form input[name="location"],
+.add-vehicle-page .vehicle-form input[name="color"] {
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fcfcfd;
+  color: #0f172a;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  box-shadow: inset 0 1px 2px rgba(2,6,23,0.03);
+}
+
+/* Hover/focus feel */
+.add-vehicle-page .vehicle-form input[name="title"]:hover,
+.add-vehicle-page .vehicle-form input[name="make"]:hover,
+.add-vehicle-page .vehicle-form input[name="model"]:hover,
+.add-vehicle-page .vehicle-form input[name="transmission"]:hover,
+.add-vehicle-page .vehicle-form input[name="fuelType"]:hover,
+.add-vehicle-page .vehicle-form input[name="location"]:hover,
+.add-vehicle-page .vehicle-form input[name="color"]:hover {
+  background: #fff;
+}
+
+.add-vehicle-page .vehicle-form input[name="title"]:focus,
+.add-vehicle-page .vehicle-form input[name="make"]:focus,
+.add-vehicle-page .vehicle-form input[name="model"]:focus,
+.add-vehicle-page .vehicle-form input[name="transmission"]:focus,
+.add-vehicle-page .vehicle-form input[name="fuelType"]:focus,
+.add-vehicle-page .vehicle-form input[name="location"]:focus,
+.add-vehicle-page .vehicle-form input[name="color"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Label styling for a cleaner look */
+.add-vehicle-page .vehicle-form label > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+/* Tighter row/column spacing to feel more compact */
+.add-vehicle-page .vehicle-form .grid {
+  gap: 12px 16px; /* row, column */
+}
+
+/* Placeholder tone */
+.add-vehicle-page .vehicle-form ::placeholder {
+  color: rgba(100, 116, 139, 0.7);
+}
+
+/* Mobile: keep it comfortable */
+@media (max-width: 820px) {
+  .add-vehicle-page .vehicle-form .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .add-vehicle-page .vehicle-form .grid label:has(> input[name="title"]) {
+    grid-column: 1 / -1;
+  }
+}
 /* Keep "Sort by" on one line and aligned */
 .category-page .sort-label {
   white-space: nowrap;

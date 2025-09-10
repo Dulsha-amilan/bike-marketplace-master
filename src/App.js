@@ -1,6 +1,6 @@
-// App.js - Updated with glass SearchBar + glass Filters + CategoryList + VehicleDetails routes + ScrollToTop
+// App.js - Frontend-only posting via localStorage (VehiclesProvider) + AddVehicleForm route
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
@@ -15,9 +15,22 @@ import './styles/globals.css';
 import heroVideo from './components/video/cs.mp4';
 
 import CategoryList from './components/CategoryList';
-import VehicleDetails from './components/VehicleDetails'; // ensure path matches your file
-import { sampleVehicles } from './data/sampleVehicles';
-import ScrollToTop from './components/ScrollToTop'; // NEW
+import VehicleDetails from './components/VehicleDetails';
+import ScrollToTop from './components/ScrollToTop';
+
+// NEW: vehicles store + form
+import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
+import AddVehicleForm from './components/AddVehicleForm';
+
+// Small wrappers to inject allVehicles from context
+function CategoryListRoute() {
+  const { allVehicles } = useVehicles();
+  return <CategoryList allVehicles={allVehicles} />;
+}
+function VehicleDetailsRoute() {
+  const { allVehicles } = useVehicles();
+  return <VehicleDetails allVehicles={allVehicles} />;
+}
 
 function App() {
   const [language, setLanguage] = useState('english');
@@ -197,13 +210,19 @@ function App() {
                 <h1 className="hero-title">{translations[language].title}</h1>
                 <p className="hero-subtitle">{translations[language].subtitle}</p>
 
-                {/* Glass: brand / model / priceRange / location */}
                 <div className="glass-search glass-panel">
                   <SearchBar
                     searchFilters={searchFilters}
                     setSearchFilters={setSearchFilters}
                     translations={translations[language]}
                   />
+                </div>
+
+                {/* Optional CTA to open the posting form */}
+                <div style={{ marginTop: 16 }}>
+                  <Link to="/post-ad" className="btn btn-primary">
+                    {translations[language].postAd}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -213,7 +232,6 @@ function App() {
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
-                {/* Glass filters wrapper */}
                 <div className="glass-filters glass-panel">
                   <QuickFilters translations={translations[language]} />
                 </div>
@@ -228,30 +246,34 @@ function App() {
 
   return (
     <Router>
-      <ScrollToTop /> {/* NEW: scroll-to-top on navigation (Safari-friendly) */}
-      <div className="App">
-        <Header
-          language={language}
-          setLanguage={setLanguage}
-          translations={translations[language]}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={renderCurrentPage()} />
-            <Route path="/browse/:type" element={<CategoryList allVehicles={sampleVehicles} />} />
-            <Route path="/vehicle/:id" element={<VehicleDetails allVehicles={sampleVehicles} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-        <Footer
-          language={language}
-          setLanguage={setLanguage}
-          translations={translations[language]}
-        />
-        <Chatbot language={language} translations={translations[language]} />
-      </div>
+      <ScrollToTop />
+      {/* Wrap everything with VehiclesProvider to supply allVehicles + actions */}
+      <VehiclesProvider>
+        <div className="App">
+          <Header
+            language={language}
+            setLanguage={setLanguage}
+            translations={translations[language]}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={renderCurrentPage()} />
+              <Route path="/browse/:type" element={<CategoryListRoute />} />
+              <Route path="/vehicle/:id" element={<VehicleDetailsRoute />} />
+              <Route path="/post-ad" element={<AddVehicleForm />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+          <Footer
+            language={language}
+            setLanguage={setLanguage}
+            translations={translations[language]}
+          />
+          <Chatbot language={language} translations={translations[language]} />
+        </div>
+      </VehiclesProvider>
     </Router>
   );
 }
