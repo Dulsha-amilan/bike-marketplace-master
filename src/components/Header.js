@@ -65,7 +65,7 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
           <div
             className="logo"
             onClick={() => {
-              setCurrentPage('home');
+              setCurrentPage('/');
               setIsDropdownOpen(false);
             }}
             style={{ cursor: 'pointer' }}
