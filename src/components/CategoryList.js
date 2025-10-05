@@ -24,6 +24,7 @@ const CategoryList = ({ allVehicles }) => {
   const vehiclesOfType = useMemo(() => {
     const getCc = v => {
       const raw =
+        v.engineCapacityCc ?? // Added this field from AddVehicleForm
         v.engineCc ??
         v.displacementCc ??
         v.cc ??

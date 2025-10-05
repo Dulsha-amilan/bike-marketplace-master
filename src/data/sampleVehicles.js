@@ -25,5 +25,30 @@ export const sampleVehicles = [
   gallery: [],
   categories: [],
   tags: []
-}
+},
+{
+  id: 'user-ewrwer-ewrwerwe-1759666096263-zzoav',
+  type: 'trail',
+  title: 'opkopkopkopkpokp',
+  make: 'ewrwer',
+  model: 'ewrwerwe',
+  year: 24324,
+  registerYear: 2343,
+  price: 324234,
+  mileageKm: 234234,
+  engineCc: 234234,
+  engineCapacityCc: 234234,
+  transmission: '234234',
+  fuelType: '234234',
+  color: '234234',
+  condition: 'New',
+  location: '234234',
+  postedAt: '2025-10-05T12:08:16.263Z',
+  phone: '234234',
+  image: 'https://www.huaihaiglobal.com/uploads/TSL-011.jpg',
+  gallery: [],
+  categories: [],
+  tags: []
+},
+
 ];
