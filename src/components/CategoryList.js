@@ -22,20 +22,6 @@ const CategoryList = ({ allVehicles }) => {
   }, [type]);
 
   const vehiclesOfType = useMemo(() => {
-    const getCc = v => {
-      const raw =
-        v.engineCapacityCc ?? // Added this field from AddVehicleForm
-        v.engineCc ??
-        v.displacementCc ??
-        v.cc ??
-        (v.engine && v.engine.cc) ??
-        (v.specs && v.specs.engine && v.specs.engine.cc);
-      if (raw == null) return null;
-      const match = String(raw).match(/[\d.]+/);
-      const num = match ? Number(match[0]) : null;
-      return Number.isFinite(num) ? num : null;
-    };
-
     const isAtvAdv = v => {
       const toStr = x => (x == null ? '' : String(x).toLowerCase());
       const arrToStr = a => (Array.isArray(a) ? a.map(toStr).join(' ') : '');
@@ -56,14 +42,6 @@ const CategoryList = ({ allVehicles }) => {
       return /\batv\b|\bquad\b|four[-\s]?wheeler|\badv\b|\badventure\b|dual[-\s]?sport/.test(haystack);
     };
 
-    if (type === 'high-capacity') {
-      const THRESHOLD = 250;
-      return allVehicles.filter(v => {
-        const cc = getCc(v);
-        return cc != null && cc >= THRESHOLD;
-      });
-    }
-
     if (type === 'atv-adv') {
       return allVehicles.filter(
         v =>
@@ -76,6 +54,7 @@ const CategoryList = ({ allVehicles }) => {
       );
     }
 
+    // For all other types including 'high-capacity', just filter by type
     return allVehicles.filter(v => v.type === type);
   }, [allVehicles, type]);
 
@@ -339,4 +318,3 @@ const CategoryList = ({ allVehicles }) => {
 };
 
 export default CategoryList;
-///hghyghghghghghg
