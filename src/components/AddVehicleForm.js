@@ -12,13 +12,12 @@ import {
 
 const TYPES = [
   { value: 'scooters', label: 'Scooters' },
+  { value: 'trail', label: 'Trail' },
   { value: 'sport', label: 'Sport' },
   { value: 'cruiser', label: 'Classic / Cruiser' },
   { value: 'electric', label: 'Electric' },
-  { value: 'trail', label: 'Trail' },
-  { value: 'atv', label: 'ATV' },
-  { value: 'adv', label: 'Adventure (ADV)' },
-  { value: 'dual-sport', label: 'Dual-sport' },
+  { value: 'high-capacity', label: 'High Capacity' },
+  { value: 'atv-adv', label: 'ATV / ADV' },
 ];
 
 function readFilesAsDataUrls(fileList) {
@@ -334,7 +333,7 @@ export default function AddVehicleForm() {
         <div className="vehicle-form">
           <div className="success-card">
             <h2>Ad posted successfully 🎉</h2>
-            <p>Your ad “{postedVehicle.title || postedVehicle.id}” is saved in your browser.</p>
+            <p>Your ad "{postedVehicle.title || postedVehicle.id}" is saved in your browser.</p>
             <div className="success-actions">
               <button className="btn btn-primary" onClick={viewPostedAd}>
                 View Posted Ad
