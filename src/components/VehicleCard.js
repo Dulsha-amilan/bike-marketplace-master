@@ -22,7 +22,7 @@ const VehicleCard = ({ vehicle }) => {
   } = vehicle;
 
   return (
-    <article className="vehicle-card">
+    <article className="vehicle-card1">
       <div className="vehicle-media">
         <img src={image} alt={title} loading="lazy" />
       </div>

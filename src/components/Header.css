@@ -4,13 +4,24 @@
 
   /* #FFD600 glass accent (RGB channels) */
   --glass-accent: 255, 214, 0;
-  --glass-top-alpha: 0.16;     /* home top-of-page */
-  --glass-scroll-alpha: 0.55;  /* scrolled/default */
+  --glass-top-alpha: 0.20;     /* home top-of-page - more transparent */
+  --glass-scroll-alpha: 0.25;  /* scrolled/default - more transparent */
 
   --text-on-glass: #0f172a; /* slate-900 */
+  --glass-blur: 24px;        /* blur radius */
+  --glass-border: 255, 255, 255; /* border color */
 }
 @media (max-width: 900px) {
-  :root { --header-h: 56px; }
+  :root {
+    --header-h: 56px;
+    --glass-blur: 16px; /* Reduced blur for better mobile performance */
+  }
+}
+@media (max-width: 480px) {
+  :root {
+    --header-h: 52px;
+    --glass-blur: 12px; /* Further reduced for small screens */
+  }
 }
 
 /* Header shell */
@@ -24,25 +35,60 @@
 
 /* Yellow glass on home when at top */
 .header--home.header--top {
-  background: rgba(var(--glass-accent), var(--glass-top-alpha));
-  -webkit-backdrop-filter: saturate(180%) blur(22px);
-  backdrop-filter: saturate(180%) blur(22px);
-  border-bottom: 1px solid rgba(var(--glass-accent), 0.45);
+  position: relative;
+  background:
+    linear-gradient(145deg,
+      rgba(var(--glass-accent), var(--glass-top-alpha)),
+      rgba(var(--glass-accent), calc(var(--glass-top-alpha) * 0.6)));
+  -webkit-backdrop-filter: saturate(180%) blur(var(--glass-blur));
+  backdrop-filter: saturate(180%) blur(var(--glass-blur));
+  border-bottom: 1px solid rgba(var(--glass-border), 0.35);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 8px 28px rgba(2, 6, 23, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 32px rgba(2, 6, 23, 0.16);
   color: var(--text-on-glass);
+}
+.header--home.header--top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 0% 0%,
+              rgba(255, 255, 255, 0.24) 0%,
+              rgba(255, 255, 255, 0.06) 35%,
+              rgba(255, 255, 255, 0.00) 60%);
+  z-index: -1;
 }
 
 /* Yellow glass on scroll or on non-home pages */
 .header--scrolled,
 .header--default {
-  background: rgba(var(--glass-accent), var(--glass-scroll-alpha));
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
-  backdrop-filter: saturate(160%) blur(18px);
+  position: relative;
+  background:
+    linear-gradient(145deg,
+      rgba(var(--glass-accent), var(--glass-scroll-alpha)),
+      rgba(var(--glass-accent), calc(var(--glass-scroll-alpha) * 0.7)));
+  -webkit-backdrop-filter: saturate(180%) blur(var(--glass-blur));
+  backdrop-filter: saturate(180%) blur(var(--glass-blur));
   color: var(--text-on-glass);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
-  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.10);
+  border-bottom: 1px solid rgba(var(--glass-border), 0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 10px 32px rgba(2, 6, 23, 0.14);
+}
+.header--scrolled::before,
+.header--default::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 0% 0%,
+              rgba(255, 255, 255, 0.22) 0%,
+              rgba(255, 255, 255, 0.05) 35%,
+              rgba(255, 255, 255, 0.00) 60%);
+  z-index: -1;
 }
 
 /* Layout */
@@ -53,6 +99,11 @@
   height: 100%;
   width: 100%;
 }
+@media (max-width: 480px) {
+  .header .container {
+    padding: 0 12px; /* Tighter padding on small screens */
+  }
+}
 .header-content {
   height: 100%;
   width: 100%;
@@ -61,6 +112,11 @@
   align-items: center;
   gap: 12px;
 }
+@media (max-width: 480px) {
+  .header-content {
+    gap: 8px; /* Reduced gap on small screens */
+  }
+}
 
 /* Logo */
 .logo {
@@ -68,12 +124,21 @@
   align-items: center;
   justify-self: start;
   line-height: 0;
+  flex-shrink: 0;
 }
 .logo-img {
   display: block;
   width: auto;
   max-height: calc(var(--header-h) - 0.4px);
   filter: drop-shadow(0 2px 10px rgba(0,0,0,0.35));
+  max-width: 100%;
+  height: auto;
+}
+@media (max-width: 480px) {
+  .logo-img {
+    max-height: calc(var(--header-h) - 8px); /* Smaller logo on mobile */
+    max-width: 140px; /* Prevent logo from being too wide */
+  }
 }
 
 /* Desktop nav */
@@ -98,13 +163,18 @@
   border-radius: 8px;
   cursor: pointer;
   opacity: 0.9;
-  transition: opacity .2s ease, background .2s ease;
+  transition: opacity .2s ease, background .2s ease, transform .2s ease;
 }
-.nav-link:hover { opacity: 1; }
+.nav-link:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
 .nav-link.active {
   opacity: 1;
   font-weight: 600;
-  background: rgba(var(--glass-accent), 0.24);
+  background: rgba(var(--glass-accent), 0.30);
+  box-shadow: 0 2px 8px rgba(var(--glass-accent), 0.20);
 }
 
 /* Mobile nav trigger */
@@ -146,11 +216,20 @@
   background: none;
   border: 0;
   height: var(--header-h);
-  padding: 0 6px;
+  min-width: 44px; /* Minimum touch target size */
+  padding: 0 8px;
   display: grid;
   place-items: center;
   color: inherit;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@media (max-width: 480px) {
+  .dropdown-toggle {
+    min-width: 40px;
+    padding: 0 6px;
+  }
 }
 .hamburger-line {
   width: 22px;
@@ -158,6 +237,14 @@
   border-radius: 2px;
   background: currentColor;
   margin: 3px 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+@media (max-width: 480px) {
+  .hamburger-line {
+    width: 20px;
+    height: 2px;
+    margin: 2.5px 0;
+  }
 }
 
 /* Mobile dropdown panel */
@@ -166,25 +253,169 @@
   top: var(--header-h);
   right: 16px;
   width: min(92vw, 320px);
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  max-width: calc(100vw - 32px);
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 255, 255, 0.90));
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(var(--glass-border), 0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.30),
+    0 8px 32px rgba(2, 6, 23, 0.18);
   border-radius: 12px;
   overflow: hidden;
   z-index: 1001;
+  animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 480px) {
+  .dropdown-menu {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    border-radius: 10px;
+  }
+}
+@media (max-width: 360px) {
+  .dropdown-menu {
+    right: 8px;
+    left: 8px;
+  }
+}
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 0% 0%,
+              rgba(255, 255, 255, 0.28) 0%,
+              rgba(255, 255, 255, 0.06) 35%,
+              rgba(255, 255, 255, 0.00) 60%);
+  z-index: -1;
+}
+/* Fallback for browsers without backdrop-filter support */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .header--home.header--top,
+  .header--scrolled,
+  .header--default {
+    background: rgba(var(--glass-accent), 0.85);
+  }
+  .dropdown-menu {
+    background: rgba(255, 255, 255, 0.98);
+  }
 }
 .dropdown-content {
   padding: 10px;
   display: grid;
   gap: 8px;
 }
-.mobile-cta { width: 100%; }
+@media (max-width: 480px) {
+  .dropdown-content {
+    padding: 12px;
+    gap: 10px;
+  }
+}
+.dropdown-item {
+  min-height: 44px; /* Minimum touch target */
+  display: flex;
+  align-items: center;
+}
+.dropdown-link {
+  width: 100%;
+  padding: 12px 10px;
+  text-align: left;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: rgba(255, 214, 0, 0.2);
+  touch-action: manipulation;
+}
+@media (max-width: 480px) {
+  .dropdown-link {
+    padding: 14px 12px;
+    font-size: 15px; /* Slightly larger text for mobile */
+  }
+}
+.mobile-cta {
+  width: 100%;
+  min-height: 44px; /* Minimum touch target */
+  padding: 12px 16px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+@media (max-width: 480px) {
+  .mobile-cta {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 900px) {
+  /* Reduce glass effect complexity on mobile for better performance */
+  .header--home.header--top::before,
+  .header--scrolled::before,
+  .header--default::before {
+    display: none; /* Disable gradient overlay on mobile for performance */
+  }
+  
+  /* Simplify shadows on mobile */
+  .header--home.header--top,
+  .header--scrolled,
+  .header--default {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      0 4px 16px rgba(2, 6, 23, 0.12);
+  }
+}
 
 /* Responsive duplication cleanup */
 @media (max-width: 900px) {
   .desktop-nav { display: none; }
-  .mobile-nav { display: block; }
+  .mobile-nav { display: flex; }
+}
+
+/* Mobile-specific header adjustments */
+@media (max-width: 480px) {
+  .header {
+    /* Ensure header doesn't cause horizontal scroll */
+    overflow-x: hidden;
+  }
+  
+  /* Optimize glass effect for very small screens */
+  .header--home.header--top,
+  .header--scrolled,
+  .header--default {
+    -webkit-backdrop-filter: saturate(160%) blur(var(--glass-blur));
+    backdrop-filter: saturate(160%) blur(var(--glass-blur));
+  }
 }
 
 /* Prevent extra top margins on the next section */
 header + * { margin-top: 0 !important; }
+
+/* Ensure header content doesn't overflow on mobile */
+@media (max-width: 480px) {
+  .header-content {
+    min-width: 0; /* Allow content to shrink */
+    overflow: hidden;
+  }
+  
+  .logo {
+    min-width: 0;
+    overflow: hidden;
+  }
+}
