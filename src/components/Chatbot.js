@@ -1,6 +1,7 @@
 // components/Chatbot.js
 import React, { useState, useRef, useEffect } from 'react';
 import { chatbotResponses } from '../data/chatbotData';
+import './Chatbot.css';
 
 const Chatbot = ({ language, translations }) => {
   const [isOpen, setIsOpen] = useState(false);

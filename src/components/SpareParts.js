@@ -1,6 +1,7 @@
 // components/SpareParts.js
 import React, { useState } from 'react';
 import { sparePartsData } from '../data/sparePartsData';
+import './SpareParts.css';
 
 const SpareParts = ({ translations }) => {
   const [activeCategory, setActiveCategory] = useState('all');

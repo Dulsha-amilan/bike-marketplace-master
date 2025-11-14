@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFlagCheckered, FaMotorcycle, FaMountain } from 'react-icons/fa';
 import { MdElectricScooter, MdElectricBolt, MdTerrain, MdSpeed } from 'react-icons/md';
+import './QuickFilters.css';
 
 const QuickFilters = () => {
   // Source of truth for filters

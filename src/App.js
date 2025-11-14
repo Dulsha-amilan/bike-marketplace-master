@@ -12,6 +12,7 @@ import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 
 import './styles/globals.css';
+import './App.css';
 import heroVideo from './components/video/cs.mp4';
 
 import CategoryList from './components/CategoryList';

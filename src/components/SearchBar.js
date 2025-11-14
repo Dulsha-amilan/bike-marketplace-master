@@ -1,5 +1,6 @@
 // components/SearchBar.js
 import React from 'react';
+import './SearchBar.css';
 
 const SearchBar = ({ searchFilters, setSearchFilters, translations }) => {
   const handleInputChange = (field, value) => {
@@ -72,7 +73,7 @@ const SearchBar = ({ searchFilters, setSearchFilters, translations }) => {
         </div>
         
         <button className="search-button" onClick={handleSearch}>
-          🔍 {translations.search}
+           {translations.search}
         </button>
       </div>
     </div>

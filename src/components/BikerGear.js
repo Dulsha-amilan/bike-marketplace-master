@@ -1,6 +1,7 @@
 // components/BikerGear.js
 import React, { useState } from 'react';
 import { bikerGearData } from '../data/bikerGearData';
+import './BikerGear.css';
 
 const BikerGear = ({ translations }) => {
   const [activeCategory, setActiveCategory] = useState('all');

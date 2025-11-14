@@ -8,6 +8,7 @@ import {
   downloadUserVehiclesJS,
   downloadVehicleObjectSnippet,
 } from '../utils/exportVehicles';
+import './AddVehicleForm.css';
 
 
 const TYPES = [

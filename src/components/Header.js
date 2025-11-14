@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LanguageToggle from './LanguageToggle';
 import bikeekaLogo from '../Images/bikeeka.com logos.png';
 import './Header.css';
@@ -7,8 +8,16 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   const isHome = currentPage === 'home';
+
+  const handleLogoClick = () => {
+    setCurrentPage('home');
+    navigate('/');
+    setIsDropdownOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 30);
@@ -64,10 +73,7 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
           {/* Logo */}
           <div
             className="logo"
-            onClick={() => {
-              setCurrentPage('/');
-              setIsDropdownOpen(false);
-            }}
+            onClick={handleLogoClick}
             style={{ cursor: 'pointer' }}
             aria-label="Go to home"
           >

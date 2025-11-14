@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import VehicleCard from '../components/VehicleCard';
 import { FiFilter, FiX } from 'react-icons/fi';
+import './CategoryList.css';
 
 const LABELS = {
   scooters: 'Scooters',

@@ -3,6 +3,8 @@ import React from 'react';
 import LanguageToggle from './LanguageToggle';
 import { FaFacebook, FaYoutube } from 'react-icons/fa';
 import { FiPhone, FiMail, FiMapPin } from 'react-icons/fi';
+import bikeekaLogo from '../Images/bikeeka.com logos.png';
+import './Footer.css';
 
 const Footer = ({ language, setLanguage, translations }) => {
   return (
@@ -12,7 +14,7 @@ const Footer = ({ language, setLanguage, translations }) => {
           {/* Logo and Description */}
           <div className="footer-section">
             <div className="footer-logo">
-              <h3>🏍️BIKE EKA.COM</h3>
+              <img src={bikeekaLogo} alt="bikeeka.com logo" className="footer-logo-img" />
             </div>
             <p className="footer-description">
               {translations.footerDescription}
@@ -106,7 +108,7 @@ const Footer = ({ language, setLanguage, translations }) => {
         {/* Footer Bottom */}
         <div className="footer-bottom">
           <div className="footer-bottom-content">
-            <p>&copy; 2024 BIKE EKA.COM. {translations.allRightsReserved}</p>
+            <p>&copy; 2025 BIKE EKA.COM. {translations.allRightsReserved}</p>
             <div className="footer-bottom-links">
               <a href="#terms">{translations.termsConditions}</a>
               <span className="separator">|</span>

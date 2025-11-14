@@ -2,9 +2,11 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiMapPin, FiCalendar, FiEye, FiChevronLeft, FiChevronRight,
-  FiPhone, FiHeart
+  FiPhone, FiHeart, FiActivity, FiSettings, FiTag, FiDroplet,
+  FiAward, FiTruck
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF, FaXTwitter, FaInstagram } from 'react-icons/fa6';
+import './VehicleDetails.css';
 
 const formatPrice = price => (price == null ? 'Negotiable' : `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`);
 const toISODate = d => new Date(d).toISOString().slice(0, 10);
@@ -111,54 +113,74 @@ const VehicleDetails = ({ allVehicles }) => {
                 )}
 
                 <section className="core-info">
-                  <h3 className="section-title">Core Information</h3>
+                  <h3 className="section-title">Vehicle Specifications</h3>
                   <div className="info-cards">
                     <div className="info-card">
                       <div className="row">
-                        <span className="label">Mileage</span>
+                        <span className="label">
+                          <FiActivity className="row-icon" /> Mileage
+                        </span>
                         <span className="value">
                           {vehicle.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} km` : '—'}
                         </span>
                       </div>
                       <div className="row">
-                        <span className="label">Engine Capacity</span>
+                        <span className="label">
+                          <FiSettings className="row-icon" /> Engine Capacity
+                        </span>
                         <span className="value">
                           {vehicle.engineCapacityCc != null ? `${vehicle.engineCapacityCc} cc` : '—'}
                         </span>
                       </div>
                       <div className="row">
-                        <span className="label">Transmission</span>
+                        <span className="label">
+                          <FiSettings className="row-icon" /> Transmission
+                        </span>
                         <span className="value">{vehicle.transmission || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Manufacturer</span>
+                        <span className="label">
+                          <FiAward className="row-icon" /> Manufacturer
+                        </span>
                         <span className="value">{vehicle.make || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Model Year</span>
+                        <span className="label">
+                          <FiCalendar className="row-icon" /> Model Year
+                        </span>
                         <span className="value">{vehicle.year || '—'}</span>
                       </div>
                     </div>
 
                     <div className="info-card">
                       <div className="row">
-                        <span className="label">Condition</span>
+                        <span className="label">
+                          <FiTag className="row-icon" /> Condition
+                        </span>
                         <span className="value">{vehicle.condition || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Model</span>
+                        <span className="label">
+                          <FiTruck className="row-icon" /> Model
+                        </span>
                         <span className="value">{vehicle.model || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Fuel Type</span>
+                        <span className="label">
+                          <FiDroplet className="row-icon" /> Fuel Type
+                        </span>
                         <span className="value">{vehicle.fuelType || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Colour</span>
+                        <span className="label">
+                          <FiTag className="row-icon" /> Colour
+                        </span>
                         <span className="value">{vehicle.color || '—'}</span>
                       </div>
                       <div className="row">
-                        <span className="label">Vehicle Type</span>
+                        <span className="label">
+                          <FiTruck className="row-icon" /> Vehicle Type
+                        </span>
                         <span className="value">{vehicle.type || '—'}</span>
                       </div>
                     </div>
@@ -168,22 +190,25 @@ const VehicleDetails = ({ allVehicles }) => {
 
               <aside className="vd-right">
                 <div className="price-card">
-                  <div className="price">{formatPrice(vehicle.price)}</div>
+                  <div className="price-header">
+                    <span className="price-label">Price</span>
+                    <div className="price">{formatPrice(vehicle.price)}</div>
+                  </div>
                   <div className="mini-info">
                     <div className="mini-row">
-                      <span>Mileage</span>
+                      <span><FiActivity className="mini-icon" /> Mileage</span>
                       <strong>{vehicle.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} km` : '—'}</strong>
                     </div>
                     <div className="mini-row">
-                      <span>Model</span>
+                      <span><FiTruck className="mini-icon" /> Model</span>
                       <strong>{vehicle.model || '—'}</strong>
                     </div>
                     <div className="mini-row">
-                      <span>Model Year</span>
+                      <span><FiCalendar className="mini-icon" /> Model Year</span>
                       <strong>{vehicle.year || '—'}</strong>
                     </div>
                     <div className="mini-row">
-                      <span>Register Year</span>
+                      <span><FiCalendar className="mini-icon" /> Register Year</span>
                       <strong>{vehicle.registerYear || vehicle.year || '—'}</strong>
                     </div>
                   </div>

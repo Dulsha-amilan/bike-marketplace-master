@@ -1,0 +1,404 @@
+/* Biker Gear Styles */
+.biker-gear {
+  padding-top: 0;
+}
+
+.gear-hero {
+  background: linear-gradient(135deg, #FFD600 0%, #FFC107 100%);
+  padding: 4rem 0;
+  color: #333;
+  text-align: center;
+}
+
+.gear-hero .hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.gear-hero .hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+/* Gear Filters */
+.gear-filters {
+  background: white;
+  padding: 2rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: #FFD600;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  justify-content: flex-end;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: #FFD600;
+  border-color: #FFD600;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  color: #333;
+  font-weight: bold;
+}
+
+/* Helmet Types */
+.helmet-types {
+  background: #f8f9fa;
+  padding: 2rem 0;
+}
+
+.helmet-types h3 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.helmet-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.helmet-type-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.helmet-type-card:hover {
+  transform: translateY(-5px);
+}
+
+.helmet-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.helmet-type-card h4 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+}
+
+/* Gear Categories */
+.gear-categories {
+  background: #f8f9fa;
+  padding: 3rem 0;
+}
+
+.gear-categories h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.category-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.category-card:hover {
+  border-color: #FFD600;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(255, 214, 0, 0.3);
+}
+
+.category-card.active {
+  background: #FFD600;
+  border-color: #FFD600;
+  color: #333;
+}
+
+.category-icon {
+  font-size: 2.5rem;
+}
+
+.category-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Gear Listing */
+.gear-listing {
+  padding: 3rem 0;
+}
+
+.listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.listing-header h3 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.sort-controls select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.gear-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.gear-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.gear-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.gear-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.gear-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gear-badges {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.condition-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.condition-badge.new {
+  background: #28a745;
+  color: white;
+}
+
+.condition-badge.used {
+  background: #ffc107;
+  color: #333;
+}
+
+.verified-badge {
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.gear-details {
+  padding: 1.5rem;
+}
+
+.gear-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.gear-brand,
+.gear-size,
+.gear-location {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.gear-price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #FFD600;
+  margin: 1rem 0;
+}
+
+.gear-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.stars {
+  color: #ffc107;
+  font-size: 1rem;
+}
+
+.rating-text {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.contact-seller {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.contact-seller:hover {
+  background: #555;
+  transform: translateY(-2px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .gear-hero .hero-title {
+    font-size: 2rem;
+  }
+  
+  .filter-controls {
+    grid-template-columns: 1fr;
+  }
+  
+  .helmet-types-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gear-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .listing-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-card {
+    padding: 1.5rem;
+  }
+  
+  .category-icon {
+    font-size: 2rem;
+  }
+  
+  .helmet-type-card {
+    padding: 1.5rem;
+  }
+  
+  .helmet-icon {
+    font-size: 2.5rem;
+  }
+}
+
