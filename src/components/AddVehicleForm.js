@@ -21,20 +21,7 @@ const TYPES = [
   { value: 'atv-adv', label: 'ATV / ADV' },
 ];
 
-function readFilesAsDataUrls(fileList) {
-  const files = Array.from(fileList || []);
-  return Promise.all(
-    files.map(
-      (file) =>
-        new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        })
-    )
-  );
-}
+const MAX_UPLOAD_IMAGES = 4;
 
 export default function AddVehicleForm() {
   const navigate = useNavigate();
@@ -57,12 +44,10 @@ export default function AddVehicleForm() {
     color: '',
     location: '',
     phone: '',
-    imageUrl: '',
-    galleryUrls: '',
   };
 
   const [form, setForm] = useState(initialForm);
-  const [uploadHero, setUploadHero] = useState([]);
+  const [uploadHero, setUploadHero] = useState(null);
   const [uploadGallery, setUploadGallery] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -80,23 +65,15 @@ export default function AddVehicleForm() {
   };
 
   const handleHeroUpload = async (e) => {
-    try {
-      const arr = await readFilesAsDataUrls(e.target.files);
-      setUploadHero(arr.slice(0, 1));
-    } catch (err) {
-      console.error(err);
-      setError('Failed to read hero image.');
-    }
+    const file = (e.target.files && e.target.files[0]) || null;
+    setUploadHero(file);
+    setError('');
   };
 
   const handleGalleryUpload = async (e) => {
-    try {
-      const arr = await readFilesAsDataUrls(e.target.files);
-      setUploadGallery(arr);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to read gallery images.');
-    }
+    const files = Array.from(e.target.files || []);
+    setUploadGallery(files);
+    setError('');
   };
 
   const onSubmit = async (e) => {
@@ -104,40 +81,41 @@ export default function AddVehicleForm() {
     setBusy(true);
     setError('');
     try {
-      const urlList = form.galleryUrls
-        .split(/[\n,]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const totalSelected = (uploadHero ? 1 : 0) + (uploadGallery?.length || 0);
+      if (totalSelected < 1) {
+        throw new Error('Please upload at least 1 image.');
+      }
+      if (totalSelected > MAX_UPLOAD_IMAGES) {
+        throw new Error(`Please upload maximum ${MAX_UPLOAD_IMAGES} images.`);
+      }
 
-      const gallery = [...uploadGallery, ...urlList];
-      const image = uploadHero[0] || form.imageUrl.trim() || gallery[0] || '';
+      const fd = new FormData();
+      fd.append('type', form.type);
+      fd.append('title', form.title);
+      fd.append('make', form.make);
+      fd.append('model', form.model);
+      fd.append('condition', form.condition);
+      if (form.year) fd.append('year', String(form.year));
+      if (form.registerYear) fd.append('registerYear', String(form.registerYear));
+      if (!form.negotiable && form.price) fd.append('price', String(form.price));
+      if (form.mileageKm) fd.append('mileageKm', String(form.mileageKm));
+      if (form.engineCapacityCc) fd.append('engineCapacityCc', String(form.engineCapacityCc));
+      fd.append('transmission', form.transmission);
+      fd.append('fuelType', form.fuelType);
+      fd.append('color', form.color);
+      fd.append('location', form.location);
+      fd.append('phone', form.phone);
 
-      const data = {
-        type: form.type,
-        title: form.title,
-        make: form.make,
-        model: form.model,
-        condition: form.condition,
-        year: form.year ? Number(form.year) : '',
-        registerYear: form.registerYear ? Number(form.registerYear) : '',
-        price: form.negotiable ? null : form.price,
-        mileageKm: form.mileageKm ? Number(form.mileageKm) : '',
-        engineCapacityCc: form.engineCapacityCc ? Number(form.engineCapacityCc) : '',
-        transmission: form.transmission,
-        fuelType: form.fuelType,
-        color: form.color,
-        location: form.location,
-        phone: form.phone,
-        image,
-        gallery,
-      };
+      if (uploadHero) fd.append('hero', uploadHero);
+      (uploadGallery || []).forEach((f) => fd.append('gallery', f));
 
-      const created = addVehicle(data);
-      setPostedVehicle(created); // show success panel with download options
-      // We intentionally don't navigate away so you can download immediately.
+      const created = await addVehicle(fd);
+      setPostedVehicle(created);
+      // Go straight to the listing details page after posting
+      if (created?.id) navigate(`/vehicle/${encodeURIComponent(created.id)}`);
     } catch (err) {
       console.error(err);
-      setError('Something went wrong. Please try again.');
+      setError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -145,7 +123,7 @@ export default function AddVehicleForm() {
 
   const resetForAnother = () => {
     setForm(initialForm);
-    setUploadHero([]);
+    setUploadHero(null);
     setUploadGallery([]);
     setError('');
     setBusy(false);
@@ -154,7 +132,7 @@ export default function AddVehicleForm() {
   };
 
   const viewPostedAd = () => {
-    if (postedVehicle?.id) navigate(`/vehicle/${postedVehicle.id}`);
+    if (postedVehicle?.id) navigate(`/vehicle/${encodeURIComponent(postedVehicle.id)}`);
   };
 
   // Export handlers
@@ -286,40 +264,27 @@ export default function AddVehicleForm() {
             </label>
 
             <label className="full">
-              <span>Hero Image URL</span>
-              <input type="url" name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://..." />
-            </label>
-
-            <label className="full">
-              <span>Gallery Image URLs (comma or newline separated)</span>
-              <textarea
-                name="galleryUrls"
-                value={form.galleryUrls}
-                onChange={handleChange}
-                rows={3}
-                placeholder="https://... , https://..."
-              />
-            </label>
-
-            <div className="full uploads">
-              <div>
-                <label>
-                  <span>Or Upload Hero Image</span>
-                  <input type="file" accept="image/*" onChange={handleHeroUpload} />
-                </label>
-                {uploadHero.length > 0 && <div className="hint">Hero image selected ✓</div>}
+              <span>Upload Images (Required)</span>
+              <div className="uploads" style={{ padding: 0 }}>
+                <div>
+                  <label>
+                    <span>Hero Image</span>
+                    <input type="file" accept="image/*" onChange={handleHeroUpload} />
+                  </label>
+                  {uploadHero && <div className="hint">Hero image selected ✓</div>}
+                </div>
+                <div>
+                  <label>
+                    <span>Gallery Images (max {MAX_UPLOAD_IMAGES} total)</span>
+                    <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} />
+                  </label>
+                  {uploadGallery.length > 0 && <div className="hint">{uploadGallery.length} gallery image(s) selected ✓</div>}
+                </div>
+                <p className="tiny-note">
+                  Upload between 1 and {MAX_UPLOAD_IMAGES} images.
+                </p>
               </div>
-              <div>
-                <label>
-                  <span>Upload Gallery Images</span>
-                  <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} />
-                </label>
-                {uploadGallery.length > 0 && <div className="hint">{uploadGallery.length} gallery image(s) selected ✓</div>}
-              </div>
-              <p className="tiny-note">
-                Tip: Without a backend, images are saved as Data URLs in your browser (localStorage). Prefer URLs or small images.
-              </p>
-            </div>
+            </label>
           </div>
 
           {error && <div className="form-error">{error}</div>}
@@ -334,7 +299,7 @@ export default function AddVehicleForm() {
         <div className="vehicle-form">
           <div className="success-card">
             <h2>Ad posted successfully 🎉</h2>
-            <p>Your ad "{postedVehicle.title || postedVehicle.id}" is saved in your browser.</p>
+            <p>Your ad "{postedVehicle.title || postedVehicle.id}" is saved to the server.</p>
             <div className="success-actions">
               <button className="btn btn-primary" onClick={viewPostedAd}>
                 View Posted Ad

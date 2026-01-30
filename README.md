@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Firebase (Frontend)
+
+1. Go to the Firebase Console and create a project.
+2. In the project overview, click **</> Web** to register a Web App.
+3. Copy the Firebase config values (apiKey, authDomain, projectId, etc).
+4. Create a `.env` file in this repo root (you can copy `.env.example`).
+5. Paste the config values into `.env` using the `REACT_APP_FIREBASE_*` variables.
+
+Firebase is initialized in `src/firebase.js`.

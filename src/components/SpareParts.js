@@ -1,6 +1,6 @@
 // components/SpareParts.js
-import React, { useState } from 'react';
-import { sparePartsData } from '../data/sparePartsData';
+import React, { useEffect, useMemo, useState } from 'react';
+import { getSpareParts } from '../api/bikeApi';
 import './SpareParts.css';
 
 const SpareParts = ({ translations }) => {
@@ -10,6 +10,33 @@ const SpareParts = ({ translations }) => {
     compatibility: '',
     condition: ''
   });
+  const [parts, setParts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError('');
+    getSpareParts()
+      .then((list) => {
+        if (!mounted) return;
+        setParts(Array.isArray(list) ? list : []);
+      })
+      .catch((e) => {
+        console.error(e);
+        if (!mounted) return;
+        setError('Failed to load spare parts. Is the backend running?');
+        setParts([]);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const categories = [
     { id: 'all', name: translations.allCategories, icon: '🔧' },
@@ -20,14 +47,24 @@ const SpareParts = ({ translations }) => {
     { id: 'accessories', name: translations.seatsTanksMirrors, icon: '🪑' }
   ];
 
-  const filteredParts = sparePartsData.filter(part => {
-    const categoryMatch = activeCategory === 'all' || part.category === activeCategory;
-    const brandMatch = !filters.brand || part.brand.toLowerCase().includes(filters.brand.toLowerCase());
-    const compatibilityMatch = !filters.compatibility || part.compatibility.toLowerCase().includes(filters.compatibility.toLowerCase());
-    const conditionMatch = !filters.condition || part.condition === filters.condition;
-    
-    return categoryMatch && brandMatch && compatibilityMatch && conditionMatch;
-  });
+  const filteredParts = useMemo(() => {
+    return parts.filter((part) => {
+      const categoryMatch = activeCategory === 'all' || part.category === activeCategory;
+      const brandMatch =
+        !filters.brand ||
+        String(part.brand || '')
+          .toLowerCase()
+          .includes(filters.brand.toLowerCase());
+      const compatibilityMatch =
+        !filters.compatibility ||
+        String(part.compatibility || '')
+          .toLowerCase()
+          .includes(filters.compatibility.toLowerCase());
+      const conditionMatch = !filters.condition || part.condition === filters.condition;
+
+      return categoryMatch && brandMatch && compatibilityMatch && conditionMatch;
+    });
+  }, [parts, activeCategory, filters]);
 
   return (
     <div className="spare-parts">
@@ -121,6 +158,16 @@ const SpareParts = ({ translations }) => {
               </select>
             </div>
           </div>
+
+          {error && (
+            <div style={{ padding: 12, background: '#fff3cd', borderRadius: 8, marginBottom: 12 }}>
+              {error}
+            </div>
+          )}
+
+          {loading && (
+            <div style={{ padding: 12, opacity: 0.8 }}>{translations.loading || 'Loading…'}</div>
+          )}
           
           <div className="parts-grid">
             {filteredParts.map(part => (

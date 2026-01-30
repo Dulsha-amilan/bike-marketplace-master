@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getVehicleById } from '../api/bikeApi';
+import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import {
   FiMapPin, FiCalendar, FiEye, FiChevronLeft, FiChevronRight,
   FiPhone, FiHeart, FiActivity, FiSettings, FiTag, FiDroplet,
@@ -22,6 +24,8 @@ const VehicleDetails = ({ allVehicles }) => {
   const navigate = useNavigate();
 
   const [idx, setIdx] = useState(0);
+  const [remoteVehicle, setRemoteVehicle] = useState(null);
+  const [remoteError, setRemoteError] = useState('');
 
   // Scroll to top and reset gallery index when visiting/changing vehicle (Safari-safe)
   useEffect(() => {
@@ -34,15 +38,43 @@ const VehicleDetails = ({ allVehicles }) => {
     [allVehicles, id]
   );
 
+  useEffect(() => {
+    let alive = true;
+    setRemoteError('');
+
+    // If not in context (e.g., right after posting), fetch from backend
+    if (!vehicle && id) {
+      getVehicleById(id)
+        .then((v) => {
+          if (!alive) return;
+          setRemoteVehicle(v);
+        })
+        .catch((e) => {
+          if (!alive) return;
+          console.error(e);
+          setRemoteError('Failed to load listing from server.');
+          setRemoteVehicle(null);
+        });
+    } else {
+      setRemoteVehicle(null);
+    }
+
+    return () => {
+      alive = false;
+    };
+  }, [vehicle, id]);
+
+  const activeVehicle = vehicle || remoteVehicle;
+
   const photos = useMemo(() => {
-    if (!vehicle) return [];
-    const arr = (vehicle.gallery && vehicle.gallery.length) ? vehicle.gallery : [vehicle.image];
-    return arr.filter(Boolean);
-  }, [vehicle]);
+    if (!activeVehicle) return [];
+    const arr = (activeVehicle.gallery && activeVehicle.gallery.length) ? activeVehicle.gallery : [activeVehicle.image];
+    return arr.filter(Boolean).map(resolveMediaUrl);
+  }, [activeVehicle]);
 
   const next = () => setIdx(i => (photos.length ? (i + 1) % photos.length : 0));
   const prev = () => setIdx(i => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
-  const whats = useMemo(() => (vehicle ? whatsappPhoneFromLK(vehicle.phone ?? '0714029197') : ''), [vehicle]);
+  const whats = useMemo(() => (activeVehicle ? whatsappPhoneFromLK(activeVehicle.phone ?? '0714029197') : ''), [activeVehicle]);
 
   return (
     <main className="vehicle-details">
@@ -53,7 +85,7 @@ const VehicleDetails = ({ allVehicles }) => {
               <button className="link back" onClick={() => navigate(-1)}>← Back</button>
             </div>
             <h1 className="vd-title">Listing not found</h1>
-            <p>Please go back and try another vehicle.</p>
+            <p>{remoteError || 'Please go back and try another vehicle.'}</p>
           </>
         ) : (
           <>
@@ -61,15 +93,15 @@ const VehicleDetails = ({ allVehicles }) => {
               <button className="link back" onClick={() => navigate(-1)}>← Back</button>
             </div>
 
-            <h1 className="vd-title">{vehicle.title}</h1>
+            <h1 className="vd-title">{activeVehicle.title}</h1>
 
             <div className="vd-meta">
-              {vehicle.make && <span className="make-pill">{vehicle.make}</span>}
+              {activeVehicle.make && <span className="make-pill">{activeVehicle.make}</span>}
               <span className="meta-item">
-                <FiCalendar aria-hidden="true" /> {toISODate(vehicle.postedAt)}
+                <FiCalendar aria-hidden="true" /> {toISODate(activeVehicle.postedAt)}
               </span>
               <span className="meta-item">
-                <FiMapPin aria-hidden="true" /> {vehicle.location}
+                <FiMapPin aria-hidden="true" /> {activeVehicle.location}
               </span>
               <span className="meta-item">
                 <FiEye aria-hidden="true" /> 113 views

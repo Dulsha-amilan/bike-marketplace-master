@@ -1,10 +1,11 @@
 // components/Chatbot.js
 import React, { useState, useRef, useEffect } from 'react';
-import { chatbotResponses } from '../data/chatbotData';
+import { getChatbotResponses } from '../api/bikeApi';
 import './Chatbot.css';
 
 const Chatbot = ({ language, translations }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [responsesByLang, setResponsesByLang] = useState(null);
   const [messages, setMessages] = useState([
     {
       type: 'bot',
@@ -23,6 +24,23 @@ const Chatbot = ({ language, translations }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    let mounted = true;
+    getChatbotResponses()
+      .then((data) => {
+        if (!mounted) return;
+        setResponsesByLang(data);
+      })
+      .catch((e) => {
+        console.error(e);
+        if (!mounted) return;
+        setResponsesByLang(null);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleSendMessage = () => {
     if (inputMessage.trim() === '') return;
@@ -52,7 +70,13 @@ const Chatbot = ({ language, translations }) => {
 
   const getBotResponse = (message, language) => {
     const lowerMessage = message.toLowerCase();
-    const responses = chatbotResponses[language];
+    const responses = responsesByLang?.[language];
+
+    if (!responses) {
+      return language === 'english'
+        ? 'Backend chatbot responses are not available right now. Please try again.'
+        : 'චැට්බොට් තොරතුරු මේ මොහොතේ ලබාගත නොහැක. කරුණාකර නැවත උත්සාහ කරන්න.';
+    }
 
     // Check for specific keywords
     if (lowerMessage.includes('spare') || lowerMessage.includes('part')) {

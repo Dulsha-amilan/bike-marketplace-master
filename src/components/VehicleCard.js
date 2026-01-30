@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMapPin, FiCalendar, FiX } from 'react-icons/fi';
+import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import './VehicleCard.css';
 
 const formatPrice = price => {
@@ -27,7 +28,7 @@ const VehicleCard = ({ vehicle }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Get all images (main image + gallery)
-  const allImages = [image, ...(gallery || [])].filter(Boolean);
+  const allImages = [image, ...(gallery || [])].filter(Boolean).map(resolveMediaUrl);
 
   useEffect(() => {
     if (isLightboxOpen) {
@@ -85,7 +86,7 @@ const VehicleCard = ({ vehicle }) => {
       <article className="vehicle-card1">
         <div className="vehicle-media">
           <img 
-            src={image} 
+            src={resolveMediaUrl(image)} 
             alt={title} 
             loading="lazy" 
             onClick={openLightbox}

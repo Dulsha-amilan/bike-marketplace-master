@@ -1,6 +1,6 @@
 // components/BikerGear.js
-import React, { useState } from 'react';
-import { bikerGearData } from '../data/bikerGearData';
+import React, { useEffect, useMemo, useState } from 'react';
+import { getBikerGear } from '../api/bikeApi';
 import './BikerGear.css';
 
 const BikerGear = ({ translations }) => {
@@ -12,7 +12,33 @@ const BikerGear = ({ translations }) => {
     condition: '',
     verifiedSeller: false
   });
-//add
+  const [gear, setGear] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError('');
+    getBikerGear()
+      .then((list) => {
+        if (!mounted) return;
+        setGear(Array.isArray(list) ? list : []);
+      })
+      .catch((e) => {
+        console.error(e);
+        if (!mounted) return;
+        setError('Failed to load biker gear. Is the backend running?');
+        setGear([]);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
   const categories = [
     { id: 'all', name: translations.allCategories, icon: '🧢' },
     { id: 'helmets', name: translations.helmets, icon: '⛑️' },
@@ -29,16 +55,22 @@ const BikerGear = ({ translations }) => {
     { id: 'modular', name: translations.modular, icon: '🔄' }
   ];
 
-  const filteredGear = bikerGearData.filter(item => {
-    const categoryMatch = activeCategory === 'all' || item.category === activeCategory;
-    const sizeMatch = !filters.size || item.size === filters.size;
-    const brandMatch = !filters.brand || item.brand.toLowerCase().includes(filters.brand.toLowerCase());
-    const priceMatch = !filters.priceRange || checkPriceRange(item.price, filters.priceRange);
-    const conditionMatch = !filters.condition || item.condition === filters.condition;
-    const verifiedMatch = !filters.verifiedSeller || item.verifiedSeller;
-    
-    return categoryMatch && sizeMatch && brandMatch && priceMatch && conditionMatch && verifiedMatch;
-  });
+  const filteredGear = useMemo(() => {
+    return gear.filter((item) => {
+      const categoryMatch = activeCategory === 'all' || item.category === activeCategory;
+      const sizeMatch = !filters.size || item.size === filters.size;
+      const brandMatch =
+        !filters.brand ||
+        String(item.brand || '')
+          .toLowerCase()
+          .includes(filters.brand.toLowerCase());
+      const priceMatch = !filters.priceRange || checkPriceRange(item.price, filters.priceRange);
+      const conditionMatch = !filters.condition || item.condition === filters.condition;
+      const verifiedMatch = !filters.verifiedSeller || item.verifiedSeller;
+
+      return categoryMatch && sizeMatch && brandMatch && priceMatch && conditionMatch && verifiedMatch;
+    });
+  }, [gear, activeCategory, filters]);
 
   const checkPriceRange = (price, range) => {
     switch (range) {
@@ -197,6 +229,16 @@ const BikerGear = ({ translations }) => {
               </select>
             </div>
           </div>
+
+          {error && (
+            <div style={{ padding: 12, background: '#fff3cd', borderRadius: 8, marginBottom: 12 }}>
+              {error}
+            </div>
+          )}
+
+          {loading && (
+            <div style={{ padding: 12, opacity: 0.8 }}>{translations.loading || 'Loading…'}</div>
+          )}
           
           <div className="gear-grid">
             {filteredGear.map(item => (
