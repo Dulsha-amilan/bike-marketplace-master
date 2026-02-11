@@ -17,67 +17,11 @@
   gap: 2rem;
 }
 
-/* Override VehicleCard layout for featured listings */
-.featured-listings .vehicle-card1 {
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  padding: 0.875rem;
-  height: 100%;
-}
-
-.featured-listings .vehicle-media {
-  margin-bottom: 0.5rem;
-}
-
-.featured-listings .vehicle-media img {
-  width: 100%;
-  height: 160px;
-  min-height: 160px;
-  max-height: 160px;
-  object-fit: cover;
-}
-
-.featured-listings .vehicle-title {
-  font-size: 1.1rem;
-  margin: 0 0 4px;
-}
-
-.featured-listings .vehicle-price {
-  font-size: 1.15rem;
-  margin: 4px 0;
-}
-
-.featured-listings .vehicle-meta {
-  font-size: 13px;
-  gap: 8px;
-  margin-top: 0.5rem;
-}
-
-.featured-listings .vehicle-cta {
-  justify-content: center;
-  margin-top: 0.75rem;
-}
-
-.featured-listings .btn {
-  padding: 8px 16px;
-  font-size: 14px;
-}
+/* VehicleCard overrides removed as the component now uses Shadcn Card and Tailwind classes */
 
 @media (max-width: 768px) {
   .listings-grid {
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
   }
-  
-  .featured-listings .vehicle-media img {
-    height: 150px;
-    min-height: 150px;
-    max-height: 150px;
-  }
-  
-  .featured-listings .vehicle-title {
-    font-size: 1rem;
-  }
 }
-
-

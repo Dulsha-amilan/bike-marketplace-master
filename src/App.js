@@ -13,7 +13,6 @@ import Footer from './components/Footer';
 
 import './styles/globals.css';
 import './App.css';
-import heroVideo from './components/video/cs.mp4';
 
 import CategoryList from './components/CategoryList';
 import VehicleDetails from './components/VehicleDetails';
@@ -22,6 +21,7 @@ import ScrollToTop from './components/ScrollToTop';
 // NEW: vehicles store + form
 import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
 import AddVehicleForm from './components/AddVehicleForm';
+import Hero from './components/Hero';
 
 // Small wrappers to inject allVehicles from context
 function CategoryListRoute() {
@@ -193,47 +193,18 @@ function App() {
       default:
         return (
           <>
-            <div className="hero-section">
-              <video
-                className="hero-bg-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-hidden="true"
-              >
-                <source src={heroVideo} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              <div className="hero-overlay"></div>
-              <div className="container hero-content">
-                <h1 className="hero-title">{translations[language].title}</h1>
-                <p className="hero-subtitle">{translations[language].subtitle}</p>
-
-                <div className="glass-search glass-panel">
-                  <SearchBar
-                    searchFilters={searchFilters}
-                    setSearchFilters={setSearchFilters}
-                    translations={translations[language]}
-                  />
-                </div>
-
-                {/* Optional CTA to open the posting form */}
-                <div style={{ marginTop: 16 }}>
-                  <Link to="/post-ad" className="btn btn-primary">
-                    {translations[language].postAd}
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <Hero
+              translations={translations[language]}
+              searchFilters={searchFilters}
+              setSearchFilters={setSearchFilters}
+            />
 
             <section
-              className="filters-section"
+              className="filters-section mt-[-40px] relative z-20"
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
-                <div className="glass-filters glass-panel">
+                <div className="glass-filters glass-panel shadow-xl border-t border-white/20">
                   <QuickFilters translations={translations[language]} />
                 </div>
               </div>

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMapPin, FiCalendar, FiX } from 'react-icons/fi';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
+import { Card, CardContent, CardFooter } from './ui/card';
+import { Button } from './ui/button';
 import './VehicleCard.css';
 
 const formatPrice = price => {
@@ -64,7 +66,7 @@ const VehicleCard = ({ vehicle }) => {
 
   useEffect(() => {
     if (!isLightboxOpen) return;
-    
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setIsLightboxOpen(false);
@@ -83,45 +85,64 @@ const VehicleCard = ({ vehicle }) => {
 
   return (
     <>
-      <article className="vehicle-card1">
-        <div className="vehicle-media">
-          <img 
-            src={resolveMediaUrl(image)} 
-            alt={title} 
-            loading="lazy" 
-            onClick={openLightbox}
-            className="vehicle-image-clickable"
-            style={{ cursor: 'pointer' }}
+      <Card className="vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 hover:-translate-y-1 bg-card">
+        <div className="vehicle-media relative aspect-[4/3] overflow-hidden cursor-pointer bg-gray-100" onClick={openLightbox}>
+          <img
+            src={resolveMediaUrl(image)}
+            alt={title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          {/* Badge for condition or status could go here */}
+          <div className="absolute top-2 left-2 flex gap-1">
+            {vehicle.condition === 'New' && (
+              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">New</span>
+            )}
+          </div>
+
           {allImages.length > 1 && (
-            <div className="image-count-badge">
+            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2 py-1 rounded-full pointer-events-none flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse"></span>
               {allImages.length} photos
             </div>
           )}
         </div>
 
-        <div className="vehicle-body">
-          <h3 className="vehicle-title">{title}</h3>
+        <CardContent className="p-5 flex-grow flex flex-col gap-3">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors">{title}</h3>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              <FiMapPin className="w-3.5 h-3.5" />
+              <span className="truncate">{location}</span>
+            </div>
+          </div>
 
-          <div className="vehicle-price">{formatPrice(price)}</div>
+          <div className="text-2xl font-bold text-primary mt-1">{formatPrice(price)}</div>
 
-          <div className="vehicle-meta">
-            <span className="meta-item">
-              <FiCalendar aria-hidden="true" /> {toISODate(postedAt)}
-            </span>
-            <span className="meta-item">
-              <FiMapPin aria-hidden="true" /> {location}
-            </span>
+          <div className="vehicle-meta grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-medium text-muted-foreground mt-auto pt-4 border-t border-border/50">
+            <div className="flex items-center gap-1.5">
+              <FiCalendar className="w-3.5 h-3.5" />
+              <span>{toISODate(postedAt)}</span>
+            </div>
             {mileageKm != null && (
-              <span className="meta-item">{mileageKm.toLocaleString()} km</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3.5 h-3.5 flex items-center justify-center font-bold">K</span>
+                <span>{mileageKm.toLocaleString()} km</span>
+              </div>
             )}
           </div>
-        </div>
+        </CardContent>
 
-        <div className="vehicle-cta">
-          <Link to={`/vehicle/${id}`} className="btn btn-outline">Find out more</Link>
-        </div>
-      </article>
+        <CardFooter className="p-4 pt-0">
+          <Button asChild className="w-full font-semibold shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
+            <Link to={`/vehicle/${id}`}>
+              View Details
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
 
       {isLightboxOpen && (
         <div className="image-lightbox" onClick={closeLightbox}>
@@ -142,8 +163,8 @@ const VehicleCard = ({ vehicle }) => {
             </>
           )}
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={allImages[currentImageIndex]} 
+            <img
+              src={allImages[currentImageIndex]}
               alt={`${title} - ${currentImageIndex + 1}`}
               className="lightbox-image"
             />

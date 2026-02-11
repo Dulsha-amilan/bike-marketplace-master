@@ -108,6 +108,7 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
 
             <button
               className={`cta-button ${isHome && !isScrolled ? 'cta-button--ghost-light' : ''}`}
+              onClick={() => navigate('/post-ad')}
             >
               {translations.postAd}
             </button>
@@ -169,7 +170,10 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                   <div className="dropdown-item">
                     <button
                       className={`cta-button mobile-cta ${isHome && !isScrolled ? 'cta-button--ghost-light' : ''}`}
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => {
+                        navigate('/post-ad');
+                        setIsDropdownOpen(false);
+                      }}
                     >
                       {translations.postAd}
                     </button>

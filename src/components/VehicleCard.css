@@ -1,143 +1,4 @@
-/* Vehicle Card Styles */
-.vehicle-card1 {
-  display: grid;
-  grid-template-columns: 320px 2fr 260px;
-  gap: 66px;
-  align-items: center;
-  background: linear-gradient(90deg, #fffbed 0%, #ffffff 40%);
-  border: 1px solid var(--line);
-  border-left: 6px solid var(--brand);
-  border-radius: 12px;
-  padding: 15px;
-}
-
-@media (max-width: 800px) {
-  .vehicle-card1 {
-    grid-template-columns: 1fr;
-    text-align: left;
-    gap: 16px;
-    padding: 12px;
-  }
-}
-
-.vehicle-media {
-  width: 100%;
-  display: block;
-  position: relative;
-  overflow: hidden;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.vehicle-image-clickable {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.vehicle-image-clickable:hover {
-  transform: scale(1.05);
-  opacity: 0.95;
-}
-
-.image-count-badge {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.vehicle-media img {
-  width: 100%;
-  height: auto;
-  min-height: 200px;
-  max-height: 300px;
-  object-fit: cover;
-  display: block;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #fff;
-}
-
-@media (max-width: 768px) {
-  .vehicle-media {
-    width: 100%;
-    margin-bottom: 12px;
-  }
-  
-  .vehicle-media img {
-    width: 100%;
-    height: 220px;
-    min-height: 220px;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-@media (max-width: 480px) {
-  .vehicle-media img {
-    height: 200px;
-    min-height: 200px;
-  }
-}
-
-.vehicle-title {
-  margin: 0 0 4px;
-}
-
-.vehicle-price {
-  color: #8a2d00;
-  font-weight: 800;
-  margin: 6px 0;
-}
-
-.vehicle-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.vehicle-cta {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid transparent;
-  text-decoration: none;
-}
-
-.btn-outline {
-  background: #fffbe6;
-  border-color: var(--brand-700);
-  color: #1f2937;
-}
-
-.btn-outline:hover {
-  background: #fff2b3;
-}
+/* Vehicle Card Styles - Deprecated / Replaced by Tailwind + Shadcn */
 
 /* Image Lightbox Styles */
 .image-lightbox {
@@ -159,6 +20,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -189,6 +51,7 @@
     transform: scale(0.9);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -304,4 +167,3 @@
     max-height: 90vh;
   }
 }
-

@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getVehicleById } from '../api/bikeApi';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import {
-  FiMapPin, FiCalendar, FiEye, FiChevronLeft, FiChevronRight,
+  FiMapPin, FiCalendar, FiChevronLeft, FiChevronRight,
   FiPhone, FiHeart, FiActivity, FiSettings, FiTag, FiDroplet,
-  FiAward, FiTruck
+  FiAward, FiTruck, FiShare2, FiMessageCircle, FiArrowLeft
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF, FaXTwitter, FaInstagram } from 'react-icons/fa6';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Button } from './ui/button';
 import './VehicleDetails.css';
 
 const formatPrice = price => (price == null ? 'Negotiable' : `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`);
@@ -27,7 +29,7 @@ const VehicleDetails = ({ allVehicles }) => {
   const [remoteVehicle, setRemoteVehicle] = useState(null);
   const [remoteError, setRemoteError] = useState('');
 
-  // Scroll to top and reset gallery index when visiting/changing vehicle (Safari-safe)
+  // Scroll to top and reset gallery index when visiting/changing vehicle
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setIdx(0);
@@ -42,7 +44,6 @@ const VehicleDetails = ({ allVehicles }) => {
     let alive = true;
     setRemoteError('');
 
-    // If not in context (e.g., right after posting), fetch from backend
     if (!vehicle && id) {
       getVehicleById(id)
         .then((v) => {
@@ -76,220 +77,255 @@ const VehicleDetails = ({ allVehicles }) => {
   const prev = () => setIdx(i => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
   const whats = useMemo(() => (activeVehicle ? whatsappPhoneFromLK(activeVehicle.phone ?? '0714029197') : ''), [activeVehicle]);
 
+  if (!activeVehicle && remoteError) {
+    return (
+      <div className="container mx-auto py-12 px-4 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Listing not found</h2>
+        <p className="text-muted-foreground mb-6">{remoteError}</p>
+        <Button onClick={() => navigate(-1)} variant="outline">
+          <FiArrowLeft className="mr-2" /> Go Back
+        </Button>
+      </div>
+    );
+  }
+
+  if (!activeVehicle) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[50vh]">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-4 w-48 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <main className="vehicle-details">
-      <div className="container">
-        {!vehicle ? (
-          <>
-            <div className="vd-top">
-              <button className="link back" onClick={() => navigate(-1)}>← Back</button>
-            </div>
-            <h1 className="vd-title">Listing not found</h1>
-            <p>{remoteError || 'Please go back and try another vehicle.'}</p>
-          </>
-        ) : (
-          <>
-            <div className="vd-top">
-              <button className="link back" onClick={() => navigate(-1)}>← Back</button>
-            </div>
+    <main className="min-h-screen bg-gray-50/50 pb-20 pt-8 md:pt-14">
+      {/* Breadcrumb / Back Navigation - Floating or Fixed top if needed, but here just standard */}
+      <div className="container mx-auto px-4 mb-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="text-muted-foreground hover:text-foreground pl-0 hover:bg-transparent transition-colors"
+        >
+          <FiArrowLeft className="mr-2 h-4 w-4" /> Back to listings
+        </Button>
+      </div>
 
-            <h1 className="vd-title">{activeVehicle.title}</h1>
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            <div className="vd-meta">
-              {activeVehicle.make && <span className="make-pill">{activeVehicle.make}</span>}
-              <span className="meta-item">
-                <FiCalendar aria-hidden="true" /> {toISODate(activeVehicle.postedAt)}
-              </span>
-              <span className="meta-item">
-                <FiMapPin aria-hidden="true" /> {activeVehicle.location}
-              </span>
-              <span className="meta-item">
-                <FiEye aria-hidden="true" /> 113 views
-              </span>
-            </div>
+          {/* LEFT COLUMN: Gallery & Details */}
+          <div className="lg:col-span-8 space-y-8">
 
-            <div className="vd-grid">
-              <section className="vd-left">
-                <div className="gallery">
-                  <button className="nav prev" onClick={prev} aria-label="Previous photo">
-                    <FiChevronLeft />
-                  </button>
-                  {photos.length > 0 && (
-                    <img
-                      src={photos[idx]}
-                      alt={`${vehicle.title} - ${idx + 1}`}
-                      className="hero-photo"
-                    />
-                  )}
-                  <button className="nav next" onClick={next} aria-label="Next photo">
-                    <FiChevronRight />
-                  </button>
-                  {photos.length > 0 && (
-                    <div className="counter">{idx + 1}/{photos.length}</div>
-                  )}
-                </div>
-
-                {photos.length > 1 && (
-                  <div className="thumbs">
-                    {photos.map((p, i) => (
-                      <button
-                        key={p + i}
-                        className={`thumb ${i === idx ? 'active' : ''}`}
-                        onClick={() => setIdx(i)}
-                        aria-label={`Photo ${i + 1}`}
-                      >
-                        <img src={p} alt={`thumb ${i + 1}`} />
-                      </button>
-                    ))}
-                  </div>
+            {/* Gallery Section */}
+            <div className="space-y-4">
+              <div className="relative aspect-[16/9] bg-black rounded-xl overflow-hidden shadow-lg group">
+                {photos.length > 0 ? (
+                  <img
+                    src={photos[idx]}
+                    alt={`${activeVehicle.title} - View ${idx + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-500">No images available</div>
                 )}
 
-                <section className="core-info">
-                  <h3 className="section-title">Vehicle Specifications</h3>
-                  <div className="info-cards">
-                    <div className="info-card">
-                      <div className="row">
-                        <span className="label">
-                          <FiActivity className="row-icon" /> Mileage
-                        </span>
-                        <span className="value">
-                          {vehicle.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} km` : '—'}
-                        </span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiSettings className="row-icon" /> Engine Capacity
-                        </span>
-                        <span className="value">
-                          {vehicle.engineCapacityCc != null ? `${vehicle.engineCapacityCc} cc` : '—'}
-                        </span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiSettings className="row-icon" /> Transmission
-                        </span>
-                        <span className="value">{vehicle.transmission || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiAward className="row-icon" /> Manufacturer
-                        </span>
-                        <span className="value">{vehicle.make || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiCalendar className="row-icon" /> Model Year
-                        </span>
-                        <span className="value">{vehicle.year || '—'}</span>
-                      </div>
+                {photos.length > 1 && (
+                  <>
+                    <button
+                      onClick={prev}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                      aria-label="Previous image"
+                    >
+                      <FiChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={next}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                      aria-label="Next image"
+                    >
+                      <FiChevronRight size={24} />
+                    </button>
+                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium">
+                      {idx + 1} / {photos.length}
                     </div>
+                  </>
+                )}
+              </div>
 
-                    <div className="info-card">
-                      <div className="row">
-                        <span className="label">
-                          <FiTag className="row-icon" /> Condition
-                        </span>
-                        <span className="value">{vehicle.condition || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiTruck className="row-icon" /> Model
-                        </span>
-                        <span className="value">{vehicle.model || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiDroplet className="row-icon" /> Fuel Type
-                        </span>
-                        <span className="value">{vehicle.fuelType || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiTag className="row-icon" /> Colour
-                        </span>
-                        <span className="value">{vehicle.color || '—'}</span>
-                      </div>
-                      <div className="row">
-                        <span className="label">
-                          <FiTruck className="row-icon" /> Vehicle Type
-                        </span>
-                        <span className="value">{vehicle.type || '—'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </section>
-
-              <aside className="vd-right">
-                <div className="price-card">
-                  <div className="price-header">
-                    <span className="price-label">Price</span>
-                    <div className="price">{formatPrice(vehicle.price)}</div>
-                  </div>
-                  <div className="mini-info">
-                    <div className="mini-row">
-                      <span><FiActivity className="mini-icon" /> Mileage</span>
-                      <strong>{vehicle.mileageKm != null ? `${vehicle.mileageKm.toLocaleString()} km` : '—'}</strong>
-                    </div>
-                    <div className="mini-row">
-                      <span><FiTruck className="mini-icon" /> Model</span>
-                      <strong>{vehicle.model || '—'}</strong>
-                    </div>
-                    <div className="mini-row">
-                      <span><FiCalendar className="mini-icon" /> Model Year</span>
-                      <strong>{vehicle.year || '—'}</strong>
-                    </div>
-                    <div className="mini-row">
-                      <span><FiCalendar className="mini-icon" /> Register Year</span>
-                      <strong>{vehicle.registerYear || vehicle.year || '—'}</strong>
-                    </div>
-                  </div>
+              {/* Thumbnails */}
+              {photos.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {photos.map((p, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setIdx(i)}
+                      className={`relative flex-shrink-0 w-24 aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent opacity-70 hover:opacity-100'
+                        }`}
+                    >
+                      <img src={p} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
                 </div>
-
-                <div className="contact-card">
-                  <a href={`tel:${onlyDigits(vehicle.phone || '0714029197')}`} className="phone">
-                    <FiPhone /> {vehicle.phone || '0714029197'}
-                  </a>
-                  <div className="actions">
-                    {whats && (
-                      <a
-                        className="btn btn-whatsapp"
-                        href={`https://wa.me/${whats}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FaWhatsapp /> Chat on WhatsApp
-                      </a>
-                    )}
-                    <a className="btn btn-outline" href="#" onClick={e => e.preventDefault()}>
-                      Chat with Owner
-                    </a>
-                  </div>
-                </div>
-
-                <div className="share-card">
-                  <div className="share-title">Share this ad</div>
-                  <div className="share-row">
-                    <a className="icon-share" href="#" onClick={e => e.preventDefault()} aria-label="Share to Facebook">
-                      <FaFacebookF />
-                    </a>
-                    <a className="icon-share" href="#" onClick={e => e.preventDefault()} aria-label="Share to X">
-                      <FaXTwitter />
-                    </a>
-                    <a className="icon-share" href="#" onClick={e => e.preventDefault()} aria-label="Share to Instagram">
-                      <FaInstagram />
-                    </a>
-                  </div>
-                  <button className="btn btn-save" type="button">
-                    <FiHeart /> Save
-                  </button>
-                </div>
-              </aside>
+              )}
             </div>
-          </>
-        )}
+
+            {/* Vehicle Overview / Specs */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <FiActivity className="text-primary" /> Vehicle Specifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Spec Items */}
+                  <SpecItem icon={FiAward} label="Make" value={activeVehicle.make} />
+                  <SpecItem icon={FiTruck} label="Model" value={activeVehicle.model} />
+                  <SpecItem icon={FiCalendar} label="Year" value={activeVehicle.year} />
+                  <SpecItem icon={FiActivity} label="Mileage" value={activeVehicle.mileageKm ? `${activeVehicle.mileageKm.toLocaleString()} km` : null} />
+                  <SpecItem icon={FiSettings} label="Engine" value={activeVehicle.engineCapacityCc ? `${activeVehicle.engineCapacityCc} cc` : null} />
+                  <SpecItem icon={FiSettings} label="Transmission" value={activeVehicle.transmission} />
+                  <SpecItem icon={FiDroplet} label="Fuel Type" value={activeVehicle.fuelType} />
+                  <SpecItem icon={FiTag} label="Condition" value={activeVehicle.condition} />
+                  <SpecItem icon={FiTag} label="Color" value={activeVehicle.color} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Additional Description could go here if the data existed */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Description</CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground leading-relaxed">
+                <p>
+                  Check out this {activeVehicle.condition || 'used'} {activeVehicle.make} {activeVehicle.model} from {activeVehicle.year}.
+                  It is currently located in {activeVehicle.location}.
+                  {activeVehicle.mileageKm ? ` This vehicle has done approximately ${activeVehicle.mileageKm.toLocaleString()} km.` : ''}
+                  For more details or to arrange a viewing, please contact the seller using the options provided.
+                </p>
+              </CardContent>
+            </Card>
+
+          </div>
+
+          {/* RIGHT COLUMN: Info & Actions */}
+          <div className="lg:col-span-4 space-y-6">
+
+            {/* Main Info Card */}
+            <Card className="border-primary/20 shadow-md">
+              <CardContent className="p-6 space-y-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-2">{activeVehicle.title}</h1>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <FiMapPin className="text-primary" />
+                    {activeVehicle.location}
+                    <span className="mx-1">•</span>
+                    <span>{toISODate(activeVehicle.postedAt)}</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <div className="text-sm text-muted-foreground mb-1">Price</div>
+                  <div className="text-4xl font-bold text-primary">{formatPrice(activeVehicle.price)}</div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 pt-2">
+                  <a href={`tel:${onlyDigits(activeVehicle.phone || '0714029197')}`} className="w-full">
+                    <Button className="w-full text-lg h-12 gap-2 shadow-sm" size="lg">
+                      <FiPhone /> Call Seller
+                    </Button>
+                  </a>
+
+                  {whats && (
+                    <a
+                      href={`https://wa.me/${whats}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full"
+                    >
+                      <Button variant="outline" className="w-full h-12 gap-2 border-green-500 text-green-600 hover:bg-green-50">
+                        <FaWhatsapp size={20} /> WhatsApp
+                      </Button>
+                    </a>
+                  )}
+
+                  <Button variant="secondary" className="w-full h-12 gap-2">
+                    <FiMessageCircle /> Chat with Owner
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Seller Info / Safety */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground font-semibold">Seller Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-400">
+                    <FiTruck />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Verified Seller</div>
+                    <div className="text-xs text-muted-foreground">Member since 2024</div>
+                  </div>
+                </div>
+                <div className="text-sm text-muted-foreground bg-yellow-50 p-3 rounded-md border border-yellow-100">
+                  <strong className="text-yellow-800 block mb-1">Safety Tip</strong>
+                  Always meet in a public place. Do not make payments before inspecting the vehicle.
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Share */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FiShare2 /> Share this Ad
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-2 justify-between">
+                  <Button variant="outline" size="icon" className="rounded-full hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200">
+                    <FaFacebookF />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full hover:text-black hover:bg-gray-50 hover:border-gray-400">
+                    <FaXTwitter />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full hover:text-pink-600 hover:bg-pink-50 hover:border-pink-200">
+                    <FaInstagram />
+                  </Button>
+                  <Button variant="outline" className="flex-grow gap-2">
+                    <FiHeart /> Save
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
       </div>
     </main>
+  );
+};
+
+const SpecItem = ({ icon: Icon, label, value }) => {
+  return (
+    <div className="flex flex-col p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
+        <Icon className="w-4 h-4" />
+        {label}
+      </div>
+      <div className="font-medium text-gray-900 truncate">
+        {value || '—'}
+      </div>
+    </div>
   );
 };
 

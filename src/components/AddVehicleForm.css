@@ -14,7 +14,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   max-width: 980px;
   margin: 0 auto;
 }
@@ -48,7 +48,7 @@
   font-size: 14px;
 }
 
-.add-vehicle-page .vehicle-form label > span {
+.add-vehicle-page .vehicle-form label>span {
   color: #64748b;
   font-weight: 600;
 }
@@ -226,7 +226,7 @@
   background: #fcfcfd;
   color: #0f172a;
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-  box-shadow: inset 0 1px 2px rgba(2,6,23,0.03);
+  box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.03);
 }
 
 /* Hover/focus feel */
@@ -252,7 +252,7 @@
 }
 
 /* Label styling for a cleaner look */
-.add-vehicle-page .vehicle-form label > span {
+.add-vehicle-page .vehicle-form label>span {
   font-size: 13px;
   font-weight: 600;
   color: #64748b;
@@ -275,8 +275,8 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
   .add-vehicle-page .vehicle-form .grid label:has(> input[name="title"]) {
     grid-column: 1 / -1;
   }
 }
-
