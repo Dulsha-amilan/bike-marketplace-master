@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
@@ -29,6 +29,210 @@ const TYPES = [
 ];
 
 const MAX_UPLOAD_IMAGES = 4;
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function TailwindDatePicker({ value, onChange, placeholder = "Select date", className = "" }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const initialDate = value ? new Date(value) : new Date();
+  const [currentYear, setCurrentYear] = useState(isNaN(initialDate.getTime()) ? new Date().getFullYear() : initialDate.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(isNaN(initialDate.getTime()) ? new Date().getMonth() : initialDate.getMonth());
+  
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (value) {
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) {
+        setCurrentYear(d.getFullYear());
+        setCurrentMonth(d.getMonth());
+      }
+    }
+  }, [value]);
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const startDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
+
+  const maxYear = new Date().getFullYear() + 1;
+  const years = [];
+  for (let y = maxYear; y >= 1980; y--) {
+    years.push(y);
+  }
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(prev => prev - 1);
+    } else {
+      setCurrentMonth(prev => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(prev => prev + 1);
+    } else {
+      setCurrentMonth(prev => prev + 1);
+    }
+  };
+
+  const handleSelectDay = (day) => {
+    const formattedMonth = String(currentMonth + 1).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
+    onChange(dateStr);
+    setIsOpen(false);
+  };
+
+  const formatSelectedDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  const blanks = Array(startDayOfWeek).fill(null);
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const gridCells = [...blanks, ...days];
+
+  const selectedDay = value ? new Date(value).getDate() : null;
+  const isSameMonthAndYear = value && 
+    new Date(value).getMonth() === currentMonth && 
+    new Date(value).getFullYear() === currentYear;
+
+  const today = new Date();
+  const isToday = (day) => {
+    return today.getDate() === day && 
+      today.getMonth() === currentMonth && 
+      today.getFullYear() === currentYear;
+  };
+
+  return (
+    <div className={`relative w-full ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-11 md:h-12 w-full rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 items-center justify-between hover:bg-muted/10 text-left"
+      >
+        <span className={value ? "text-primary font-medium" : "text-muted-foreground"}>
+          {value ? formatSelectedDate(value) : placeholder}
+        </span>
+        <Calendar className="w-4 h-4 text-muted-foreground" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 mt-2 z-50 p-4 w-72 bg-card border border-border/80 rounded-2xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={handlePrevMonth}
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            
+            <div className="flex gap-1.5 items-center">
+              <select
+                value={currentMonth}
+                onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
+              >
+                {MONTH_NAMES.map((name, i) => (
+                  <option key={i} value={i} className="text-primary bg-card">{name}</option>
+                ))}
+              </select>
+
+              <select
+                value={currentYear}
+                onChange={(e) => setCurrentYear(Number(e.target.value))}
+                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y} className="text-primary bg-card">{y}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleNextMonth}
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-y-1 mb-2 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <span>Su</span>
+            <span>Mo</span>
+            <span>Tu</span>
+            <span>We</span>
+            <span>Th</span>
+            <span>Fr</span>
+            <span>Sa</span>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {gridCells.map((day, idx) => {
+              if (day === null) {
+                return <div key={`blank-${idx}`} className="w-8 h-8" />;
+              }
+
+              const isSelected = isSameMonthAndYear && selectedDay === day;
+              const currentIsToday = isToday(day);
+
+              return (
+                <button
+                  key={`day-${day}`}
+                  type="button"
+                  onClick={() => handleSelectDay(day)}
+                  className={`
+                    w-8 h-8 text-xs font-semibold rounded-full flex items-center justify-center transition-all select-none
+                    ${isSelected ? 'bg-amber-400 text-black shadow-md shadow-amber-400/25 font-extrabold hover:bg-amber-400' : ''}
+                    ${!isSelected && currentIsToday ? 'border border-amber-400 text-amber-500 font-bold' : ''}
+                    ${!isSelected && !currentIsToday ? 'hover:bg-muted/70 text-primary' : ''}
+                  `}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+
+          {value && (
+            <div className="mt-3 pt-2.5 border-t border-border/60 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setIsOpen(false);
+                }}
+                className="text-[10px] text-destructive hover:underline font-bold tracking-wide uppercase"
+              >
+                Clear Date
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AddVehicleForm() {
   const navigate = useNavigate();
@@ -184,7 +388,9 @@ export default function AddVehicleForm() {
   };
 
   const isStep2Valid = () => {
-    return form.year !== '' && Number(form.year) > 1900 && Number(form.year) <= new Date().getFullYear() + 1;
+    if (form.year === '') return false;
+    const yearVal = new Date(form.year).getFullYear();
+    return !isNaN(yearVal) && yearVal > 1900 && yearVal <= new Date().getFullYear() + 1;
   };
 
   const isStep3Valid = () => {
@@ -238,8 +444,8 @@ export default function AddVehicleForm() {
       fd.append('make', form.make);
       fd.append('model', form.model);
       fd.append('condition', form.condition);
-      if (form.year) fd.append('year', String(form.year));
-      if (form.registerYear) fd.append('registerYear', String(form.registerYear));
+      if (form.year) fd.append('year', String(new Date(form.year).getFullYear()));
+      if (form.registerYear) fd.append('registerYear', String(new Date(form.registerYear).getFullYear()));
       if (!form.negotiable && form.price) fd.append('price', String(form.price));
       if (form.mileageKm) fd.append('mileageKm', String(form.mileageKm));
       if (form.engineCapacityCc) fd.append('engineCapacityCc', String(form.engineCapacityCc));
@@ -291,7 +497,7 @@ export default function AddVehicleForm() {
     <main className="container mx-auto py-6 md:py-12 px-4 max-w-5xl pb-28 md:pb-12">
       {/* Title & Subtitle */}
       <div className="mb-6 md:mb-10 text-center space-y-2 md:space-y-3">
-        <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+        <div >
         
         </div>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
@@ -491,13 +697,14 @@ export default function AddVehicleForm() {
                       name="title"
                       value={form.title}
                       onChange={handleChange}
+                      maxLength={100}
                       placeholder="e.g. Honda CBR150R 2022 - Mint Condition"
                       className={`h-11 md:h-12 rounded-xl text-sm focus:ring-amber-500/20 focus:border-amber-400 ${attemptedNext && form.title.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
                     />
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-muted-foreground gap-1 px-1">
                       <span>Catchy titles with condition details attract 3x more clicks.</span>
-                      <span className={`${form.title.length > 50 ? 'text-green-600 font-medium' : ''}`}>
-                        {form.title.length} characters
+                      <span className={`font-semibold ${form.title.length >= 100 ? 'text-red-500' : (form.title.length > 80 ? 'text-amber-500' : 'text-muted-foreground')}`}>
+                        {form.title.length}/100 characters
                       </span>
                     </div>
                     {attemptedNext && form.title.trim() === '' && (
@@ -529,17 +736,14 @@ export default function AddVehicleForm() {
                   
                   {/* Model Year */}
                   <div className="space-y-2">
-                    <Label htmlFor="year" className="text-sm font-semibold flex items-center gap-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Calendar className="w-4 h-4 text-muted-foreground" /> Model Year <span className="text-destructive">*</span>
                     </Label>
-                    <Input 
-                      type="number" 
-                      id="year" 
-                      name="year" 
-                      value={form.year} 
-                      onChange={handleChange} 
-                      placeholder="e.g. 2022" 
-                      className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && !isStep2Valid() ? 'border-destructive bg-destructive/5' : ''}`}
+                    <TailwindDatePicker
+                      value={form.year}
+                      onChange={(val) => handleSelectChange('year', val)}
+                      placeholder="Select Model Year"
+                      className={attemptedNext && !isStep2Valid() ? 'border border-destructive rounded-xl bg-destructive/5' : ''}
                     />
                     {attemptedNext && !isStep2Valid() && (
                       <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
@@ -550,17 +754,13 @@ export default function AddVehicleForm() {
 
                   {/* Register Year */}
                   <div className="space-y-2">
-                    <Label htmlFor="registerYear" className="text-sm font-semibold flex items-center gap-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Calendar className="w-4 h-4 text-muted-foreground" /> Registration Year
                     </Label>
-                    <Input 
-                      type="number" 
-                      id="registerYear" 
-                      name="registerYear" 
-                      value={form.registerYear} 
-                      onChange={handleChange} 
-                      placeholder="e.g. 2022" 
-                      className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm"
+                    <TailwindDatePicker
+                      value={form.registerYear}
+                      onChange={(val) => handleSelectChange('registerYear', val)}
+                      placeholder="Select Registration Year"
                     />
                   </div>
 
@@ -613,17 +813,20 @@ export default function AddVehicleForm() {
 
                   {/* Fuel Type */}
                   <div className="space-y-2">
-                    <Label htmlFor="fuelType" className="text-sm font-semibold flex items-center gap-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Fuel className="w-4 h-4 text-muted-foreground" /> Fuel Type
                     </Label>
-                    <Input 
-                      id="fuelType" 
-                      name="fuelType" 
-                      value={form.fuelType} 
-                      onChange={handleChange} 
-                      placeholder="e.g. Petrol, Electric, Hybrid" 
-                      className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm"
-                    />
+                    <Select value={form.fuelType} onValueChange={(val) => handleSelectChange('fuelType', val)}>
+                      <SelectTrigger className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm">
+                        <SelectValue placeholder="Select Fuel Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Petrol">Petrol</SelectItem>
+                        <SelectItem value="Diesel">Diesel</SelectItem>
+                        <SelectItem value="Electric">Electric</SelectItem>
+                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Color */}
@@ -976,7 +1179,7 @@ export default function AddVehicleForm() {
                         <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-semibold text-muted-foreground mt-auto pt-4 border-t border-border/40">
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
-                            <span>{form.year || 'Year'}</span>
+                            <span>{form.year ? new Date(form.year).getFullYear() : 'Year'}</span>
                           </div>
                           {form.mileageKm && (
                             <div className="flex items-center gap-1.5">
