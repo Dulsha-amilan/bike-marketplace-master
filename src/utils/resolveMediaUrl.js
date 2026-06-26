@@ -16,11 +16,16 @@ const BACKEND_ORIGIN = backendOriginFromApiBase();
 export function resolveMediaUrl(url) {
   if (!url) return url;
 
-  // Uploaded assets are served from the backend.
+  // Full URLs (Supabase Storage CDN, external images) — use as-is
+  if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
+    return url;
+  }
+
+  // Legacy: uploaded assets served from the backend's /uploads/ path
   if (typeof url === 'string' && url.startsWith('/uploads/')) {
     return BACKEND_ORIGIN ? `${BACKEND_ORIGIN}${url}` : url;
   }
 
-  // Everything else (public assets, external URLs) can be used as-is.
+  // Everything else (public assets, relative paths) can be used as-is.
   return url;
 }
