@@ -494,7 +494,7 @@ export default function AddVehicleForm() {
   ];
 
   return (
-    <main className="container mx-auto py-6 md:py-12 px-4 max-w-5xl pb-28 md:pb-12">
+    <main className="container mx-auto py-6 md:py-12 px-4 max-w-5xl pb-12">
       {/* Title & Subtitle */}
       <div className="mb-6 md:mb-10 text-center space-y-2 md:space-y-3">
         <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
@@ -1201,11 +1201,8 @@ export default function AddVehicleForm() {
               </div>
             )}
 
-            {/* Mobile Sticky Control Bar (Static on Desktop) */}
-            <div className="
-              fixed bottom-0 left-0 right-0 bg-card border-t border-border/80 p-4 z-40 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] flex items-center justify-between
-              md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none md:z-auto md:pt-6
-            ">
+            {/* Step Controls (Footer Buttons) */}
+            <div className="flex items-center justify-between pt-6 border-t border-border/40 mt-6">
               {step > 1 ? (
                 <Button
                   type="button"
