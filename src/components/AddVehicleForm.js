@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
-import {
-  downloadMergedSampleVehiclesJS,
-  downloadSingleVehicleJS,
-  downloadUserVehiclesJS,
-  downloadVehicleObjectSnippet,
-} from '../utils/exportVehicles';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -37,7 +31,7 @@ const MAX_UPLOAD_IMAGES = 4;
 
 export default function AddVehicleForm() {
   const navigate = useNavigate();
-  const { addVehicle, userVehicles, allVehicles } = useVehicles();
+  const { addVehicle } = useVehicles();
 
   const initialForm = {
     type: 'scooters',
@@ -150,11 +144,6 @@ export default function AddVehicleForm() {
   const viewPostedAd = () => {
     if (postedVehicle?.id) navigate(`/vehicle/${encodeURIComponent(postedVehicle.id)}`);
   };
-
-  const downloadLastAsJs = () => { if (postedVehicle) downloadSingleVehicleJS(postedVehicle); };
-  const downloadObjectSnippet = () => { if (postedVehicle) downloadVehicleObjectSnippet(postedVehicle); };
-  const downloadUserAdsJs = () => { downloadUserVehiclesJS(userVehicles); };
-  const downloadMergedJs = () => { downloadMergedSampleVehiclesJS(allVehicles); };
 
   return (
     <main className="container mx-auto py-12 px-4 max-w-5xl">

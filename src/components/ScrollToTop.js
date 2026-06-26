@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const ScrollToTop = ({ smooth = false }) => {
@@ -15,7 +15,7 @@ const ScrollToTop = ({ smooth = false }) => {
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior });
     });
-  }, [pathname]);
+  }, [pathname, smooth]);
 
   return null;
 };

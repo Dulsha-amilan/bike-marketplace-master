@@ -8,7 +8,7 @@ import {
   FiAward, FiTruck, FiShare2, FiMessageCircle, FiArrowLeft
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF, FaXTwitter, FaInstagram } from 'react-icons/fa6';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import './VehicleDetails.css';
 
