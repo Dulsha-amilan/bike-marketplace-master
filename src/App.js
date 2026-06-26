@@ -1,9 +1,8 @@
 // App.js - Frontend-only posting via localStorage (VehiclesProvider) + AddVehicleForm route
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Header from './components/Header';
-import SearchBar from './components/SearchBar';
 import QuickFilters from './components/QuickFilters';
 import FeaturedListings from './components/FeaturedListings';
 import SpareParts from './components/SpareParts';
