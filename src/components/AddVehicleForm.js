@@ -150,7 +150,7 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select date", clas
               <select
                 value={currentMonth}
                 onChange={(e) => setCurrentMonth(Number(e.target.value))}
-                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
+                className="bg-transparent text-base md:text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
               >
                 {MONTH_NAMES.map((name, i) => (
                   <option key={i} value={i} className="text-primary bg-card">{name}</option>
@@ -160,7 +160,7 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select date", clas
               <select
                 value={currentYear}
                 onChange={(e) => setCurrentYear(Number(e.target.value))}
-                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
+                className="bg-transparent text-base md:text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
               >
                 {years.map((y) => (
                   <option key={y} value={y} className="text-primary bg-card">{y}</option>
