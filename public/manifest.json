@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "BikeEKA",
+  "name": "BikeEKA — Buy & Sell Bikes in Sri Lanka",
+  "description": "Sri Lanka's #1 bike marketplace. Browse motorcycles, scooters, spare parts and rider gear.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,18 +9,18 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "bikeeka.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "bikeeka.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#F59E0B",
+  "background_color": "#0a0a0a"
 }

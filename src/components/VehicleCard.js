@@ -86,12 +86,12 @@ const VehicleCard = ({ vehicle }) => {
   return (
     <>
       <Card className="vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 hover:-translate-y-1 bg-card">
-        <div className="vehicle-media relative aspect-[4/3] overflow-hidden cursor-pointer bg-gray-100" onClick={openLightbox}>
+        <div className="vehicle-media relative aspect-[16/9] overflow-hidden cursor-pointer bg-gray-900" onClick={openLightbox}>
           <img
             src={resolveMediaUrl(image)}
             alt={title}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 

@@ -137,8 +137,16 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                     </div>
 
                     <div className="space-y-4">
-                        {/* Feature 1 */}
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group">
+                        {/* Feature 1 — waterfall card 1 (no delay) */}
+                        <div
+                            className={`flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group
+                                waterfall-card`}
+                            style={{
+                                opacity: animationState === 'revealed' ? 1 : 0,
+                                transform: animationState === 'revealed' ? 'translateY(0)' : 'translateY(-32px)',
+                                transition: 'opacity 0.45s ease-out 0ms, transform 0.45s cubic-bezier(0.22,1,0.36,1) 0ms',
+                            }}
+                        >
                             <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 group-hover:bg-yellow-500 group-hover:text-black transition-colors duration-300">
                                 <ShieldCheck className="w-6 h-6" />
                             </div>
@@ -150,8 +158,16 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                             </div>
                         </div>
 
-                        {/* Feature 2 */}
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group">
+                        {/* Feature 2 — waterfall card 2 (120ms delay) */}
+                        <div
+                            className={`flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group
+                                waterfall-card`}
+                            style={{
+                                opacity: animationState === 'revealed' ? 1 : 0,
+                                transform: animationState === 'revealed' ? 'translateY(0)' : 'translateY(-32px)',
+                                transition: 'opacity 0.45s ease-out 120ms, transform 0.45s cubic-bezier(0.22,1,0.36,1) 120ms',
+                            }}
+                        >
                             <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 group-hover:bg-yellow-500 group-hover:text-black transition-colors duration-300">
                                 <Wrench className="w-6 h-6" />
                             </div>
@@ -163,8 +179,16 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                             </div>
                         </div>
 
-                        {/* Feature 3 */}
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group">
+                        {/* Feature 3 — waterfall card 3 (240ms delay) */}
+                        <div
+                            className={`flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-left group
+                                waterfall-card`}
+                            style={{
+                                opacity: animationState === 'revealed' ? 1 : 0,
+                                transform: animationState === 'revealed' ? 'translateY(0)' : 'translateY(-32px)',
+                                transition: 'opacity 0.45s ease-out 240ms, transform 0.45s cubic-bezier(0.22,1,0.36,1) 240ms',
+                            }}
+                        >
                             <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 group-hover:bg-yellow-500 group-hover:text-black transition-colors duration-300">
                                 <ShoppingBag className="w-6 h-6" />
                             </div>
