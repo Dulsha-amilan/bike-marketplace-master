@@ -11,11 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { 
   Upload, CheckCircle, Image as ImageIcon, MapPin, Phone, 
   Bike, DollarSign, Calendar, Gauge, Fuel, Settings, Layers,
-  ChevronLeft, ChevronRight, X, Sparkles, Check, Trash2, Eye, Info, AlertCircle
+  ChevronLeft, ChevronRight, Sparkles, Check, Trash2, Eye, AlertCircle
 } from 'lucide-react';
 
 const TYPES = [
@@ -497,8 +497,8 @@ export default function AddVehicleForm() {
     <main className="container mx-auto py-6 md:py-12 px-4 max-w-5xl pb-28 md:pb-12">
       {/* Title & Subtitle */}
       <div className="mb-6 md:mb-10 text-center space-y-2 md:space-y-3">
-        <div >
-        
+        <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+          <Sparkles className="w-3 h-3 text-amber-500 animate-spin-slow" /> Marketplace Seller
         </div>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
           Sell Your Bike
