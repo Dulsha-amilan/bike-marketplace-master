@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Bike, ShieldCheck, Wrench, ShoppingBag } from 'lucide-react';
+import { PlusCircle, ShieldCheck, Wrench, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import desktopVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261152.mp4';
 import mobileVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261153.mp4';
 
 const Hero = ({ translations, searchFilters, setSearchFilters }) => {
     const [animationState, setAnimationState] = useState('initial'); // 'initial', 'shifting', 'revealed'
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Step 1: Display centered text, then start shifting to the left
@@ -25,7 +27,7 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
     }, []);
 
     return (
-        <div className="relative min-h-[650px] flex items-center justify-center overflow-hidden bg-black text-white">
+        <div className="relative min-h-[650px] flex items-center justify-center overflow-hidden bg-black text-white pb-12 lg:pb-0">
             {/* Background Videos */}
             <div className="absolute inset-0 overflow-hidden">
                 {/* Desktop Video (visible on md screens and larger) */}
@@ -52,7 +54,7 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70 z-[1]" />
             </div>
 
-            <div className="container relative z-10 grid lg:grid-cols-2 gap-12 items-center px-4 py-20">
+            <div className="container relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center px-4 pt-20 pb-8 lg:py-20">
 
                 {/* Left Content (Text Section & Search Bar) */}
                 <div 
@@ -79,9 +81,9 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                         </p>
                     </div>
 
-                    {/* Search Bar (Reveals after text shifts to the left) */}
+                    {/* Search Bar (Reveals after text shifts to the left - Hidden on mobile/tablet) */}
                     <div 
-                        className={`mt-8 transition-all duration-1000 delay-200 ease-out ${
+                        className={`mt-8 transition-all duration-1000 delay-200 ease-out hidden lg:block ${
                             animationState === 'revealed'
                                 ? 'opacity-100 translate-y-0 scale-100'
                                 : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
@@ -96,24 +98,30 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                         </div>
                     </div>
 
-                    {/* Features Badge (Reveals after search bar) */}
+                    {/* Mobile Post Ad CTA */}
                     <div 
-                        className={`flex flex-wrap gap-4 pt-6 transition-all duration-1000 delay-500 ease-out ${
+                        className={`flex justify-center pt-6 transition-all duration-1000 delay-500 ease-out lg:hidden ${
                             animationState === 'revealed'
                                 ? 'opacity-100 translate-y-0'
                                 : 'opacity-0 translate-y-4 pointer-events-none'
                         }`}
                     >
-                        <div className="flex items-center gap-2 text-sm text-slate-400 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800 mx-auto lg:mx-0">
-                            <Bike className="w-4 h-4 text-yellow-500" />
-                            <span>Thousands of bikes listed daily</span>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/post-ad')}
+                            className="group relative inline-flex min-h-[48px] items-center justify-center gap-2 overflow-hidden rounded-full border border-white/35 bg-white/15 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 active:scale-[0.98]"
+                        >
+                            <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-white/10 to-yellow-400/20 opacity-90" />
+                            <span className="absolute -left-8 top-0 h-full w-14 rotate-12 bg-white/35 blur-md transition-transform duration-500 group-hover:translate-x-44" />
+                            <PlusCircle className="relative z-10 h-5 w-5 text-yellow-300" />
+                            <span className="relative z-10">{translations.postAd}</span>
+                        </button>
                     </div>
                 </div>
 
                 {/* Right Content (Premium Site Features - Reveals after text shifts to the left) */}
                 <div 
-                    className={`hidden lg:flex flex-col gap-6 relative transition-all duration-[1200ms] delay-300 ease-out ${
+                    className={`flex flex-col gap-6 relative transition-all duration-[1200ms] delay-300 ease-out ${
                         animationState === 'revealed'
                             ? 'opacity-100 translate-x-0 scale-100'
                             : 'opacity-0 translate-x-16 scale-95 pointer-events-none'

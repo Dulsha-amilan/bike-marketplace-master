@@ -412,3 +412,39 @@
     font-size: 0.7rem;
   }
 }
+
+/* Polished mobile header sizing */
+@media (max-width: 768px) {
+  .header-content {
+    min-height: 58px;
+    padding: 0.45rem 0;
+  }
+
+  .logo-img {
+    max-height: 40px;
+    max-width: 124px;
+  }
+
+  .dropdown-toggle {
+    width: 44px;
+    height: 44px;
+    padding: 0.65rem;
+    border-radius: 10px;
+  }
+
+  .hamburger-line {
+    width: 22px;
+    height: 2.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-content {
+    min-height: 56px;
+  }
+
+  .logo-img {
+    max-height: 36px;
+    max-width: 112px;
+  }
+}

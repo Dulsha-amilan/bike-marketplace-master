@@ -198,7 +198,7 @@ function App() {
             />
 
             <section
-              className="filters-section mt-[-40px] relative z-20"
+              className="filters-section mt-6 lg:mt-[-40px] relative z-20"
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
