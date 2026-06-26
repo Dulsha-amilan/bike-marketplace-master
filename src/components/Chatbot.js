@@ -1,9 +1,12 @@
 // components/Chatbot.js
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getChatbotResponses } from '../api/bikeApi';
 import './Chatbot.css';
 
 const Chatbot = ({ language, translations }) => {
+  const location = useLocation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [responsesByLang, setResponsesByLang] = useState(null);
   const [messages, setMessages] = useState([
@@ -123,6 +126,11 @@ const Chatbot = ({ language, translations }) => {
     { text: language === 'english' ? 'Safety gear' : 'ආරක්ෂණ උපකරණ', value: 'safety gear' },
     { text: language === 'english' ? 'Contact support' : 'සහාය අමතන්න', value: 'contact support' }
   ];
+
+  // Hide chatbot on post-ad page to prevent overlapping with form footer controls
+  if (location.pathname.replace(/\/+$/, '') === '/post-ad') {
+    return null;
+  }
 
   return (
     <div className="chatbot-container">
