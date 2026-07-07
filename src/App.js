@@ -22,6 +22,11 @@ import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
 import AddVehicleForm from './components/AddVehicleForm';
 import Hero from './components/Hero';
 
+// Auth
+import { AuthProvider, useAuth } from './components/AuthContext';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
+
 // Small wrappers to inject allVehicles from context
 function CategoryListRoute() {
   const { allVehicles } = useVehicles();
@@ -30,6 +35,31 @@ function CategoryListRoute() {
 function VehicleDetailsRoute() {
   const { allVehicles } = useVehicles();
   return <VehicleDetails allVehicles={allVehicles} />;
+}
+
+// Protected route — redirects to /login if not authenticated
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div style={{
+          width: 40, height: 40,
+          border: '4px solid #e5e7eb',
+          borderTopColor: '#FFD600',
+          borderRadius: '50%',
+          animation: 'spin 0.7s linear infinite'
+        }} />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 }
 
 function App() {
@@ -217,33 +247,50 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      {/* Wrap everything with VehiclesProvider to supply allVehicles + actions */}
-      <VehiclesProvider>
-        <div className="App">
-          <Header
-            language={language}
-            setLanguage={setLanguage}
-            translations={translations[language]}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-          <main className="main-content">
+      <AuthProvider>
+        {/* Wrap everything with VehiclesProvider to supply allVehicles + actions */}
+        <VehiclesProvider>
+          <div className="App">
             <Routes>
-              <Route path="/" element={renderCurrentPage()} />
-              <Route path="/browse/:type" element={<CategoryListRoute />} />
-              <Route path="/vehicle/:id" element={<VehicleDetailsRoute />} />
-              <Route path="/post-ad" element={<AddVehicleForm />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Auth pages — rendered WITHOUT Header/Footer for immersive full-screen design */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+
+              {/* All other pages — rendered WITH Header/Footer */}
+              <Route path="*" element={
+                <>
+                  <Header
+                    language={language}
+                    setLanguage={setLanguage}
+                    translations={translations[language]}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                  />
+                  <main className="main-content">
+                    <Routes>
+                      <Route path="/" element={renderCurrentPage()} />
+                      <Route path="/browse/:type" element={<CategoryListRoute />} />
+                      <Route path="/vehicle/:id" element={<VehicleDetailsRoute />} />
+                      <Route path="/post-ad" element={
+                        <ProtectedRoute>
+                          <AddVehicleForm />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </main>
+                  <Footer
+                    language={language}
+                    setLanguage={setLanguage}
+                    translations={translations[language]}
+                  />
+                  <Chatbot language={language} translations={translations[language]} />
+                </>
+              } />
             </Routes>
-          </main>
-          <Footer
-            language={language}
-            setLanguage={setLanguage}
-            translations={translations[language]}
-          />
-          <Chatbot language={language} translations={translations[language]} />
-        </div>
-      </VehiclesProvider>
+          </div>
+        </VehiclesProvider>
+      </AuthProvider>
     </Router>
   );
 }

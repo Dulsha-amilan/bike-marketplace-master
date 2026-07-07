@@ -6,8 +6,11 @@ async function request(path, options) {
   const isFormData =
     typeof FormData !== 'undefined' && options?.body instanceof FormData;
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('bikeeka_auth_token') : null;
+
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options && options.headers ? options.headers : {}),
   };
 

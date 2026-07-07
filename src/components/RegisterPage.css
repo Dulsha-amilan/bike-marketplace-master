@@ -1,0 +1,136 @@
+/* ===================================================================
+   BIKEEKA.COM — REGISTER SPECIFIC OVERRIDES
+   Matches the premium dark/yellow theme of LoginPage.css
+   =================================================================== */
+
+.register-card-panel {
+  max-width: 460px; /* slightly wider for double column or density */
+}
+
+/* Optional label indicator */
+.label-optional {
+  opacity: 0.5;
+  text-transform: lowercase;
+  font-weight: 400;
+}
+
+/* Password strength indicator box */
+.auth-strength-box {
+  margin-top: 0.45rem;
+}
+
+.auth-strength-meter {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.auth-strength-progress {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.auth-strength-text {
+  font-size: 0.72rem;
+  margin-top: 0.25rem;
+  font-weight: 600;
+  display: block;
+}
+
+/* Password Strength States */
+.strength-level-0 .auth-strength-progress { width: 0%; }
+.strength-level-1 .auth-strength-progress { width: 25%; background-color: #ef4444; }
+.strength-level-1 .auth-strength-text { color: #fca5a5; }
+.strength-level-2 .auth-strength-progress { width: 50%; background-color: #f97316; }
+.strength-level-2 .auth-strength-text { color: #fdba74; }
+.strength-level-3 .auth-strength-progress { width: 75%; background-color: #eab308; }
+.strength-level-3 .auth-strength-text { color: #fde047; }
+.strength-level-4 .auth-strength-progress { width: 100%; background-color: #22c55e; }
+.strength-level-4 .auth-strength-text { color: #86efac; }
+
+/* Inline field validation error message */
+.auth-input-error-msg {
+  font-size: 0.75rem;
+  color: #fca5a5;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+/* Terms and Conditions checkbox alignment */
+.auth-terms-row {
+  margin-top: 0.25rem;
+}
+
+.terms-description-text {
+  line-height: 1.4;
+  font-size: 0.82rem;
+  color: #a3a3a3;
+}
+
+/* ─── Success Box card ─── */
+.auth-success-box {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 3rem 2.25rem;
+  background: rgba(25, 25, 25, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+  max-width: 420px;
+  width: 100%;
+  animation: cardFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.auth-success-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #FFD600;
+}
+
+.auth-success-circle {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+}
+
+.auth-success-circle svg {
+  width: 100%;
+  height: 100%;
+}
+
+.auth-check-path {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: drawCheck 0.6s ease 0.2s forwards;
+}
+
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+.auth-success-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.auth-success-text {
+  color: #a3a3a3;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Adjust layout on small mobile screens */
+@media (max-width: 500px) {
+  .register-card-panel .auth-card-container {
+    padding-top: 5rem;
+  }
+}
