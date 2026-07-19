@@ -17,7 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { 
   Upload, CheckCircle, Image as ImageIcon, MapPin, Phone, 
   Bike, DollarSign, Calendar, Gauge, Fuel, Settings, Layers,
-  ChevronLeft, ChevronRight, Sparkles, Check, Trash2, Eye, AlertCircle
+  ChevronLeft, ChevronRight, Sparkles, Check, Trash2, Eye, AlertCircle,
+  Camera, ClipboardCheck, ShieldCheck, Users, Timer
 } from 'lucide-react';
 
 const TYPES = [
@@ -281,7 +282,7 @@ export default function AddVehicleForm() {
   const brandRef = useRef(null);
 
   const { user } = useAuth();
-  const [maxUploadImages, setMaxUploadImages] = useState(user?.storageLimit || 5);
+  const [maxUploadImages, setMaxUploadImages] = useState(user?.storageLimit || MAX_UPLOAD_IMAGES);
   const [upgradeStatus, setUpgradeStatus] = useState('none');
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
@@ -307,7 +308,7 @@ export default function AddVehicleForm() {
   // Fetch upgrade request status
   useEffect(() => {
     if (user) {
-      setMaxUploadImages(user.storageLimit || 5);
+      setMaxUploadImages(user.storageLimit || MAX_UPLOAD_IMAGES);
       getStorageUpgradeStatus()
         .then((data) => {
           if (data && data.status) {
@@ -562,254 +563,376 @@ export default function AddVehicleForm() {
   };
 
   const steps = [
-    { number: 1, label: 'Identity', desc: 'Bike details' },
-    { number: 2, label: 'Technical Specs', desc: 'Specifications' },
-    { number: 3, label: 'Pricing & Contact', desc: 'Listing terms' },
-    { number: 4, label: 'Photos & Review', desc: 'Media & Review' },
+    { number: 1, label: 'Identity', desc: 'Bike basics', icon: Bike },
+    { number: 2, label: 'Technical Specs', desc: 'Condition and specs', icon: Settings },
+    { number: 3, label: 'Pricing & Contact', desc: 'Price and location', icon: Phone },
+    { number: 4, label: 'Photos & Review', desc: 'Media and preview', icon: Camera },
   ];
 
+  const currentStep = steps[step - 1];
+  const CurrentStepIcon = currentStep.icon;
+  const progressPercent = Math.round((step / steps.length) * 100);
+
+  const stepGuidance = {
+    1: 'Start with the exact bike type, brand, model, and a searchable ad title.',
+    2: 'Add real specs and condition notes so buyers can compare faster.',
+    3: 'Set the price, location, and phone number buyers should use.',
+    4: 'Upload a clean cover photo, review the preview, and publish.'
+  };
+
+  const canNavigateToStep = (targetStep) => {
+    if (targetStep <= step) return true;
+    if (targetStep > 1 && !isStep1Valid()) return false;
+    if (targetStep > 2 && !isStep2Valid()) return false;
+    if (targetStep > 3 && !isStep3Valid()) return false;
+    return true;
+  };
+
+  const handleStepSelect = (targetStep) => {
+    if (canNavigateToStep(targetStep)) {
+      setStep(targetStep);
+      setAttemptedNext(false);
+    } else {
+      setAttemptedNext(true);
+    }
+  };
+
   return (
-    <main className="container mx-auto py-6 md:py-12 px-4 max-w-5xl pb-12">
-      {/* Title & Subtitle */}
-      <div className="mb-6 md:mb-10 text-center space-y-2 md:space-y-3">
-        <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-          <Sparkles className="w-3 h-3 text-amber-500 animate-spin-slow" /> Marketplace Seller
+    <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
+      <div className="mx-auto max-w-6xl pb-12">
+        {/* Seller hero and guidance */}
+        <div className="mb-5 md:mb-7 grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
+          <section className="rounded-lg border border-border/70 bg-card p-5 shadow-sm md:p-7">
+            <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-2xl space-y-3">
+                <div className="inline-flex items-center gap-2 rounded-md bg-amber-500/10 px-3 py-1.5 text-xs font-bold uppercase text-amber-700">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Marketplace Seller
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-extrabold leading-tight text-foreground md:text-4xl lg:text-[46px]">
+                    Sell Your Bike
+                  </h1>
+                  <p className="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
+                    Post an ad in minutes and connect with thousands of local buyers. This guided form helps you create a clear, buyer-ready listing before it goes live.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 rounded-lg border border-border/70 bg-slate-50 p-2 text-center md:min-w-[310px]">
+                <div className="rounded-md bg-card px-2 py-3">
+                  <Timer className="mx-auto mb-1.5 h-4 w-4 text-amber-600" />
+                  <p className="text-[11px] font-bold text-foreground">Fast post</p>
+                  <p className="text-[10px] text-muted-foreground">4 steps</p>
+                </div>
+                <div className="rounded-md bg-card px-2 py-3">
+                  <Users className="mx-auto mb-1.5 h-4 w-4 text-emerald-600" />
+                  <p className="text-[11px] font-bold text-foreground">Local reach</p>
+                  <p className="text-[10px] text-muted-foreground">Buyer ready</p>
+                </div>
+                <div className="rounded-md bg-card px-2 py-3">
+                  <ShieldCheck className="mx-auto mb-1.5 h-4 w-4 text-sky-600" />
+                  <p className="text-[11px] font-bold text-foreground">Clear info</p>
+                  <p className="text-[10px] text-muted-foreground">Fewer repeats</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside className="rounded-lg border border-slate-900 bg-slate-950 p-5 text-white shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase text-amber-300">Draft Progress</p>
+                <h2 className="mt-1 text-xl font-extrabold">{currentStep.label}</h2>
+              </div>
+              <div className="rounded-md bg-white/10 px-3 py-2 text-sm font-extrabold">
+                {progressPercent}%
+              </div>
+            </div>
+
+            <div className="mt-5 h-2 rounded-full bg-white/20">
+              <div
+                className="h-full rounded-full bg-amber-400 transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            <div className="mt-5 space-y-3 text-sm text-slate-200">
+              <div className="flex gap-2">
+                <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                <p>{stepGuidance[step]}</p>
+              </div>
+              <div className="flex gap-2">
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                <p>Required fields are marked, and each step checks your ad before moving forward.</p>
+              </div>
+            </div>
+          </aside>
         </div>
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
-          Sell Your Bike
-        </h1>
-        <p className="text-sm md:text-lg text-muted-foreground max-w-xl mx-auto">
-          Post an ad in minutes and connect with thousands of local buyers.
-        </p>
-      </div>
 
-      {!postedVehicle ? (
-        <div className="space-y-6 md:space-y-8">
-          
-          {/* Responsive Stepper Container */}
-          <div className="bg-card border border-border/60 rounded-2xl p-4 md:p-6 shadow-sm">
-            
-            {/* Desktop-only Stepper */}
-            <div className="hidden md:flex relative justify-between items-center w-full z-10">
-              <div className="absolute top-[22px] left-[5%] right-[5%] h-0.5 bg-muted/60 z-0">
-                <div 
-                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 animate-pulse"
-                  style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-                />
-              </div>
+        {!postedVehicle ? (
+          <div className="space-y-6 md:space-y-8">
 
-              {steps.map((s) => {
-                const isActive = s.number === step;
-                const isCompleted = s.number < step;
-                return (
-                  <div 
-                    key={s.number} 
-                    className="flex flex-col items-center text-center relative z-10 cursor-pointer group"
-                    onClick={() => {
-                      if (s.number < step) {
-                        setStep(s.number);
-                        setAttemptedNext(false);
-                      } else if (s.number > step) {
-                        let canGo = true;
-                        if (step === 1 && !isStep1Valid()) canGo = false;
-                        if (step === 2 && !isStep2Valid() && s.number > 2) canGo = false;
-                        if (step === 3 && !isStep3Valid() && s.number > 3) canGo = false;
-                        if (canGo) {
-                          setStep(s.number);
-                          setAttemptedNext(false);
-                        } else {
-                          setAttemptedNext(true);
-                        }
-                      }
-                    }}
-                  >
-                    <div 
-                      className={`
-                        w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 shadow-sm
-                        ${isCompleted ? 'bg-green-500 text-white border-2 border-green-500' : ''}
-                        ${isActive ? 'bg-primary text-primary-foreground border-4 border-amber-400 scale-110 shadow-md ring-4 ring-amber-400/20' : ''}
-                        ${!isActive && !isCompleted ? 'bg-muted/70 text-muted-foreground border-2 border-border/80 group-hover:bg-muted group-hover:text-foreground' : ''}
-                      `}
-                    >
-                      {isCompleted ? <Check className="w-5 h-5 stroke-[3]" /> : s.number}
-                    </div>
-                    <div className="mt-2">
-                      <p className={`text-sm font-semibold tracking-wide transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
-                        {s.label}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/80 max-w-[120px] mx-auto mt-0.5">
-                        {s.desc}
-                      </p>
-                    </div>
+            {/* Responsive Stepper Container */}
+            <div className="overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
+              <div className="flex flex-col gap-3 border-b border-border/60 bg-slate-50/80 px-4 py-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <CurrentStepIcon className="h-5 w-5" />
                   </div>
-                );
-              })}
-            </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase text-muted-foreground">Create listing</p>
+                    <h2 className="text-base font-extrabold text-foreground md:text-lg">
+                      Step {step} of {steps.length}: {currentStep.label}
+                    </h2>
+                  </div>
+                </div>
 
-            {/* Mobile-only Stepper */}
-            <div className="flex md:hidden flex-col items-center w-full space-y-2.5">
-              <div className="flex justify-between items-center w-full text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                <span>Step {step} of 4</span>
-                <span className="text-amber-500 font-extrabold">{steps[step - 1].label}</span>
+                <div className="flex items-center justify-between gap-3 md:justify-end">
+                  <p className="text-xs font-semibold text-muted-foreground md:text-right">{currentStep.desc}</p>
+                  <span className="shrink-0 rounded-md bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-800">
+                    {progressPercent}% complete
+                  </span>
+                </div>
               </div>
-              
-              <div className="w-full bg-muted/60 h-2.5 rounded-full overflow-hidden shadow-inner">
-                <div 
-                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-300"
-                  style={{ width: `${(step / steps.length) * 100}%` }}
+
+              <div className="h-1.5 bg-muted">
+                <div
+                  className="h-full bg-amber-400 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              
-              <div className="flex justify-between w-full text-[10px] text-muted-foreground/90 font-medium pt-0.5">
-                <span>{step < 4 ? `Next: ${steps[step].label}` : 'Final Submission'}</span>
-                <span>{Math.round((step / steps.length) * 100)}% Complete</span>
+
+              <div className="grid grid-cols-1 gap-2 p-3 md:grid-cols-4 md:gap-3 md:p-4">
+                {steps.map((s) => {
+                  const isActive = s.number === step;
+                  const isCompleted = s.number < step;
+                  const StepIcon = s.icon;
+                  const statusText = isCompleted ? 'Completed' : isActive ? 'Current step' : 'Upcoming';
+
+                  return (
+                    <button
+                      key={s.number}
+                      type="button"
+                      className={`group flex min-h-[92px] items-center gap-3 rounded-lg border p-3 text-left transition-all ${
+                        isActive
+                          ? 'border-slate-950 bg-slate-950 text-white shadow-md'
+                          : isCompleted
+                            ? 'border-emerald-200 bg-emerald-50/70 hover:border-emerald-300'
+                            : 'border-border bg-card hover:border-amber-300 hover:bg-amber-50/50'
+                      }`}
+                      onClick={() => handleStepSelect(s.number)}
+                      aria-current={isActive ? 'step' : undefined}
+                    >
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${
+                          isCompleted
+                            ? 'border-emerald-500 bg-emerald-500 text-white'
+                            : isActive
+                              ? 'border-amber-400 bg-amber-400 text-slate-950'
+                              : 'border-border bg-muted text-muted-foreground group-hover:border-amber-300 group-hover:bg-amber-50 group-hover:text-amber-700'
+                        }`}
+                      >
+                        {isCompleted ? <Check className="h-5 w-5 stroke-[3]" /> : <StepIcon className="h-5 w-5" />}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span
+                            className={`rounded px-2 py-0.5 text-[10px] font-extrabold uppercase ${
+                              isActive
+                                ? 'bg-white/10 text-amber-200'
+                                : isCompleted
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : 'bg-muted text-muted-foreground'
+                            }`}
+                          >
+                            {statusText}
+                          </span>
+                        </div>
+                        <p className={`truncate text-sm font-extrabold ${isActive ? 'text-white' : 'text-foreground'}`}>
+                          {s.label}
+                        </p>
+                        <p className={`mt-0.5 line-clamp-1 text-xs ${isActive ? 'text-slate-300' : 'text-muted-foreground'}`}>
+                          {s.desc}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-
-          </div>
 
           {/* Form Content area */}
           <form onSubmit={onSubmit} id="vehicle-form" className="space-y-6">
             
             {/* Step 1: General Details */}
             {step === 1 && (
-              <Card className="border-border/60 shadow-md hover:shadow-lg transition-all duration-300 rounded-2xl">
-                <CardHeader className="border-b border-border/40 pb-4 md:pb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                      <Bike className="w-5 h-5" />
+              <Card className="overflow-hidden rounded-lg border-border/70 shadow-sm">
+                <CardHeader className="border-b border-border/60 bg-card pb-4 md:pb-5">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                        <Bike className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">Bike Identity</CardTitle>
+                        <CardDescription className="text-sm">Start with the details buyers search for first.</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg md:text-xl">Bike Details</CardTitle>
-                      <CardDescription className="text-xs md:text-sm">Tell us about the bike model and key details.</CardDescription>
+                    <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
+                      <ClipboardCheck className="h-4 w-4" />
+                      Required first step
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-5 md:pt-6">
-                  
-                  {/* Category select */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold flex items-center gap-1.5">
-                      Bike Type <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={form.type} onValueChange={(val) => handleSelectChange('type', val)}>
-                      <SelectTrigger className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm">
-                        <SelectValue placeholder="Select Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TYPES.map((t) => (
-                          <SelectItem key={t.value} value={t.value}>
-                            {t.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Condition select */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold flex items-center gap-1.5">
-                      Condition <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={form.condition} onValueChange={(val) => handleSelectChange('condition', val)}>
-                      <SelectTrigger className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm">
-                        <SelectValue placeholder="Select Condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Used">Used (Second Hand)</SelectItem>
-                        <SelectItem value="New">Brand New</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Make input */}
-                  <div className="space-y-2 relative" ref={brandRef}>
-                    <Label htmlFor="make" className="text-sm font-semibold flex items-center gap-1.5">
-                      Make (Brand) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input 
-                      id="make" 
-                      name="make" 
-                      value={form.make} 
-                      onChange={handleMakeChange} 
-                      onFocus={handleMakeFocus}
-                      autoComplete="off"
-                      placeholder="e.g. Honda, Yamaha, Bajaj" 
-                      className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.make.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
-                    />
-                    
-                    {showBrandSuggestions && brandSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 mt-1 z-50 max-h-56 overflow-y-auto bg-card border border-border rounded-xl shadow-lg animate-in fade-in duration-100">
-                        {brandSuggestions.map((brand) => (
-                          <button
-                            key={brand}
-                            type="button"
-                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors font-medium text-foreground"
-                            onClick={() => {
-                              setForm(prev => ({ ...prev, make: brand }));
-                              setShowBrandSuggestions(false);
-                            }}
-                          >
-                            {brand}
-                          </button>
-                        ))}
+                <CardContent className="p-5 md:p-6">
+                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                      {/* Category select */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold flex items-center gap-1.5">
+                          Bike Type <span className="text-destructive">*</span>
+                        </Label>
+                        <Select value={form.type} onValueChange={(val) => handleSelectChange('type', val)}>
+                          <SelectTrigger className="h-11 md:h-12 rounded-lg focus:ring-amber-500/20 focus:border-amber-400 text-sm">
+                            <SelectValue placeholder="Select Category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TYPES.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>
+                                {t.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
-                    
-                    {attemptedNext && form.make.trim() === '' && (
-                      <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
-                        <AlertCircle className="w-3.5 h-3.5" /> Make is required
-                      </p>
-                    )}
-                  </div>
 
-                  {/* Model input */}
-                  <div className="space-y-2">
-                    <Label htmlFor="model" className="text-sm font-semibold flex items-center gap-1.5">
-                      Model Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input 
-                      id="model" 
-                      name="model" 
-                      value={form.model} 
-                      onChange={handleChange} 
-                      placeholder="e.g. CBR150R, Hornet, Pulsar" 
-                      className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.model.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
-                    />
-                    {attemptedNext && form.model.trim() === '' && (
-                      <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
-                        <AlertCircle className="w-3.5 h-3.5" /> Model is required
-                      </p>
-                    )}
-                  </div>
+                      {/* Condition select */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold flex items-center gap-1.5">
+                          Condition <span className="text-destructive">*</span>
+                        </Label>
+                        <Select value={form.condition} onValueChange={(val) => handleSelectChange('condition', val)}>
+                          <SelectTrigger className="h-11 md:h-12 rounded-lg focus:ring-amber-500/20 focus:border-amber-400 text-sm">
+                            <SelectValue placeholder="Select Condition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Used">Used (Second Hand)</SelectItem>
+                            <SelectItem value="New">Brand New</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  {/* Ad Title */}
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-1.5">
-                      Ad Title <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="title"
-                      name="title"
-                      value={form.title}
-                      onChange={handleChange}
-                      maxLength={100}
-                      placeholder="e.g. Honda CBR150R 2022 - Mint Condition"
-                      className={`h-11 md:h-12 rounded-xl text-sm focus:ring-amber-500/20 focus:border-amber-400 ${attemptedNext && form.title.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
-                    />
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-muted-foreground gap-1 px-1">
-                      <span>Catchy titles with condition details attract 3x more clicks.</span>
-                      <span className={`font-semibold ${form.title.length >= 100 ? 'text-red-500' : (form.title.length > 80 ? 'text-amber-500' : 'text-muted-foreground')}`}>
-                        {form.title.length}/100 characters
-                      </span>
+                      {/* Make input */}
+                      <div className="space-y-2 relative" ref={brandRef}>
+                        <Label htmlFor="make" className="text-sm font-semibold flex items-center gap-1.5">
+                          Make (Brand) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="make"
+                          name="make"
+                          value={form.make}
+                          onChange={handleMakeChange}
+                          onFocus={handleMakeFocus}
+                          autoComplete="off"
+                          placeholder="e.g. Honda, Yamaha, Bajaj"
+                          className={`h-11 md:h-12 rounded-lg focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.make.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
+                        />
+
+                        {showBrandSuggestions && brandSuggestions.length > 0 && (
+                          <div className="absolute left-0 right-0 mt-1 z-50 max-h-56 overflow-y-auto rounded-lg border border-border bg-card shadow-lg animate-in fade-in duration-100">
+                            {brandSuggestions.map((brand) => (
+                              <button
+                                key={brand}
+                                type="button"
+                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors font-medium text-foreground"
+                                onClick={() => {
+                                  setForm(prev => ({ ...prev, make: brand }));
+                                  setShowBrandSuggestions(false);
+                                }}
+                              >
+                                {brand}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {attemptedNext && form.make.trim() === '' && (
+                          <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
+                            <AlertCircle className="w-3.5 h-3.5" /> Make is required
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Model input */}
+                      <div className="space-y-2">
+                        <Label htmlFor="model" className="text-sm font-semibold flex items-center gap-1.5">
+                          Model Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="model"
+                          name="model"
+                          value={form.model}
+                          onChange={handleChange}
+                          placeholder="e.g. CBR150R, Hornet, Pulsar"
+                          className={`h-11 md:h-12 rounded-lg focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.model.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
+                        />
+                        {attemptedNext && form.model.trim() === '' && (
+                          <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
+                            <AlertCircle className="w-3.5 h-3.5" /> Model is required
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Ad Title */}
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-1.5">
+                          Ad Title <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="title"
+                          name="title"
+                          value={form.title}
+                          onChange={handleChange}
+                          maxLength={100}
+                          placeholder="e.g. Honda CBR150R 2022 - Mint Condition"
+                          className={`h-11 md:h-12 rounded-lg text-sm focus:ring-amber-500/20 focus:border-amber-400 ${attemptedNext && form.title.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
+                        />
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-muted-foreground gap-1 px-1">
+                          <span>Use the brand, model, year, and best selling point.</span>
+                          <span className={`font-semibold ${form.title.length >= 100 ? 'text-red-500' : (form.title.length > 80 ? 'text-amber-500' : 'text-muted-foreground')}`}>
+                            {form.title.length}/100 characters
+                          </span>
+                        </div>
+                        {attemptedNext && form.title.trim() === '' && (
+                          <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
+                            <AlertCircle className="w-3.5 h-3.5" /> Title is required
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    {attemptedNext && form.title.trim() === '' && (
-                      <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
-                        <AlertCircle className="w-3.5 h-3.5" /> Title is required
-                      </p>
-                    )}
-                  </div>
 
+                    <aside className="rounded-lg border border-border/70 bg-slate-50 p-4">
+                      <div className="flex items-center gap-2 text-sm font-extrabold text-foreground">
+                        <Eye className="h-4 w-4 text-amber-600" />
+                        Buyers notice first
+                      </div>
+                      <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                        <div className="flex gap-2">
+                          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                          <span>Exact brand and model help your ad appear in relevant searches.</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                          <span>A specific title gives buyers confidence before they open the listing.</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                          <span>Condition sets expectations early and reduces unnecessary calls.</span>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -1186,7 +1309,7 @@ export default function AddVehicleForm() {
                           <div className="flex justify-between items-center px-1">
                             <Label className="text-sm font-semibold text-primary">Gallery Images</Label>
                             <span className="text-xs text-muted-foreground font-semibold">
-                              {uploadGallery.length}/{MAX_UPLOAD_IMAGES - (uploadHero ? 1 : 0)} files
+                              {uploadGallery.length}/{maxUploadImages - (uploadHero ? 1 : 0)} files
                             </span>
                           </div>
 
@@ -1210,7 +1333,7 @@ export default function AddVehicleForm() {
                               </div>
                             ))}
 
-                            {uploadGallery.length < (MAX_UPLOAD_IMAGES - (uploadHero ? 1 : 0)) && (
+                            {uploadGallery.length < (maxUploadImages - (uploadHero ? 1 : 0)) && (
                               <div 
                                 className={`
                                   relative border-2 border-dashed rounded-xl aspect-[4/3] flex flex-col items-center justify-center p-3 text-center cursor-pointer select-none transition-all active:scale-[0.97]
@@ -1471,6 +1594,7 @@ export default function AddVehicleForm() {
           </CardContent>
         </Card>
       )}
+      </div>
     </main>
   );
 }

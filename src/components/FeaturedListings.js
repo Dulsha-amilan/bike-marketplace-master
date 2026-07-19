@@ -1,99 +1,113 @@
 // components/FeaturedListings.js
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CalendarDays, Gauge, MapPin } from 'lucide-react';
+import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { useVehicles } from './vehiclesStore';
-import VehicleCard from './VehicleCard';
 import './FeaturedListings.css';
+
+const formatPrice = price => {
+  if (price == null) return 'Negotiable';
+  return `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`;
+};
+
+const formatDate = date => {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return 'Recently';
+  return parsed.toISOString().slice(0, 10);
+};
 
 const FeaturedListings = ({ translations }) => {
   const { allVehicles } = useVehicles();
 
-  // Filter and sort for the most reliable vehicles
-  const featuredVehicles = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    
-    return allVehicles
-      .filter(vehicle => {
-        // Must have an image
-        if (!vehicle.image) return false;
-        
-        // Must have title
-        if (!vehicle.title) return false;
-        
-        // Must have location
-        if (!vehicle.location) return false;
-        
-        return true;
-      })
-      .map(vehicle => {
-        // Calculate reliability score
-        let score = 0;
-        
-        // Condition: New vehicles get highest score
-        if (vehicle.condition === 'New') {
-          score += 100;
-        } else if (vehicle.condition === 'Used') {
-          score += 50;
-        }
-        
-        // Year: Newer vehicles get higher score (max 50 points)
-        if (vehicle.year) {
-          const age = currentYear - vehicle.year;
-          score += Math.max(0, 50 - (age * 2)); // Newer = higher score
-        }
-        
-        // Mileage: Lower mileage gets higher score (max 30 points)
-        if (vehicle.mileageKm != null && vehicle.mileageKm >= 0) {
-          if (vehicle.mileageKm === 0) {
-            score += 30; // Brand new
-          } else if (vehicle.mileageKm < 10000) {
-            score += 25; // Very low mileage
-          } else if (vehicle.mileageKm < 25000) {
-            score += 20; // Low mileage
-          } else if (vehicle.mileageKm < 50000) {
-            score += 15; // Moderate mileage
-          } else if (vehicle.mileageKm < 100000) {
-            score += 10; // Higher mileage
-          }
-        } else {
-          // Unknown mileage gets neutral score
-          score += 15;
-        }
-        
-        // Price: Having a reasonable price indicates well-maintained (max 20 points)
-        if (vehicle.price != null && vehicle.price > 0) {
-          score += 20; // Has a price (well-listed)
-        }
-        
-        // Has gallery images (bonus points)
-        if (vehicle.gallery && vehicle.gallery.length > 0) {
-          score += 10;
-        }
-        
-        return { ...vehicle, reliabilityScore: score };
-      })
-      .sort((a, b) => {
-        // Sort by reliability score (highest first)
-        if (b.reliabilityScore !== a.reliabilityScore) {
-          return b.reliabilityScore - a.reliabilityScore;
-        }
-        // If scores are equal, prefer newer posted dates
-        return new Date(b.postedAt) - new Date(a.postedAt);
-      })
-      .slice(0, 8); // Show top 8 most reliable vehicles
+  const latestVehicles = useMemo(() => {
+    return [...allVehicles]
+      .filter(vehicle => vehicle?.id && vehicle?.title && vehicle?.image)
+      .sort((a, b) => new Date(b.postedAt || 0) - new Date(a.postedAt || 0))
+      .slice(0, 5);
   }, [allVehicles]);
 
-  if (featuredVehicles.length === 0) {
+  if (latestVehicles.length === 0) {
     return null;
   }
 
   return (
-    <section className="featured-listings">
+    <section className="featured-listings" aria-labelledby="featured-title">
       <div className="container">
-        <h3>{translations.featured}</h3>
-        <div className="listings-grid">
-          {featuredVehicles.map(vehicle => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} />
-          ))}
+        <div className="featured-shell">
+          <div className="featured-header">
+            <div>
+              <span className="featured-eyebrow">Latest ads</span>
+              <h2 id="featured-title">{translations?.featured || 'Featured'}</h2>
+            </div>
+            <div className="featured-count" aria-label={`${latestVehicles.length} latest listings`}>
+              <strong>{latestVehicles.length}</strong>
+              <span>Latest listings</span>
+            </div>
+          </div>
+
+          <div className="featured-grid">
+            {latestVehicles.map(vehicle => (
+              <article className="featured-card" key={vehicle.id}>
+                <Link className="featured-card__media" to={`/vehicle/${vehicle.id}`}>
+                  <img
+                    src={resolveMediaUrl(vehicle.image)}
+                    alt={vehicle.title}
+                    loading="lazy"
+                  />
+                  <div className="featured-card__badges">
+                    {vehicle.condition && (
+                      <span className="featured-card__badge featured-card__badge--condition">
+                        {vehicle.condition}
+                      </span>
+                    )}
+                    {vehicle.type && (
+                      <span className="featured-card__badge featured-card__badge--type">
+                        {vehicle.type}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+
+                <div className="featured-card__body">
+                  <div className="featured-card__make">
+                    {[vehicle.make, vehicle.model].filter(Boolean).join(' ')}
+                    {vehicle.year ? ` - ${vehicle.year}` : ''}
+                  </div>
+
+                  <h3>
+                    <Link to={`/vehicle/${vehicle.id}`}>{vehicle.title}</Link>
+                  </h3>
+
+                  <div className="featured-card__meta">
+                    <span>
+                      <MapPin aria-hidden="true" />
+                      {vehicle.location || 'Sri Lanka'}
+                    </span>
+                    <span>
+                      <CalendarDays aria-hidden="true" />
+                      {formatDate(vehicle.postedAt)}
+                    </span>
+                  </div>
+
+                  <div className="featured-card__price-row">
+                    <strong>{formatPrice(vehicle.price)}</strong>
+                    {vehicle.mileageKm != null && (
+                      <span>
+                        <Gauge aria-hidden="true" />
+                        {vehicle.mileageKm.toLocaleString()} km
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <Link className="featured-card__action" to={`/vehicle/${vehicle.id}`}>
+                  View Details
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
