@@ -54,3 +54,13 @@ export function getMe(token) {
     },
   });
 }
+
+/**
+ * Refresh tokens using a stored refresh token
+ */
+export function refreshTokens(refreshToken) {
+  return authRequest('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken }),
+  });
+}

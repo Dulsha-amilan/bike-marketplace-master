@@ -196,18 +196,22 @@ const VehicleDetails = ({ allVehicles }) => {
               </CardContent>
             </Card>
 
-            {/* Additional Description could go here if the data existed */}
+            {/* Description */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl">Description</CardTitle>
               </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed">
-                <p>
-                  Check out this {activeVehicle.condition || 'used'} {activeVehicle.make} {activeVehicle.model} from {activeVehicle.year}.
-                  It is currently located in {activeVehicle.location}.
-                  {activeVehicle.mileageKm ? ` This vehicle has done approximately ${activeVehicle.mileageKm.toLocaleString()} km.` : ''}
-                  For more details or to arrange a viewing, please contact the seller using the options provided.
-                </p>
+              <CardContent className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
+                {activeVehicle.description ? (
+                  <p>{activeVehicle.description}</p>
+                ) : (
+                  <p>
+                    Check out this {activeVehicle.condition || 'used'} {activeVehicle.make} {activeVehicle.model} from {activeVehicle.year}.
+                    It is currently located in {activeVehicle.location}.
+                    {activeVehicle.mileageKm ? ` This vehicle has done approximately ${activeVehicle.mileageKm.toLocaleString()} km.` : ''}
+                    For more details or to arrange a viewing, please contact the seller using the options provided.
+                  </p>
+                )}
               </CardContent>
             </Card>
 

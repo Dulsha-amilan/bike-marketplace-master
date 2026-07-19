@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Eka - Unified Portal Engine</title>
+    <!-- Tailwind CSS for robust, scalable layout engine styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Open Sans', sans-serif; scroll-behavior: smooth; }
+        .brand-yellow { background-color: #ffcc00; }
+        .text-brand-yellow { color: #ffcc00; }
+        .brand-dark { background-color: #1b1d21; }
+        .border-brand-dark { border-color: #1b1d21; }
+        
+        .popular-ribbon {
+            position: absolute;
+            top: 18px;
+            right: -28px;
+            background-color: #ffcc00;
+            color: #1b1d21;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 30px;
+            transform: rotate(45deg);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ffcc00;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-[#f7f9fa] min-h-[150vh] pb-24 text-slate-800">
+
+    <!-- ====================================================
+         BRAND HEADER ENGINE (Matched directly to your image)
+         ==================================================== -->
+    <div class="brand-yellow w-full shadow-md border-b border-yellow-500 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 h-20 flex justify-between items-center">
+            <!-- Brand Logo Space -->
+            <div onclick="resetToHome()" class="flex items-center gap-2 cursor-pointer group">
+                <div class="bg-black text-white font-black text-xl px-4 py-2 rounded-md tracking-tighter flex items-center gap-1.5 shadow-sm">
+                    <span class="text-red-500 text-lg">🏍️</span>BIKE EKA<span class="text-xs text-yellow-400 font-bold tracking-normal">.COM</span>
+                </div>
+            </div>
+            
+            <!-- Navigation Links Mocked From Screenshot -->
+            <div class="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-900">
+                <span onclick="resetToHome()" class="hover:text-black cursor-pointer bg-yellow-400/50 px-3 py-1.5 rounded-lg transition-all">Home</span>
+                <span class="hover:text-black cursor-pointer transition-all">Spare Parts</span>
+                <span class="hover:text-black cursor-pointer transition-all">Biker Gear</span>
+                <div class="h-4 w-[1px] bg-slate-400 mx-1"></div>
+                <span class="text-xs text-slate-700 hover:text-black cursor-pointer">සිංහල</span>
+                <span class="text-xs text-slate-700">|</span>
+                <span class="hover:text-black cursor-pointer transition-all bg-yellow-500/30 px-2 py-0.5 rounded">English</span>
+            </div>
+
+            <!-- Action Area / Sign In, Register & Post Your Ad Matrix -->
+            <div class="flex items-center gap-3">
+                <button onclick="alert('Sign In interface component triggered.')" class="text-xs font-bold text-slate-900 border border-slate-900/30 hover:bg-slate-900/10 px-4 py-2 rounded-full transition-all">
+                    Sign In
+                </button>
+                <button onclick="alert('Registration account wizard initiated.')" class="brand-dark hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-full transition-all shadow-sm">
+                    Register
+                </button>
+                <button id="nav-post-ad-btn" onclick="triggerPostAdFlow()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-5 py-2.5 rounded-full transition-all shadow-md border border-amber-600/20 uppercase tracking-wider">
+                    + Post Your Ad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         HERO SPLASH CONTENT BLOCK (Forces Scroll Potential)
+         ==================================================== -->
+    <div class="brand-dark text-white py-16 px-4 text-center border-b border-yellow-400/20">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">Ride Your Dream Bike</h1>
+        <p class="text-sm text-slate-400 max-w-md mx-auto mb-6">Buy and Sell High-Performance Motorcycles Online across Sri Lanka instantly.</p>
+        <div class="inline-block bg-slate-800/80 rounded-2xl p-2 border border-slate-700 max-w-lg w-full">
+            <p class="text-[11px] text-yellow-400 font-bold uppercase tracking-widest animate-pulse">↓ Scroll down to view structural engine layouts & simulated workflows ↓</p>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         🚨 SMART CONDITIONS SCROLL POPUP NODE
+         ==================================================== -->
+    <div id="scroll-prompt-popup" class="fixed bottom-6 right-6 z-40 bg-[#1b1d21] text-white p-4 rounded-2xl shadow-2xl border-2 border-[#ffcc00] flex items-center gap-4 transition-all duration-500 transform translate-y-32 opacity-0 pointer-events-none max-w-xs">
+        <div class="flex-1">
+            <p class="font-black text-xs text-[#ffcc00] tracking-wide uppercase">Ready to Sell?</p>
+            <p class="text-[11px] text-slate-300 font-semibold mt-0.5">Post your first ad now and reach buyers instantly!</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="triggerPostAdFlow()" class="brand-yellow hover:bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-2 rounded-xl uppercase tracking-wider shadow-sm transition-all">
+                Start
+            </button>
+            <button onclick="dismissScrollPopup()" class="text-slate-400 hover:text-white text-sm font-bold p-1">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         STEP 1: ACCOUNT TYPE FORK MODAL (THE JOURNEY START)
+         ==================================================== -->
+    <div id="fork-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl border border-slate-100 relative">
+            <button onclick="closeModal('fork-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Select Your Seller Pathway</h3>
+                <p class="text-xs text-slate-500 mt-1">Choose the account structure that matches your listing frequency scale.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Private Seller Card -->
+                <div onclick="selectUserRoute('private')" class="bg-slate-50 hover:bg-yellow-50/30 border-2 border-slate-200 hover:border-[#ffcc00] rounded-2xl p-6 cursor-pointer transition-all group relative flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 brand-yellow text-slate-950 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-105 transition-transform">👤</div>
+                        <h4 class="text-lg font-black text-slate-900 mb-1">Private Seller</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Selling your personal ride, spare parts, or single items. Fast chronological deployment profiles.</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-200/60 text-xs font-black text-slate-900 flex items-center gap-1">
+                        Go to Free Posting View ➔
+                    </div>
+                </div>
+
+                <!-- Showroom / Commercial Dealer Card -->
+                <div onclick="selectUserRoute('dealer')" class="bg-slate-50 hover:bg-slate-900/5 border-2 border-slate-200 hover:border-brand-dark rounded-2xl p-6 cursor-pointer transition-all group relative flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 brand-dark text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-105 transition-transform">💼</div>
+                        <h4 class="text-lg font-black text-slate-900 mb-1">Showroom Dealer</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">For registered importers, dealerships, and bulk trade wholesalers. Access corporate management tools.</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-200/60 text-xs font-black text-slate-700 flex items-center gap-1">
+                        View Showroom Membership Plans ➔
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         STEP 2A: PRIVATE SELLER INPUT STATE
+         ==================================================== -->
+    <div id="private-post-ad-view" class="max-w-xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hidden mt-12 animate-fade-in">
+        <h2 class="text-xl font-black text-slate-900 mb-1">Post Your Personal Ride</h2>
+        <p class="text-xs text-slate-400 mb-6">Create a single market listing for your vehicle instantly.</p>
+        
+        <form onsubmit="handlePrivateAdSubmission(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5 tracking-wide">Motorcycle Model Title</label>
+                <input type="text" id="priv-bike-title" required placeholder="e.g., KTM Duke 250 ABS" class="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5 tracking-wide">Your Asking Price (LKR)</label>
+                <input type="text" id="priv-bike-price" required placeholder="e.g., 1,250,000" class="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+            </div>
+            <button type="submit" class="w-full brand-yellow hover:bg-yellow-400 text-slate-950 font-black py-3.5 rounded-xl transition-all text-sm tracking-wide mt-2 shadow-md shadow-yellow-100 uppercase">
+                🚀 Publish Ad Instantly
+            </button>
+        </form>
+    </div>
+
+    <!-- ====================================================
+         STEP 2B: COMMERCIAL DEALER PRICING INDEX
+         ==================================================== -->
+    <div id="dealer-pricing-view" class="max-w-6xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hidden mt-12">
+        <div class="text-center max-w-xl mx-auto mb-8">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Commercial Showroom Memberships</h2>
+            <p class="text-xs text-slate-500 mt-1">Unlock micro-pricing packages to scale your dealership footprint safely.</p>
+        </div>
+
+        <div class="flex border-b border-slate-200 mb-8 max-w-xs mx-auto">
+            <button id="tab-plus" onclick="switchDealerTab('plus')" class="flex-1 py-2.5 text-center font-bold text-xs transition-all brand-dark text-white rounded-t-xl">
+                Plus Tiers
+            </button>
+            <button id="tab-premium" onclick="switchDealerTab('premium')" class="flex-1 py-2.5 text-center font-bold text-xs transition-all bg-slate-100 text-slate-600 rounded-t-xl hover:bg-slate-200">
+                Premium Tiers
+            </button>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- MONTHLY -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col justify-between min-h-[440px]">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 mb-4">Monthly Plan</h3>
+                    <div class="space-y-4 text-xs mb-6">
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Calculated Cost Per Ad</p><p id="card-monthly-per-ad" class="text-sm font-bold text-slate-800">LKR 350</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Active Inventory Cap</p><p id="card-monthly-ads" class="text-sm font-bold text-slate-800">20 Active Listings</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Bundled Monthly Vouchers</p><p id="card-monthly-boosts" class="text-sm font-bold text-slate-950">1 Top Ad + 5 Bumps</p></div>
+                    </div>
+                </div>
+                <div>
+                    <p id="card-monthly-total" class="text-2xl font-black text-slate-900 mb-3">LKR 7,000</p>
+                    <button onclick="initiateCheckout('Monthly Plan')" class="w-full bg-white hover:brand-dark text-slate-900 hover:text-white border-2 border-slate-900 font-bold py-2 rounded-xl text-xs transition-all">Select Plan</button>
+                </div>
+            </div>
+            <!-- QUARTERLY -->
+            <div class="bg-white border-2 border-brand-dark rounded-2xl p-6 flex flex-col justify-between min-h-[440px] relative overflow-hidden shadow-md">
+                <div class="popular-ribbon">Best Value</div>
+                <div>
+                    <h3 class="text-base font-black text-slate-900 mb-4">Quarterly Plan</h3>
+                    <div class="space-y-4 text-xs mb-6">
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Calculated Cost Per Ad</p><p id="card-quarterly-per-ad" class="text-sm font-bold text-slate-800">LKR 332.50</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Active Inventory Cap</p><p id="card-quarterly-ads" class="text-sm font-bold text-slate-800">20 Active Listings</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Bundled Monthly Vouchers</p><p id="card-quarterly-boosts" class="text-sm font-bold text-slate-950">4 Top Ads + 20 Bumps</p></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-500 font-bold mb-0.5">Contract Discount Applied</p>
+                    <p id="card-quarterly-total" class="text-2xl font-black text-slate-900 mb-3">LKR 19,950</p>
+                    <button onclick="initiateCheckout('Quarterly Plan')" class="w-full brand-dark hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs transition-all">Select Plan</button>
+                </div>
+            </div>
+            <!-- YEARLY -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col justify-between min-h-[440px]">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 mb-4">Yearly Plan</h3>
+                    <div class="space-y-4 text-xs mb-6">
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Calculated Cost Per Ad</p><p id="card-yearly-per-ad" class="text-sm font-bold text-slate-800">LKR 280</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Active Inventory Cap</p><p id="card-yearly-ads" class="text-sm font-bold text-slate-800">20 Active Listings</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Bundled Monthly Vouchers</p><p id="card-yearly-boosts" class="text-sm font-bold text-slate-950">20 Top Ads + 100 Bumps</p></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-500 font-bold mb-0.5">Maximum Savings Tier</p>
+                    <p id="card-yearly-total" class="text-2xl font-black text-slate-900 mb-3">LKR 67,200</p>
+                    <button onclick="initiateCheckout('Yearly Plan')" class="w-full bg-white hover:brand-dark text-slate-900 hover:text-white border-2 border-slate-900 font-bold py-2 rounded-xl text-xs transition-all">Select Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         UNIVERSAL SUCCESS CONFIRMATION MODAL (SELECTIVE ROUTING)
+         ==================================================== -->
+    <div id="success-popup" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-100 text-center relative">
+            <div class="mx-auto w-14 h-14 brand-yellow text-slate-950 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            
+            <h3 class="text-xl font-black text-slate-900 mb-1">Ad Successfully Uploaded! 🎉</h3>
+            <p class="text-xs text-slate-400 mb-6">Your listing is ready to receive incoming prospective buyer leads.</p>
+
+            <!-- PRIVATE SELLER EXCLUSIVE BOOST ZONE (Membership buttons excluded entirely) -->
+            <div id="popup-private-boost-block" class="hidden text-left bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6">
+                <h4 class="text-xs font-extrabold text-slate-700 uppercase tracking-wide mb-3">⚡ Boost Traffic Instantly</h4>
+                <div class="space-y-2">
+                    <button onclick="initiateCheckout('Bump Up (Single Boost)', 'LKR 300')" class="w-full bg-white hover:bg-slate-100 border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs transition-all">
+                        <span>💥 Chronological Bump</span><strong class="text-slate-900 font-mono">LKR 300</strong>
+                    </button>
+                    <button onclick="initiateCheckout('Top Ad Spot (Single Boost)', 'LKR 1,500')" class="w-full bg-white hover:bg-slate-100 border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs transition-all">
+                        <span>⭐ Pinned Top Ad Spot</span><strong class="text-slate-900 font-mono">LKR 1,500</strong>
+                    </button>
+                    <button onclick="initiateCheckout('Urgent Attention Tag (Single Boost)', 'LKR 500')" class="w-full bg-white hover:bg-slate-100 border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs transition-all">
+                        <span>🚨 Urgent Attention Tag</span><strong class="text-slate-900 font-mono">LKR 500</strong>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BUTTON ACTIONS ENGINE MAPPING -->
+            <div class="space-y-2">
+                <button id="success-primary-action-btn" onclick="routeToFinalDashboard()" class="w-full brand-dark hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-md">
+                    Go to My Workspace Dashboard
+                </button>
+                <button onclick="closeModal('success-popup')" class="block w-full text-center text-[11px] text-slate-400 hover:text-slate-600 font-bold pt-2">
+                    Close Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         UNIVERSAL TRANSACTIONAL 3-STEP CHECKOUT ENGINE
+         ==================================================== -->
+    <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-8 shadow-2xl relative">
+            <button onclick="closeModal('checkout-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <span id="badge-step-1" class="text-[10px] font-bold px-3 py-1 brand-dark text-white rounded-full">1. Details</span>
+                <span class="text-slate-300 text-xs">➔</span>
+                <span id="badge-step-2" class="text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full">2. Remittance</span>
+                <span class="text-slate-300 text-xs">➔</span>
+                <span id="badge-step-3" class="text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full">3. Audit</span>
+            </div>
+
+            <!-- STEP 1: CONTACT DATA METADATA -->
+            <div id="checkout-step-1" class="block">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-black text-slate-900 tracking-tight">Account Registry Details</h3>
+                    <p id="step1-target-summary" class="text-xs text-slate-500 mt-0.5">Configuration targeting payload mapping</p>
+                </div>
+                <form onsubmit="advanceCheckoutToBankScreen(event)" class="space-y-4">
+                    <div>
+                        <label id="dynamic-name-label" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Full Name</label>
+                        <input type="text" id="user-name" required placeholder="Enter name string" class="w-full text-sm border border-slate-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Email Address</label>
+                        <input type="email" id="user-email" required placeholder="name@domain.com" class="w-full text-sm border border-slate-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Mobile Hotline</label>
+                        <div class="flex border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-yellow-400">
+                            <span class="bg-slate-50 px-3 py-2.5 text-sm border-r text-slate-400">🇱🇰 +94</span>
+                            <input type="tel" id="user-phone" required pattern="[0-9]{9}" placeholder="771234567" class="w-full text-sm px-4 py-2.5 focus:outline-none">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full brand-dark hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm shadow-sm mt-2 uppercase tracking-wide">Continue to Bank Transfer</button>
+                </form>
+            </div>
+
+            <!-- STEP 2: BANK SETTLE HOOK -->
+            <div id="checkout-step-2" class="hidden">
+                <div class="text-center mb-4">
+                    <h3 class="text-lg font-black text-slate-900 tracking-tight">Remittance Settlement</h3>
+                    <p id="modal-plan-summary" class="text-xs text-slate-500 mt-0.5">-</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-3 mb-4">
+                    <!-- HNB -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between text-[11px]">
+                        <div>
+                            <span class="font-bold text-blue-700 block pb-1 border-b mb-1">Hatton National Bank</span>
+                            <p class="text-slate-500">Branch: <strong class="text-slate-700">Godakawela</strong></p>
+                            <p class="text-slate-500">Name: <strong class="text-slate-700">CBU Perera</strong></p>
+                        </div>
+                        <div class="mt-2 pt-2 border-t flex justify-between items-center">
+                            <div><span class="text-[8px] uppercase block text-slate-400">Acc No</span><strong id="acc-hnb" class="font-mono text-slate-800">235020070454</strong></div>
+                            <button onclick="copyAccountField('acc-hnb', 'b-hnb')" id="b-hnb" class="bg-yellow-100 text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold">Copy</button>
+                        </div>
+                    </div>
+                    <!-- BOC -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between text-[11px]">
+                        <div>
+                            <span class="font-bold text-amber-700 block pb-1 border-b mb-1">Bank Of Ceylon</span>
+                            <p class="text-slate-500">Branch: <strong class="text-slate-700">Rakwana</strong></p>
+                            <p class="text-slate-500">Name: <strong class="text-slate-700">CBU Perera</strong></p>
+                        </div>
+                        <div class="mt-2 pt-2 border-t flex justify-between items-center">
+                            <div><span class="text-[8px] uppercase block text-slate-400">Acc No</span><strong id="acc-boc" class="font-mono text-slate-800">95202502</strong></div>
+                            <button onclick="copyAccountField('acc-boc', 'b-boc')" id="b-boc" class="bg-yellow-100 text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center p-3 brand-dark text-white rounded-xl mb-4 text-xs">
+                    <span class="opacity-80">Total Due:</span>
+                    <strong id="modal-total-price" class="text-base font-black text-brand-yellow">-</strong>
+                </div>
+
+                <div class="space-y-2">
+                    <a id="whatsapp-link-btn" href="#" target="_blank" class="w-full bg-[#1ca66b] hover:bg-[#168a58] text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
+                        💬 1. Send Payment Receipt via WhatsApp
+                    </a>
+                    <button onclick="commitToVerificationQueue()" class="w-full brand-dark hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
+                        ✓ 2. Payment Completed
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: TRANSACTION PIPELINE AUDITING AUDIT -->
+            <div id="checkout-step-3" class="hidden text-center py-6">
+                <div class="mx-auto spinner mb-4"></div>
+                <h3 class="text-lg font-black text-slate-900">Auditing Portal Remittance Logs...</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto mb-6">Our system panel is reconciling core incoming ledger transactions across live banking systems.</p>
+
+                <div class="bg-slate-50 rounded-2xl p-4 text-left text-xs max-w-xs mx-auto space-y-2 text-slate-600 border">
+                    <div class="flex justify-between border-b pb-1"><span>Target Holder:</span><strong id="audit-name" class="text-slate-800">-</strong></div>
+                    <div class="flex justify-between border-b pb-1"><span>Target Asset:</span><strong id="audit-asset" class="text-slate-800">-</strong></div>
+                    <div class="flex justify-between"><span>Status Code:</span><span class="text-amber-500 font-bold animate-pulse">Pending Slip Verification</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ====================================================
+         🚀 OUTPUT WORKSPACE 1: PRIVATE SELLER PLATFORM DASHBOARD
+         ==================================================== -->
+    <div id="private-dashboard" class="max-w-4xl mx-auto px-4 hidden mt-12 animate-fade-in">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 mb-8 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-4">
+                <div id="priv-avatar" class="w-12 h-12 brand-dark text-white flex items-center justify-center font-black rounded-xl uppercase">P</div>
+                <div>
+                    <h2 id="priv-dash-name" class="font-bold text-lg text-slate-900">Private User</h2>
+                    <span class="bg-yellow-100 text-yellow-800 font-extrabold text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wide">Standard Single-Ad Listing</span>
+                </div>
+            </div>
+            <button onclick="resetToHome()" class="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl font-bold transition-all">Sign Out</button>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">My Listed Motorcycle</h3>
+            <div id="private-ad-listing-slot"></div>
+        </div>
+    </div>
+
+
+    <!-- ====================================================
+         🚀 OUTPUT WORKSPACE 2: COMMERCIAL DEALER ADVANCED SUITE
+         ==================================================== -->
+    <div id="dealer-dashboard" class="max-w-6xl mx-auto px-4 hidden mt-12 animate-fade-in">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div id="deal-avatar" class="w-14 h-14 brand-dark text-brand-yellow font-black text-xl rounded-2xl flex items-center justify-center uppercase">D</div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 id="deal-dash-title" class="font-bold text-lg text-slate-900">Dealer Showroom</h2>
+                        <span class="bg-slate-900 text-yellow-400 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">✓ Corporate Dealer Account</span>
+                    </div>
+                    <p id="deal-dash-email" class="text-xs text-slate-400">showroom@domain.lk</p>
+                </div>
+            </div>
+            <div class="sm:text-right">
+                <span id="deal-dash-tier-badge" class="inline-block text-xs font-black brand-yellow text-slate-950 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-yellow-400">PLAN MASTER</span>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Quota Counter Matrix -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Inventory Allocation Capacity</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+                        <div class="bg-slate-50 border p-4 rounded-2xl">
+                            <span class="text-xs font-bold text-slate-400 block uppercase">Active Showroom Ads</span>
+                            <strong id="deal-ads-deployed" class="text-3xl font-black text-slate-800 block mt-1">1</strong>
+                        </div>
+                        <div class="bg-slate-50 border p-4 rounded-2xl">
+                            <span class="text-xs font-bold text-slate-400 block uppercase">Remaining Package Slots</span>
+                            <strong id="deal-ads-remaining" class="text-3xl font-black text-slate-900 block mt-1">19</strong>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="deal-progress-bar" class="brand-dark h-full transition-all duration-300" style="width: 5%"></div></div>
+                </div>
+
+                <!-- Corporate Account Entitlements -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-1">Included Bundle Vouchers</h3>
+                    <p class="text-[10px] text-slate-400 mb-4">Use-it-or-lose-it monthly balance vouchers included in your contract tier.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="brand-dark text-white p-4 rounded-2xl shadow-inner">
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Top Ad Visibility Tokens</span><span>⭐</span></div>
+                            <strong id="deal-bal-topads" class="text-2xl font-black text-brand-yellow">0</strong>
+                        </div>
+                        <div class="brand-dark text-white p-4 rounded-2xl shadow-inner">
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Chronological Bumps</span><span>💥</span></div>
+                            <strong id="deal-bal-bumps" class="text-2xl font-black text-yellow-400">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HIGH-MARGIN DEDICATED ADD-ON BOOSTER SHOP -->
+                <div class="bg-white border-2 border-dashed border-yellow-400 rounded-3xl p-6 shadow-sm">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-900">⚡ Run Out of Vouchers? Buy Standalone Boosters</h3>
+                        <span class="bg-yellow-100 text-yellow-800 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase">High Margin Engine</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mb-4">Replenish your active promotion balances instantly without altering your core monthly subscription.</p>
+                    
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs">💥 5x Bumps Pack Add-On</span><strong class="font-mono text-xs">LKR 1,500</strong></div>
+                                <p class="text-[10px] text-slate-400 leading-relaxed">Instantly injects 5 additional Bumps directly into your live dashboard workspace account.</p>
+                            </div>
+                            <button onclick="initiateCheckout('5x Bumps Booster Pack (Add-On)', 'LKR 1,500')" class="mt-4 brand-dark hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl transition-colors">Purchase Add-On</button>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs">⭐ 1x Single Top Ad Token</span><strong class="font-mono text-xs">LKR 1,000</strong></div>
+                                <p class="text-[10px] text-slate-400 leading-relaxed">Injects 1 standalone premium layout pinned category block token instantly into your system account.</p>
+                            </div>
+                            <button onclick="initiateCheckout('1x Top Ad Booster Token (Add-On)', 'LKR 1,000')" class="mt-4 brand-dark hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl transition-colors">Purchase Add-On</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Manager System Grid -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-800">Showroom Listings Deployed</h3>
+                        <button onclick="openDealerDeployAdModal()" class="brand-dark hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">+ Deploy New Showroom Unit</button>
+                    </div>
+                    <div id="dealer-listings-container" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Configuration Options -->
+            <div class="space-y-6 text-xs font-semibold text-slate-500">
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Showroom Configuration</h4>
+                    <div><label class="block mb-1 text-slate-400">Showroom Location</label><input type="text" value="Colombo / Sri Lanka" class="w-full border rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none focus:ring-1"></div>
+                    <div><label class="block mb-1 text-slate-400">Direct Contact Hotline</label><input type="text" id="deal-input-phone" value="+94 771234567" class="w-full border rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none focus:ring-1"></div>
+                    <button onclick="alert('Showroom parameters written down successfully.')" class="w-full brand-dark text-white py-2.5 rounded-xl font-bold transition-all text-xs tracking-wide uppercase">Save Alterations</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         DEALER EXCLUSIVE AD CREATION INJECTION STATE
+         ==================================================== -->
+    <div id="dealer-deploy-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('dealer-deploy-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h3 class="text-base font-bold text-slate-900 mb-4">Deploy New Showroom Inventory Asset</h3>
+            <form onsubmit="handleDealerAdDeployment(event)" class="space-y-3">
+                <div><label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Vehicle Model Title</label><input type="text" id="deal-bike-title" required placeholder="e.g., Honda Hornet CB160R" class="w-full text-xs border rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-yellow-400"></div>
+                <div><label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Asking Base Price (LKR)</label><input type="text" id="deal-bike-price" required placeholder="e.g., 890,000" class="w-full text-xs border rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-yellow-400"></div>
+                <button type="submit" class="w-full brand-dark hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-sm uppercase tracking-wide">🚀 Post Live onto Platform Floor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         🛠️ BIKE EKA ADMIN SIMULATOR OVERLAY
+         ==================================================== -->
+    <div class="fixed bottom-4 left-4 z-[60] w-80 bg-slate-900 text-slate-100 border-t-4 border-yellow-400 p-4 rounded-2xl shadow-2xl text-[11px] transition-all duration-300">
+        <div class="flex items-center gap-2 mb-2"><span class="w-2 h-2 bg-yellow-400 rounded-full animate-ping"></span><h4 class="font-black uppercase tracking-wider text-yellow-400">Admin Remittance Validation Audit</h4></div>
+        <div id="admin-queue-container" class="bg-slate-800 border border-slate-700 rounded-xl p-2"><p class="text-slate-400 text-center italic py-2">Queue parameters vacant. Choose a seller type to begin simulation...</p></div>
+    </div>
+
+    <!-- ====================================================
+         JAVASCRIPT CORE LOGIC STACK ARCHITECTURE
+         ==================================================== -->
+    <script>
+        let currentRoute = ""; // Tracks user type selection fork ('private' or 'dealer')
+        let selectedProductLabel = "";
+        let selectedProductCost = "";
+        let currentDealerTier = "plus";
+        
+        // Anti-Disturbance Business Logic Trackers
+        let hasPostedAd = false; 
+        let scrollPopupDismissed = false;
+
+        // System Inventory Trackers
+        let maxAllowedDealerAds = 20;
+        let activeDealerAdsCount = 0; // Starts clean to test scroll alert accurately
+        let topAdsBalance = 0;
+        let bumpsBalance = 0;
+        
+        // Storage Matrix Objects
+        let privateAdObject = null;
+        let dealerListings = [];
+
+        const pricingMatrix = {
+            plus: {
+                monthly: { perAd: 'LKR 350', ads: 20, topAds: 1, bumps: 5, total: 'LKR 7,000' },
+                quarterly: { perAd: 'LKR 332.50', ads: 20, topAds: 4, bumps: 20, total: 'LKR 19,950' },
+                yearly: { perAd: 'LKR 280', ads: 20, topAds: 20, bumps: 100, total: 'LKR 67,200' }
+            },
+            premium: {
+                monthly: { perAd: 'LKR 100', ads: 150, topAds: 3, bumps: 15, total: 'LKR 15,000' },
+                quarterly: { perAd: 'LKR 95', ads: 150, topAds: 10, bumps: 50, total: 'LKR 42,750' },
+                yearly: { perAd: 'LKR 80', ads: 150, topAds: 50, bumps: 250, total: 'LKR 144,000' }
+            }
+        };
+
+        // SCROLL-TRIGGER ENGINE LOGIC
+        window.addEventListener('scroll', () => {
+            const popup = document.getElementById('scroll-prompt-popup');
+            
+            // Only fire if the user has NOT uploaded anything yet and hasn't explicitly hit cross icon
+            if (!hasPostedAd && !scrollPopupDismissed && window.scrollY > 180) {
+                popup.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+            } else {
+                popup.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+            }
+        });
+
+        function dismissScrollPopup() {
+            scrollPopupDismissed = true;
+            const popup = document.getElementById('scroll-prompt-popup');
+            popup.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+        }
+
+        function resetToHome() {
+            location.reload();
+        }
+
+        function triggerPostAdFlow() {
+            dismissScrollPopup();
+            openModal('fork-modal');
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if(el) el.classList.replace('hidden', 'flex');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if(el) el.classList.replace('flex', 'hidden');
+        }
+
+        function selectUserRoute(route) {
+            currentRoute = route;
+            closeModal('fork-modal');
+            
+            document.getElementById('private-post-ad-view').classList.add('hidden');
+            document.getElementById('dealer-pricing-view').classList.add('hidden');
+            document.getElementById('nav-post-ad-btn').classList.add('hidden');
+
+            if (route === 'private') {
+                document.getElementById('private-post-ad-view').classList.remove('hidden');
+            } else if (route === 'dealer') {
+                switchDealerTab('plus');
+                document.getElementById('dealer-pricing-view').classList.remove('hidden');
+            }
+        }
+
+        function handlePrivateAdSubmission(e) {
+            e.preventDefault();
+            const bikeTitle = document.getElementById('priv-bike-title').value;
+            let bikePrice = document.getElementById('priv-bike-price').value;
+            if(!bikePrice.toUpperCase().startsWith('LKR')) bikePrice = `LKR ${parseInt(bikePrice).toLocaleString()}`;
+
+            privateAdObject = { title: bikeTitle, price: bikePrice, badges: [] };
+            
+            // Flags state to disable downscroll prompts globally
+            hasPostedAd = true; 
+            dismissScrollPopup();
+
+            document.getElementById('popup-private-boost-block').classList.remove('hidden');
+            document.getElementById('success-primary-action-btn').innerText = "Skip & View My Live Ad Workspace";
+
+            openModal('success-popup');
+        }
+
+        function switchDealerTab(tier) {
+            currentDealerTier = tier;
+            const plusBtn = document.getElementById('tab-plus');
+            const premiumBtn = document.getElementById('tab-premium');
+
+            if (tier === 'plus') {
+                plusBtn.className = "flex-1 py-2.5 text-center font-bold text-xs bg-slate-900 text-white rounded-t-xl shadow-inner";
+                premiumBtn.className = "flex-1 py-2.5 text-center font-bold text-xs bg-slate-100 text-slate-600 rounded-t-xl hover:bg-slate-200";
+            } else {
+                premiumBtn.className = "flex-1 py-2.5 text-center font-bold text-xs bg-slate-900 text-white rounded-t-xl shadow-inner";
+                plusBtn.className = "flex-1 py-2.5 text-center font-bold text-xs bg-slate-100 text-slate-600 rounded-t-xl hover:bg-slate-200";
+            }
+
+            const activeDataset = pricingMatrix[tier];
+            document.getElementById('card-monthly-per-ad').innerText = activeDataset.monthly.perAd;
+            document.getElementById('card-monthly-ads').innerText = `${activeDataset.monthly.ads} Active Listings`;
+            document.getElementById('card-monthly-boosts').innerText = `${activeDataset.monthly.topAds} Top Ad + ${activeDataset.monthly.bumps} Bumps`;
+            document.getElementById('card-monthly-total').innerText = activeDataset.monthly.total;
+
+            document.getElementById('card-quarterly-per-ad').innerText = activeDataset.quarterly.perAd;
+            document.getElementById('card-quarterly-ads').innerText = `${activeDataset.quarterly.ads} Active Listings`;
+            document.getElementById('card-quarterly-boosts').innerText = `${activeDataset.quarterly.topAds} Top Ads + ${activeDataset.quarterly.bumps} Bumps`;
+            document.getElementById('card-quarterly-total').innerText = activeDataset.quarterly.total;
+
+            document.getElementById('card-yearly-per-ad').innerText = activeDataset.yearly.perAd;
+            document.getElementById('card-yearly-ads').innerText = `${activeDataset.yearly.ads} Active Listings`;
+            document.getElementById('card-yearly-boosts').innerText = `${activeDataset.yearly.topAds} Top Ads + ${activeDataset.yearly.bumps} Bumps`;
+            document.getElementById('card-yearly-total').innerText = activeDataset.yearly.total;
+        }
+
+        function initiateCheckout(productLabel, explicitPrice = null) {
+            closeModal('success-popup');
+            selectedProductLabel = productLabel;
+            
+            if (explicitPrice) {
+                selectedProductCost = explicitPrice;
+            } else {
+                const typeKey = productLabel.split(' ')[0].toLowerCase();
+                if (productLabel.includes('Booster') || productLabel.includes('Token')) {
+                    selectedProductCost = explicitPrice;
+                } else {
+                    selectedProductCost = pricingMatrix[currentDealerTier][typeKey].total;
+                }
+            }
+
+            document.getElementById('step1-target-summary').innerText = `Target Item: ${selectedProductLabel}`;
+            const labelEl = document.getElementById('dynamic-name-label');
+            const nameInput = document.getElementById('user-name');
+
+            if (document.getElementById('dealer-dashboard').classList.contains('block')) {
+                nameInput.value = document.getElementById('deal-dash-title').innerText;
+                document.getElementById('user-email').value = document.getElementById('deal-dash-email').innerText;
+                document.getElementById('user-phone').value = document.getElementById('deal-input-phone').value.replace('+94 ', '').trim();
+            }
+
+            if (currentRoute === 'private') {
+                labelEl.innerText = "Your Full Name";
+                nameInput.placeholder = "Enter your name";
+            } else {
+                labelEl.innerText = "Showroom / Dealer Shop Name";
+                nameInput.placeholder = "e.g., Colombo Superbike Centre";
+            }
+
+            document.getElementById('checkout-step-2').classList.add('hidden');
+            document.getElementById('checkout-step-3').classList.add('hidden');
+            document.getElementById('checkout-step-1').classList.remove('hidden');
+            document.getElementById('badge-step-1').className = "text-[10px] font-bold px-3 py-1 bg-slate-900 text-white rounded-full";
+            document.getElementById('badge-step-2').className = "text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full";
+            document.getElementById('badge-step-3').className = "text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full";
+
+            openModal('checkout-modal');
+        }
+
+        function advanceCheckoutToBankScreen(e) {
+            e.preventDefault();
+            const uName = document.getElementById('user-name').value;
+            const uEmail = document.getElementById('user-email').value;
+            const uPhone = document.getElementById('user-phone').value;
+
+            document.getElementById('modal-plan-summary').innerText = `${selectedProductLabel} — ${selectedProductCost}`;
+            document.getElementById('modal-total-price').innerText = selectedProductCost;
+
+            const whatsappNumber = "94756533513";
+            let hookHeader = (selectedProductLabel.includes('Booster') || selectedProductLabel.includes('Token')) 
+                ? '*🚨 ADD-ON BOOSTER LEVERAGE TRANSACTION*' 
+                : currentRoute === 'private' ? '*⚡ PRIVATE INDIVIDUAL AD BOOST TRANSACTION*' : '*💼 COMMERCIAL SHOWROOM MEMBERSHIP CONTRACT*';
+
+            const txt = `${hookHeader}\n=========================\n👤 NAME: ${uName.toUpperCase()}\n📦 ASSET OBJECT: ${selectedProductLabel.toUpperCase()}\n💰 REMITTANCE: ${selectedProductCost}\n=========================\n\nSystem Fields:\n- Email: ${uEmail}\n- Hotline: +94 ${uPhone}\n\nI have wired the exact amount. Remittance image attachment is appended below.`;
+            document.getElementById('whatsapp-link-btn').href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(txt)}`;
+
+            document.getElementById('checkout-step-1').classList.add('hidden');
+            document.getElementById('checkout-step-2').classList.remove('hidden');
+            document.getElementById('badge-step-1').className = "text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full";
+            document.getElementById('badge-step-2').className = "text-[10px] font-bold px-3 py-1 bg-slate-900 text-white rounded-full";
+        }
+
+        function commitToVerificationQueue() {
+            const clientName = document.getElementById('user-name').value;
+            
+            document.getElementById('audit-name').innerText = clientName;
+            document.getElementById('audit-asset').innerText = `${selectedProductLabel} (${selectedProductCost})`;
+
+            document.getElementById('checkout-step-2').classList.add('hidden');
+            document.getElementById('checkout-step-3').classList.remove('hidden');
+            document.getElementById('badge-step-2').className = "text-[10px] font-bold px-3 py-1 bg-slate-100 text-slate-400 rounded-full";
+            document.getElementById('badge-step-3').className = "text-[10px] font-bold px-3 py-1 bg-slate-900 text-white rounded-full";
+
+            document.getElementById('admin-queue-container').innerHTML = `
+                <div class="space-y-2">
+                    <p class="text-white font-bold">Inbound Wire: <span class="text-yellow-400">${clientName}</span></p>
+                    <p class="text-slate-300 text-[10px]">${selectedProductLabel} (${selectedProductCost})</p>
+                    <button onclick="executeAdminApproval('${clientName}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-1.5 rounded-lg transition-colors uppercase text-[9px] tracking-wider">
+                        ✅ Approve Payment & Provision
+                    </button>
+                </div>
+            `;
+        }
+
+        function executeAdminApproval(clientName) {
+            closeModal('checkout-modal');
+            document.getElementById('admin-queue-container').innerHTML = `<p class="text-emerald-400 text-center font-bold py-1">✓ Order cleared. Database records updated successfully.</p>`;
+
+            if (selectedProductLabel.includes('Add-On')) {
+                if (selectedProductLabel.includes('5x Bumps')) bumpsBalance += 5;
+                if (selectedProductLabel.includes('1x Top Ad')) topAdsBalance += 1;
+                updateDealerTokenBalancesOnUI();
+                renderDealerInventoryListings();
+                alert("Add-on Booster balance provisioned successfully! High-margin token ledger balances updated.");
+                return;
+            }
+
+            // Flag state to eliminate downscroll alert globally
+            hasPostedAd = true;
+            dismissScrollPopup();
+
+            if (currentRoute === 'private') {
+                if (selectedProductLabel.includes('Bump')) privateAdObject.badges.push('Bump Up');
+                if (selectedProductLabel.includes('Top')) privateAdObject.badges.push('Top Ad');
+                if (selectedProductLabel.includes('Urgent')) privateAdObject.badges.push('Urgent');
+
+                routeToFinalDashboard();
+                return;
+            }
+
+            const typeKey = selectedProductLabel.split(' ')[0].toLowerCase();
+            const chosenTierConfig = pricingMatrix[currentDealerTier][typeKey];
+
+            maxAllowedDealerAds = chosenTierConfig.ads;
+            topAdsBalance = chosenTierConfig.topAds;
+            bumpsBalance = chosenTierConfig.bumps;
+
+            // Seed initial unit for presentation setup context
+            activeDealerAdsCount = 1;
+            dealerListings = [{ id: 1, title: 'Sample Showroom Active Inventory Asset 01', price: 'LKR 950,000', badges: [] }];
+
+            document.getElementById('deal-dash-title').innerText = clientName;
+            document.getElementById('deal-avatar').innerText = clientName.charAt(0);
+            document.getElementById('deal-dash-email').innerText = document.getElementById('user-email').value;
+            document.getElementById('deal-dash-tier-badge').innerText = `${currentDealerTier.toUpperCase()} MEMBER (${typeKey.toUpperCase()})`;
+
+            routeToFinalDashboard();
+        }
+
+        function routeToFinalDashboard() {
+            closeModal('success-popup');
+            document.getElementById('private-post-ad-view').classList.add('hidden');
+            document.getElementById('dealer-pricing-view').classList.add('hidden');
+
+            if (currentRoute === 'private') {
+                document.getElementById('priv-dash-name').innerText = document.getElementById('user-name').value || "Private Seller";
+                document.getElementById('priv-avatar').innerText = (document.getElementById('user-name').value || "P").charAt(0);
+                
+                const container = document.getElementById('private-ad-listing-slot');
+                let tagsHTML = privateAdObject.badges.map(b => `<span class="brand-yellow text-slate-950 text-[10px] font-black px-2 py-0.5 rounded border border-yellow-500 uppercase">${b} Active</span>`).join(' ');
+                
+                container.innerHTML = `
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex justify-between items-center">
+                        <div>
+                            <div class="flex items-center gap-2">${tagsHTML}<h4 class="font-black text-slate-900 text-base">${privateAdObject.title}</h4></div>
+                            <p class="text-xs text-slate-500 font-bold mt-1">${privateAdObject.price}</p>
+                        </div>
+                        <button onclick="initiateCheckout('Add-On Booster Pack targeting live item', 'LKR 1,000')" class="brand-dark hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all">
+                            ⚡ Purchase Ad Boosters
+                        </button>
+                    </div>
+                `;
+                document.getElementById('private-dashboard').classList.remove('hidden');
+            } else if (currentRoute === 'dealer') {
+                updateDealerQuotaCounters();
+                updateDealerTokenBalancesOnUI();
+                renderDealerInventoryListings();
+                document.getElementById('dealer-dashboard').classList.remove('hidden');
+            }
+        }
+
+        function updateDealerQuotaCounters() {
+            document.getElementById('deal-ads-deployed').innerText = activeDealerAdsCount;
+            document.getElementById('deal-ads-remaining').innerText = (maxAllowedDealerAds - activeDealerAdsCount);
+            const pct = Math.round((activeDealerAdsCount / maxAllowedDealerAds) * 100);
+            document.getElementById('deal-progress-bar').style.width = `${pct}%`;
+        }
+
+        function updateDealerTokenBalancesOnUI() {
+            document.getElementById('deal-bal-topads').innerText = topAdsBalance;
+            document.getElementById('deal-bal-bumps').innerText = bumpsBalance;
+        }
+
+        function renderDealerInventoryListings() {
+            const container = document.getElementById('dealer-listings-container');
+            if(dealerListings.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-center italic text-xs py-4">No showroom inventory posted yet.</p>`;
+                return;
+            }
+            container.innerHTML = dealerListings.map(ad => {
+                let statusBadges = ad.badges.map(b => {
+                    if (b === 'Bump') return `<span class="bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wide">💥 Bumped Up</span>`;
+                    if (b === 'TopAd') return `<span class="brand-yellow text-slate-950 text-[9px] font-black px-2 py-0.5 rounded border border-yellow-500 uppercase tracking-wide">⭐ Pinned Top Ad</span>`;
+                    return '';
+                }).join(' ');
+
+                return `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap"><h4 class="text-xs font-bold text-slate-800">${ad.title}</h4>${statusBadges}</div>
+                            <p class="text-[11px] text-slate-400 mt-0.5 font-bold font-mono">${ad.price}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="burnDealerVoucher(${ad.id}, 'Bump')" class="text-[10px] bg-white border hover:bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-bold transition-all">💥 Use 1 Bump</button>
+                            <button onclick="burnDealerVoucher(${ad.id}, 'TopAd')" class="text-[10px] bg-white border hover:bg-yellow-50 text-slate-700 px-3 py-1 rounded-lg font-bold transition-all">⭐ Use Top Ad Token</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function burnDealerVoucher(adId, tokenType) {
+            const ad = dealerListings.find(i => i.id === adId);
+            if (!ad) return;
+
+            if (tokenType === 'Bump') {
+                if (bumpsBalance < 1) {
+                    alert("Out of Voucher Bumps! Scroll down to the Add-On Booster Shop to purchase a high-margin 5x Bumps pack instantly.");
+                    return;
+                }
+                bumpsBalance--;
+                if(!ad.badges.includes('Bump')) ad.badges.push('Bump');
+            } else if (tokenType === 'TopAd') {
+                if (topAdsBalance < 1) {
+                    alert("Out of Voucher Top Ads! Scroll down to the Add-On Booster Shop to buy a Single Top Ad Token instantly.");
+                    return;
+                }
+                if (ad.badges.includes('TopAd')) {
+                    alert("This specific showroom inventory unit is already actively running inside pinned category blocks.");
+                    return;
+                }
+                topAdsBalance--;
+                ad.badges.push('TopAd');
+            }
+            updateDealerTokenBalancesOnUI();
+            renderDealerInventoryListings();
+        }
+
+        function openDealerDeployAdModal() {
+            if (activeDealerAdsCount >= maxAllowedDealerAds) {
+                alert("Showroom quota limit reached! Upgrade subscription plan package parameters to extend limits.");
+                return;
+            }
+            openModal('dealer-deploy-modal');
+        }
+
+        function handleDealerAdDeployment(e) {
+            e.preventDefault();
+            const title = document.getElementById('deal-bike-title').value;
+            let price = document.getElementById('deal-bike-price').value;
+            if(!price.toUpperCase().startsWith('LKR')) price = `LKR ${parseInt(price).toLocaleString()}`;
+
+            activeDealerAdsCount++;
+            const newId = dealerListings.length ? Math.max(...dealerListings.map(l => l.id)) + 1 : 1;
+            dealerListings.push({ id: newId, title: title, price: price, badges: [] });
+
+            updateDealerQuotaCounters();
+            renderDealerInventoryListings();
+            closeModal('dealer-deploy-modal');
+            document.getElementById('deal-bike-title').value = "";
+            document.getElementById('deal-bike-price').value = "";
+        }
+
+        function copyAccountField(targetElId, btnId) {
+            const textValue = document.getElementById(targetElId).innerText;
+            navigator.clipboard.writeText(textValue).then(() => {
+                const btn = document.getElementById(btnId);
+                btn.innerText = "Copied!";
+                btn.className = "bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold transition-all";
+                setTimeout(() => {
+                    btn.innerText = "Copy";
+                    btn.className = "bg-yellow-100 text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

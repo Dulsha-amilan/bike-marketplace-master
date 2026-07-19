@@ -26,6 +26,8 @@ import Hero from './components/Hero';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
+import AdminDashboard from './components/AdminDashboard';
+import AdminLoginPage from './components/AdminLoginPage';
 
 // Small wrappers to inject allVehicles from context
 function CategoryListRoute() {
@@ -57,6 +59,31 @@ function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+// Admin Protected route — redirects to /admin-login if not authenticated or not admin
+function AdminProtectedRoute({ children }) {
+  const { user, isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div style={{
+          width: 40, height: 40,
+          border: '4px solid #e5e7eb',
+          borderTopColor: '#FFD600',
+          borderRadius: '50%',
+          animation: 'spin 0.7s linear infinite'
+        }} />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/admin-login" replace />;
   }
 
   return children;
@@ -252,9 +279,14 @@ function App() {
         <VehiclesProvider>
           <div className="App">
             <Routes>
-              {/* Auth pages — rendered WITHOUT Header/Footer for immersive full-screen design */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/admin-login" element={<AdminLoginPage />} />
+              <Route path="/admin" element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              } />
 
               {/* All other pages — rendered WITH Header/Footer */}
               <Route path="*" element={

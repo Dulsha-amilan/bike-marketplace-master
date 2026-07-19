@@ -1,7 +1,8 @@
 // components/VehicleCard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMapPin, FiCalendar, FiX } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiX } from 'react-icons/fi';
+import { Activity, Camera, Cpu, Droplet, Zap } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -12,9 +13,12 @@ const formatPrice = price => {
   return `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`;
 };
 
-const toISODate = d => new Date(d).toISOString().slice(0, 10);
+const toISODate = date => {
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? 'Recently' : parsed.toISOString().slice(0, 10);
+};
 
-const VehicleCard = ({ vehicle }) => {
+const VehicleCard = ({ vehicle, horizontal = false }) => {
   const {
     id,
     title,
@@ -28,24 +32,19 @@ const VehicleCard = ({ vehicle }) => {
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // Get all images (main image + gallery)
   const allImages = [image, ...(gallery || [])].filter(Boolean).map(resolveMediaUrl);
+  const makeLine = [vehicle.make, vehicle.model].filter(Boolean).join(' ');
 
   useEffect(() => {
-    if (isLightboxOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isLightboxOpen ? 'hidden' : 'unset';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isLightboxOpen]);
 
-  const openLightbox = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const openLightbox = event => {
+    event.preventDefault();
+    event.stopPropagation();
     setIsLightboxOpen(true);
     setCurrentImageIndex(0);
   };
@@ -54,28 +53,28 @@ const VehicleCard = ({ vehicle }) => {
     setIsLightboxOpen(false);
   };
 
-  const nextImage = (e) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+  const nextImage = event => {
+    event.stopPropagation();
+    setCurrentImageIndex(prev => (prev + 1) % allImages.length);
   };
 
-  const prevImage = (e) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  const prevImage = event => {
+    event.stopPropagation();
+    setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length);
   };
 
   useEffect(() => {
     if (!isLightboxOpen) return;
 
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
+    const handleKeyDown = event => {
+      if (event.key === 'Escape') {
         setIsLightboxOpen(false);
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setCurrentImageIndex(prev => (prev + 1) % allImages.length);
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length);
       }
     };
 
@@ -83,9 +82,142 @@ const VehicleCard = ({ vehicle }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, allImages.length]);
 
+  const specItems = [
+    vehicle.engineCapacityCc && {
+      key: 'engine',
+      Icon: Zap,
+      className: 'vehicle-card__spec-icon--amber',
+      label: `${vehicle.engineCapacityCc} cc`,
+    },
+    vehicle.fuelType && {
+      key: 'fuel',
+      Icon: Droplet,
+      className: 'vehicle-card__spec-icon--blue',
+      label: vehicle.fuelType,
+    },
+    vehicle.transmission && {
+      key: 'transmission',
+      Icon: Cpu,
+      className: 'vehicle-card__spec-icon--violet',
+      label: vehicle.transmission,
+    },
+    mileageKm != null && {
+      key: 'mileage',
+      Icon: Activity,
+      className: 'vehicle-card__spec-icon--green',
+      label: `${mileageKm.toLocaleString()} km`,
+    },
+  ].filter(Boolean);
+
+  if (horizontal) {
+    return (
+      <>
+        <Card className="vehicle-card vehicle-card--ad">
+          <button
+            className="vehicle-card__media"
+            onClick={openLightbox}
+            type="button"
+            aria-label={`Open photos for ${title}`}
+          >
+            <img
+              src={resolveMediaUrl(image)}
+              alt={title}
+              loading="lazy"
+              className="vehicle-card__image"
+            />
+            <span className="vehicle-card__media-shade" aria-hidden="true" />
+            <div className="vehicle-card__badges">
+              {vehicle.condition && (
+                <span className="vehicle-card__badge vehicle-card__badge--new">
+                  {vehicle.condition}
+                </span>
+              )}
+              {vehicle.type && (
+                <span className="vehicle-card__badge vehicle-card__badge--type">
+                  {vehicle.type}
+                </span>
+              )}
+            </div>
+            {allImages.length > 1 && (
+              <span className="vehicle-card__photo-count">
+                <Camera aria-hidden="true" />
+                {allImages.length} photos
+              </span>
+            )}
+          </button>
+
+          <div className="vehicle-card__main">
+            <div className="vehicle-card__details">
+              <div className="vehicle-card__make">
+                {makeLine || 'Bike'}
+                {vehicle.year ? ` - ${vehicle.year}` : ''}
+              </div>
+              <h3 className="vehicle-card__title">{title}</h3>
+              <div className="vehicle-card__location">
+                <FiMapPin aria-hidden="true" />
+                <span>{location || 'Sri Lanka'}</span>
+              </div>
+
+              <div className="vehicle-card__price-row vehicle-card__price-row--mobile">
+                <div>
+                  <span className="vehicle-card__price-label">Price</span>
+                  <div className="vehicle-card__price">{formatPrice(price)}</div>
+                </div>
+                {vehicle.registerYear && (
+                  <span className="vehicle-card__reg">Reg: {vehicle.registerYear}</span>
+                )}
+              </div>
+
+              <div className="vehicle-card__specs" aria-label="Vehicle specifications">
+                {specItems.map(({ key, Icon, className, label }) => (
+                  <span key={key} className="vehicle-card__spec">
+                    <Icon className={`vehicle-card__spec-icon ${className}`} aria-hidden="true" />
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="vehicle-card__summary">
+              <div className="vehicle-card__price-row vehicle-card__price-row--desktop">
+                <div>
+                  <span className="vehicle-card__price-label">Price</span>
+                  <div className="vehicle-card__price">{formatPrice(price)}</div>
+                </div>
+                {vehicle.registerYear && (
+                  <span className="vehicle-card__reg">Reg: {vehicle.registerYear}</span>
+                )}
+              </div>
+
+              <div className="vehicle-card__posted">
+                <FiCalendar aria-hidden="true" />
+                <span>Posted: {toISODate(postedAt)}</span>
+              </div>
+
+              <Button asChild className="vehicle-card__button" size="sm">
+                <Link to={`/vehicle/${id}`}>View Details</Link>
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {isLightboxOpen && (
+          <VehicleLightbox
+            allImages={allImages}
+            title={title}
+            currentImageIndex={currentImageIndex}
+            closeLightbox={closeLightbox}
+            prevImage={prevImage}
+            nextImage={nextImage}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
     <>
-      <Card className="vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 hover:-translate-y-1 bg-card">
+      <Card className="vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto">
         <div className="vehicle-media relative aspect-[16/9] overflow-hidden cursor-pointer bg-gray-900" onClick={openLightbox}>
           <img
             src={resolveMediaUrl(image)}
@@ -95,10 +227,16 @@ const VehicleCard = ({ vehicle }) => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {/* Badge for condition or status could go here */}
-          <div className="absolute top-2 left-2 flex gap-1">
-            {vehicle.condition === 'New' && (
-              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">New</span>
+          <div className="absolute top-2 left-2 flex gap-1.5 z-10">
+            {vehicle.condition && (
+              <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                {vehicle.condition}
+              </span>
+            )}
+            {vehicle.type && (
+              <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide capitalize">
+                {vehicle.type}
+              </span>
             )}
           </div>
 
@@ -110,69 +248,102 @@ const VehicleCard = ({ vehicle }) => {
           )}
         </div>
 
-        <CardContent className="p-5 flex-grow flex flex-col gap-3">
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors">{title}</h3>
-            <div className="text-sm text-muted-foreground flex items-center gap-1">
-              <FiMapPin className="w-3.5 h-3.5" />
+        <CardContent className="p-5 flex-grow flex flex-col gap-3.5">
+          <div className="space-y-1.5">
+            <h3 className="text-lg font-bold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors">
+              {title}
+            </h3>
+
+            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              {makeLine} {vehicle.year ? `- ${vehicle.year}` : ''}
+            </div>
+
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              <FiMapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">{location}</span>
             </div>
           </div>
 
-          <div className="text-2xl font-bold text-primary mt-1">{formatPrice(price)}</div>
-
-          <div className="vehicle-meta grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-medium text-muted-foreground mt-auto pt-4 border-t border-border/50">
-            <div className="flex items-center gap-1.5">
-              <FiCalendar className="w-3.5 h-3.5" />
-              <span>{toISODate(postedAt)}</span>
-            </div>
-            {mileageKm != null && (
-              <div className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 flex items-center justify-center font-bold">K</span>
-                <span>{mileageKm.toLocaleString()} km</span>
-              </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <div className="text-xl font-extrabold text-primary">{formatPrice(price)}</div>
+            {vehicle.registerYear && (
+              <span className="text-[10px] text-muted-foreground bg-muted px-2.5 py-0.5 rounded-md font-semibold border border-border/30">
+                Reg: {vehicle.registerYear}
+              </span>
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-2 mb-2 text-xs">
+            {specItems.map(({ key, Icon, className, label }) => (
+              <div key={key} className="flex items-center gap-1.5 bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/30">
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${className}`} />
+                <span className="truncate text-muted-foreground font-semibold">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground pt-3 border-t border-border/30 mt-auto">
+            <span className="flex items-center gap-1">
+              <FiCalendar className="w-3.5 h-3.5 text-muted-foreground/80" />
+              Posted: {toISODate(postedAt)}
+            </span>
           </div>
         </CardContent>
 
         <CardFooter className="p-4 pt-0">
           <Button asChild className="w-full font-semibold shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
-            <Link to={`/vehicle/${id}`}>
-              View Details
-            </Link>
+            <Link to={`/vehicle/${id}`}>View Details</Link>
           </Button>
         </CardFooter>
       </Card>
 
       {isLightboxOpen && (
-        <div className="image-lightbox" onClick={closeLightbox}>
-          <button className="lightbox-close" onClick={closeLightbox} aria-label="Close">
-            <FiX />
-          </button>
-          {allImages.length > 1 && (
-            <>
-              <button className="lightbox-nav lightbox-prev" onClick={prevImage} aria-label="Previous">
-                ‹
-              </button>
-              <button className="lightbox-nav lightbox-next" onClick={nextImage} aria-label="Next">
-                ›
-              </button>
-              <div className="lightbox-counter">
-                {currentImageIndex + 1} / {allImages.length}
-              </div>
-            </>
-          )}
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={allImages[currentImageIndex]}
-              alt={`${title} - ${currentImageIndex + 1}`}
-              className="lightbox-image"
-            />
-          </div>
-        </div>
+        <VehicleLightbox
+          allImages={allImages}
+          title={title}
+          currentImageIndex={currentImageIndex}
+          closeLightbox={closeLightbox}
+          prevImage={prevImage}
+          nextImage={nextImage}
+        />
       )}
     </>
   );
 };
+
+const VehicleLightbox = ({
+  allImages,
+  title,
+  currentImageIndex,
+  closeLightbox,
+  prevImage,
+  nextImage,
+}) => (
+  <div className="image-lightbox" onClick={closeLightbox}>
+    <button className="lightbox-close" onClick={closeLightbox} aria-label="Close" type="button">
+      <FiX />
+    </button>
+    {allImages.length > 1 && (
+      <>
+        <button className="lightbox-nav lightbox-prev" onClick={prevImage} aria-label="Previous" type="button">
+          {'<'}
+        </button>
+        <button className="lightbox-nav lightbox-next" onClick={nextImage} aria-label="Next" type="button">
+          {'>'}
+        </button>
+        <div className="lightbox-counter">
+          {currentImageIndex + 1} / {allImages.length}
+        </div>
+      </>
+    )}
+    <div className="lightbox-content" onClick={event => event.stopPropagation()}>
+      <img
+        src={allImages[currentImageIndex]}
+        alt={`${title} - ${currentImageIndex + 1}`}
+        className="lightbox-image"
+      />
+    </div>
+  </div>
+);
 
 export default VehicleCard;

@@ -73,3 +73,74 @@ export function getBikerGear() {
 export function getChatbotResponses() {
   return request('/chatbot/responses', { method: 'GET' });
 }
+
+export function getAdminUsers() {
+  return request('/admin/users', { method: 'GET' });
+}
+
+export function updateUserRole(id, role) {
+  return request(`/admin/users/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+}
+
+export function deleteUser(id) {
+  return request(`/admin/users/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export function createSparePart(payload) {
+  return request('/spare-parts', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteSparePart(id) {
+  return request(`/spare-parts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export function createBikerGear(payload) {
+  return request('/biker-gear', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteBikerGear(id) {
+  return request(`/biker-gear/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export function getAdminVehicles() {
+  return request('/admin/vehicles', { method: 'GET' });
+}
+
+export function updateVehicleStatus(id, status) {
+  return request(`/admin/vehicles/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteAllVehicles() {
+  return request('/admin/vehicles', { method: 'DELETE' });
+}
+
+export function requestStorageUpgrade() {
+  return request('/storage-upgrade/request', { method: 'POST' });
+}
+
+export function getStorageUpgradeStatus() {
+  return request('/storage-upgrade/status', { method: 'GET' });
+}
+
+export function getAdminStorageUpgrades() {
+  return request('/admin/storage-upgrades', { method: 'GET' });
+}
+
+export function updateStorageUpgradeRequest(id, status) {
+  return request(`/admin/storage-upgrades/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}

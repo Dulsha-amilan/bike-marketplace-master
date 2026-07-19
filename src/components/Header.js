@@ -175,6 +175,16 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                       </svg>
                       Post an Ad
                     </button>
+                    {user?.role === 'admin' && (
+                      <button className="header-user-option" onClick={() => { setIsUserMenuOpen(false); navigate('/admin'); }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="9" y1="3" x2="9" y2="21"/>
+                          <line x1="9" y1="9" x2="21" y2="9"/>
+                        </svg>
+                        Admin Dashboard
+                      </button>
+                    )}
                     <button className="header-user-option header-user-option--danger" onClick={handleLogout}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -261,6 +271,19 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                   {isAuthenticated && (
                     <div className="dropdown-item">
                       <button
+                        className="dropdown-link"
+                        onClick={() => {
+                          navigate('/profile');
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        Profile
+                      </button>
+                    </div>
+                  )}
+                  {isAuthenticated && (
+                    <div className="dropdown-item">
+                      <button
                         className={`cta-button mobile-cta ${isHome && !isScrolled ? 'cta-button--ghost-light' : ''}`}
                         onClick={() => {
                           navigate('/post-ad');
@@ -268,6 +291,19 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                         }}
                       >
                         {translations.postAd}
+                      </button>
+                    </div>
+                  )}
+                  {isAuthenticated && user?.role === 'admin' && (
+                    <div className="dropdown-item">
+                      <button
+                        className="dropdown-link"
+                        onClick={() => {
+                          navigate('/admin');
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        Admin Dashboard
                       </button>
                     </div>
                   )}

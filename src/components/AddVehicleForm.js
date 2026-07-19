@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
+import { useAuth } from './AuthContext';
+import { getStorageUpgradeStatus, requestStorageUpgrade } from '../api/bikeApi';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import {
@@ -28,7 +30,13 @@ const TYPES = [
   { value: 'atv-adv', label: 'ATV / ADV' },
 ];
 
-const MAX_UPLOAD_IMAGES = 4;
+const COMMON_BRANDS = [
+  'Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVS', 'Hero', 'KTM', 'Kawasaki', 
+  'BMW', 'Ducati', 'Triumph', 'Vespa', 'Aprilia', 'Royal Enfield', 
+  'Harley-Davidson', 'Demak', 'Daelim', 'Loncin', 'Lifan'
+];
+
+const MAX_UPLOAD_IMAGES = 5;
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -253,6 +261,7 @@ export default function AddVehicleForm() {
     transmission: '',
     fuelType: '',
     color: '',
+    description: '',
     location: '',
     phone: '',
   };
@@ -265,6 +274,16 @@ export default function AddVehicleForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [postedVehicle, setPostedVehicle] = useState(null);
+
+  // Suggestions state
+  const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
+  const [brandSuggestions, setBrandSuggestions] = useState([]);
+  const brandRef = useRef(null);
+
+  const { user } = useAuth();
+  const [maxUploadImages, setMaxUploadImages] = useState(user?.storageLimit || 5);
+  const [upgradeStatus, setUpgradeStatus] = useState('none');
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   // Wizard state
   const [step, setStep] = useState(1);
@@ -285,6 +304,31 @@ export default function AddVehicleForm() {
     };
   }, [heroPreview, galleryPreviews]);
 
+  // Fetch upgrade request status
+  useEffect(() => {
+    if (user) {
+      setMaxUploadImages(user.storageLimit || 5);
+      getStorageUpgradeStatus()
+        .then((data) => {
+          if (data && data.status) {
+            setUpgradeStatus(data.status);
+          }
+        })
+        .catch((err) => console.error("Error fetching upgrade status:", err));
+    }
+  }, [user]);
+
+  // Handle click outside suggestions
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (brandRef.current && !brandRef.current.contains(event.target)) {
+        setShowBrandSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => {
@@ -298,6 +342,34 @@ export default function AddVehicleForm() {
 
   const handleSelectChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleMakeChange = (e) => {
+    const val = e.target.value;
+    setForm(prev => ({ ...prev, make: val }));
+    
+    if (val.trim() === '') {
+      setBrandSuggestions(COMMON_BRANDS);
+    } else {
+      const filtered = COMMON_BRANDS.filter(b => 
+        b.toLowerCase().includes(val.toLowerCase())
+      );
+      setBrandSuggestions(filtered);
+    }
+    setShowBrandSuggestions(true);
+  };
+
+  const handleMakeFocus = () => {
+    const val = form.make;
+    if (val.trim() === '') {
+      setBrandSuggestions(COMMON_BRANDS);
+    } else {
+      const filtered = COMMON_BRANDS.filter(b => 
+        b.toLowerCase().includes(val.toLowerCase())
+      );
+      setBrandSuggestions(filtered);
+    }
+    setShowBrandSuggestions(true);
   };
 
   const handleHeroUpload = (e) => {
@@ -325,7 +397,7 @@ export default function AddVehicleForm() {
   };
 
   const handleGalleryChange = (files) => {
-    const allowed = MAX_UPLOAD_IMAGES - (uploadHero ? 1 : 0);
+    const allowed = maxUploadImages - (uploadHero ? 1 : 0);
     const newFiles = [...uploadGallery, ...files].slice(0, allowed);
     
     // Revoke old previews
@@ -390,7 +462,9 @@ export default function AddVehicleForm() {
   const isStep2Valid = () => {
     if (form.year === '') return false;
     const yearVal = new Date(form.year).getFullYear();
-    return !isNaN(yearVal) && yearVal > 1900 && yearVal <= new Date().getFullYear() + 1;
+    const yearValid = !isNaN(yearVal) && yearVal > 1900 && yearVal <= new Date().getFullYear() + 1;
+    const descValid = form.description.trim() !== '';
+    return yearValid && descValid;
   };
 
   const isStep3Valid = () => {
@@ -402,7 +476,7 @@ export default function AddVehicleForm() {
 
   const isStep4Valid = () => {
     const totalSelected = (uploadHero ? 1 : 0) + uploadGallery.length;
-    return totalSelected >= 1 && totalSelected <= MAX_UPLOAD_IMAGES;
+    return totalSelected >= 1 && totalSelected <= maxUploadImages;
   };
 
   const nextStep = () => {
@@ -452,6 +526,7 @@ export default function AddVehicleForm() {
       fd.append('transmission', form.transmission);
       fd.append('fuelType', form.fuelType);
       fd.append('color', form.color);
+      fd.append('description', form.description);
       fd.append('location', form.location);
       fd.append('phone', form.phone);
 
@@ -615,7 +690,7 @@ export default function AddVehicleForm() {
                   {/* Category select */}
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold flex items-center gap-1.5">
-                      Category <span className="text-destructive">*</span>
+                      Bike Type <span className="text-destructive">*</span>
                     </Label>
                     <Select value={form.type} onValueChange={(val) => handleSelectChange('type', val)}>
                       <SelectTrigger className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm">
@@ -648,7 +723,7 @@ export default function AddVehicleForm() {
                   </div>
 
                   {/* Make input */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative" ref={brandRef}>
                     <Label htmlFor="make" className="text-sm font-semibold flex items-center gap-1.5">
                       Make (Brand) <span className="text-destructive">*</span>
                     </Label>
@@ -656,10 +731,31 @@ export default function AddVehicleForm() {
                       id="make" 
                       name="make" 
                       value={form.make} 
-                      onChange={handleChange} 
+                      onChange={handleMakeChange} 
+                      onFocus={handleMakeFocus}
+                      autoComplete="off"
                       placeholder="e.g. Honda, Yamaha, Bajaj" 
                       className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.make.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
                     />
+                    
+                    {showBrandSuggestions && brandSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 mt-1 z-50 max-h-56 overflow-y-auto bg-card border border-border rounded-xl shadow-lg animate-in fade-in duration-100">
+                        {brandSuggestions.map((brand) => (
+                          <button
+                            key={brand}
+                            type="button"
+                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors font-medium text-foreground"
+                            onClick={() => {
+                              setForm(prev => ({ ...prev, make: brand }));
+                              setShowBrandSuggestions(false);
+                            }}
+                          >
+                            {brand}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
                     {attemptedNext && form.make.trim() === '' && (
                       <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
                         <AlertCircle className="w-3.5 h-3.5" /> Make is required
@@ -842,6 +938,34 @@ export default function AddVehicleForm() {
                       placeholder="e.g. Red, Matte Black, White" 
                       className="h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm"
                     />
+                  </div>
+
+                  {/* Description text area */}
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="description" className="text-sm font-semibold flex items-center gap-1.5">
+                      Description <span className="text-destructive">*</span>
+                    </Label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      value={form.description}
+                      onChange={handleChange}
+                      maxLength={3000}
+                      rows={5}
+                      placeholder="Describe your bike's condition, modifications, history..."
+                      className={`flex min-h-[120px] w-full rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 placeholder:text-muted-foreground ${attemptedNext && form.description.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
+                    />
+                    <div className="flex justify-between items-center text-xs text-muted-foreground px-1">
+                      <span>Provide details like maintenance, modifications, or issues.</span>
+                      <span className={`font-semibold ${form.description.length >= 3000 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {form.description.length}/3000 characters
+                      </span>
+                    </div>
+                    {attemptedNext && form.description.trim() === '' && (
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" /> Description is required
+                      </p>
+                    )}
                   </div>
 
                 </CardContent>
@@ -1111,6 +1235,70 @@ export default function AddVehicleForm() {
                             )}
                           </div>
                         </div>
+
+                        {/* Upgrade Request Banner */}
+                        {maxUploadImages < 10 && (
+                          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <h4 className="font-bold text-sm text-foreground">Need to upload more photos?</h4>
+                              <p className="text-xs text-muted-foreground">Request a free upgrade to upload up to 10 images for your listing.</p>
+                            </div>
+                            
+                            {upgradeStatus === 'none' && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                disabled={upgradeLoading}
+                                onClick={async () => {
+                                  setUpgradeLoading(true);
+                                  try {
+                                    await requestStorageUpgrade();
+                                    setUpgradeStatus('pending');
+                                  } catch (err) {
+                                    console.error(err);
+                                  } finally {
+                                    setUpgradeLoading(false);
+                                  }
+                                }}
+                                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg shrink-0"
+                              >
+                                {upgradeLoading ? 'Requesting...' : 'Request 10 Images'}
+                              </Button>
+                            )}
+                            
+                            {upgradeStatus === 'pending' && (
+                              <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
+                                Pending Admin Approval
+                              </span>
+                            )}
+                            
+                            {upgradeStatus === 'rejected' && (
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
+                                  Upgrade Rejected
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={upgradeLoading}
+                                  onClick={async () => {
+                                    setUpgradeLoading(true);
+                                    try {
+                                      await requestStorageUpgrade();
+                                      setUpgradeStatus('pending');
+                                    } catch (err) {
+                                      console.error(err);
+                                    } finally {
+                                      setUpgradeLoading(false);
+                                    }
+                                  }}
+                                  className="text-[10px] text-amber-500 hover:underline font-bold"
+                                >
+                                  Request Again
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {error && (
                           <div className="p-3.5 rounded-xl bg-destructive/10 text-destructive text-sm font-medium flex items-start gap-2 border border-destructive/20 animate-pulse">
