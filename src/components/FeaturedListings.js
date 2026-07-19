@@ -24,7 +24,7 @@ const FeaturedListings = ({ translations }) => {
     return [...allVehicles]
       .filter(vehicle => vehicle?.id && vehicle?.title && vehicle?.image)
       .sort((a, b) => new Date(b.postedAt || 0) - new Date(a.postedAt || 0))
-      .slice(0, 5);
+      .slice(0, 8);
   }, [allVehicles]);
 
   if (latestVehicles.length === 0) {

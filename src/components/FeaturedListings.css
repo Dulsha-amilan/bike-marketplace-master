@@ -30,7 +30,7 @@
   background: #ffffff;
   color: #6b7280;
   font-size: 0.74rem;
-  font-weight: 850;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -40,7 +40,8 @@
   color: #0f172a;
   font-size: clamp(1.45rem, 2.2vw, 2.15rem);
   line-height: 1.06;
-  font-weight: 900;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   letter-spacing: 0;
 }
 
@@ -59,19 +60,19 @@
   color: #0f172a;
   font-size: 1.35rem;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .featured-count span {
   color: #64748b;
   font-size: 0.76rem;
-  font-weight: 780;
+  font-weight: 500;
 }
 
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
   align-items: stretch;
 }
 
@@ -133,7 +134,7 @@
   padding: 4px 7px;
   font-size: 0.66rem;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0;
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
@@ -153,16 +154,16 @@
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: 9px;
-  padding: 15px 15px 13px;
+  gap: 10px;
+  padding: 20px 20px 18px;
 }
 
 .featured-card__make {
   min-height: 16px;
   overflow: hidden;
   color: #58708f;
-  font-size: 0.72rem;
-  font-weight: 900;
+  font-size: 0.78rem;
+  font-weight: 600;
   line-height: 1.2;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -175,9 +176,9 @@
   margin: 0;
   overflow: hidden;
   color: #0f172a;
-  font-size: 1.02rem;
-  line-height: 1.2;
-  font-weight: 900;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 600;
   letter-spacing: 0;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -196,8 +197,8 @@
   display: grid;
   gap: 5px;
   color: #64748b;
-  font-size: 0.76rem;
-  font-weight: 720;
+  font-size: 0.82rem;
+  font-weight: 400;
 }
 
 .featured-card__meta span,
@@ -236,9 +237,9 @@
   min-width: 0;
   overflow: hidden;
   color: #020b22;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   line-height: 1.08;
-  font-weight: 950;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -246,8 +247,8 @@
 .featured-card__price-row span {
   flex: 0 0 auto;
   color: #64748b;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 0.78rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -257,12 +258,12 @@
   justify-content: center;
   gap: 7px;
   min-height: 42px;
-  margin: 0 15px 15px;
+  margin: 0 20px 20px;
   border-radius: 7px;
   background: #0f172a;
   color: #ffffff;
-  font-size: 0.84rem;
-  font-weight: 850;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-decoration: none;
   transition: background 0.16s ease, transform 0.16s ease;
 }

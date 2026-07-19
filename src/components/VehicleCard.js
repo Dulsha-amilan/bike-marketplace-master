@@ -250,11 +250,11 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
 
         <CardContent className="p-5 flex-grow flex flex-col gap-3.5">
           <div className="space-y-1.5">
-            <h3 className="text-lg font-bold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors">
+            <h3 className="text-lg font-semibold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors">
               {title}
             </h3>
 
-            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {makeLine} {vehicle.year ? `- ${vehicle.year}` : ''}
             </div>
 
@@ -265,9 +265,9 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
           </div>
 
           <div className="flex items-baseline justify-between mt-1">
-            <div className="text-xl font-extrabold text-primary">{formatPrice(price)}</div>
+            <div className="text-xl font-bold text-primary">{formatPrice(price)}</div>
             {vehicle.registerYear && (
-              <span className="text-[10px] text-muted-foreground bg-muted px-2.5 py-0.5 rounded-md font-semibold border border-border/30">
+              <span className="text-[10px] text-muted-foreground bg-muted px-2.5 py-0.5 rounded-md font-medium border border-border/30">
                 Reg: {vehicle.registerYear}
               </span>
             )}
@@ -277,12 +277,12 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
             {specItems.map(({ key, Icon, className, label }) => (
               <div key={key} className="flex items-center gap-1.5 bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/30">
                 <Icon className={`w-3.5 h-3.5 shrink-0 ${className}`} />
-                <span className="truncate text-muted-foreground font-semibold">{label}</span>
+                <span className="truncate text-muted-foreground font-medium">{label}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground pt-3 border-t border-border/30 mt-auto">
+          <div className="flex items-center justify-between text-[10px] font-medium text-muted-foreground pt-3 border-t border-border/30 mt-auto">
             <span className="flex items-center gap-1">
               <FiCalendar className="w-3.5 h-3.5 text-muted-foreground/80" />
               Posted: {toISODate(postedAt)}
@@ -291,7 +291,7 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
         </CardContent>
 
         <CardFooter className="p-4 pt-0">
-          <Button asChild className="w-full font-semibold shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
+          <Button asChild className="w-full font-medium shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
             <Link to={`/vehicle/${id}`}>View Details</Link>
           </Button>
         </CardFooter>
