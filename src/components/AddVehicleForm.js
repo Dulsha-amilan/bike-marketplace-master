@@ -4,6 +4,7 @@ import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
 import { useAuth } from './AuthContext';
 import { getStorageUpgradeStatus, requestStorageUpgrade, getMyApprovedMembershipRequest } from '../api/bikeApi';
+import verifiedIcon from '../Images/verififedbutton.png';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import {
@@ -803,11 +804,12 @@ export default function AddVehicleForm() {
                   <div>
                     <h4 className="text-sm font-black text-[#0B1530] uppercase tracking-wide flex items-center gap-1.5">
                       Showroom Dealer Mode Active
-                      <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-4 h-4 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
+                      <img 
+                        src={verifiedIcon} 
+                        alt="Verified Showroom Partner" 
+                        className="w-4 h-4 object-contain flex-shrink-0"
+                        title="Verified Showroom Partner"
+                      />
                     </h4>
                     <p className="text-xs text-slate-500 font-semibold mt-0.5">
                       Dealership: <span className="text-slate-800 font-bold">{showroomDetails.shopName}</span> • Plan: {showroomDetails.membership?.planName}

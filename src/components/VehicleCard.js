@@ -7,6 +7,7 @@ import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import './VehicleCard.css';
+import verifiedIcon from '../Images/verififedbutton.png';
 
 const formatPrice = price => {
   if (price == null) return 'Negotiable';
@@ -167,11 +168,12 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
                 <div className="vehicle-card__shop-info" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px', fontSize: '12px', fontWeight: '900', color: '#0B1530' }}>
                   <FiHome aria-hidden="true" style={{ color: '#F59E0B', width: '14px', height: '14px' }} />
                   <span className="truncate">{approvedRequest.shopName}</span>
-                  <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-[14px] h-[14px] flex-shrink-0 shadow-sm" style={{ fontSize: '7px' }} title="Verified Showroom Partner">
-                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
+                  <img 
+                    src={verifiedIcon} 
+                    alt="Verified Showroom Partner" 
+                    className="w-4 h-4 object-contain flex-shrink-0"
+                    title="Verified Showroom Partner"
+                  />
                 </div>
               )}
 
@@ -289,11 +291,12 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
               <div className="text-xs text-slate-900 font-black flex items-center gap-1 mt-0.5">
                 <FiHome className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span className="truncate">{approvedRequest.shopName}</span>
-                <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-3.5 h-3.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
+                <img 
+                  src={verifiedIcon} 
+                  alt="Verified Showroom Partner" 
+                  className="w-4 h-4 object-contain flex-shrink-0"
+                  title="Verified Showroom Partner"
+                />
               </div>
             )}
           </div>

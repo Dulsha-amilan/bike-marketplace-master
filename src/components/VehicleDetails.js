@@ -27,6 +27,7 @@ import { FaWhatsapp } from 'react-icons/fa6';
 import { getVehicleById } from '../api/bikeApi';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import './VehicleDetails.css';
+import verifiedIcon from '../Images/verififedbutton.png';
 
 const hasValue = value => value !== undefined && value !== null && value !== '';
 
@@ -602,9 +603,12 @@ const MetaLine = ({ icon: Icon, value, verified = false }) => (
 );
 
 const VerifiedBadge = () => (
-  <span className="vd-verified-badge" title="Verified showroom partner" aria-label="Verified showroom partner">
-    <CheckCircle size={14} aria-hidden="true" />
-  </span>
+  <img 
+    src={verifiedIcon} 
+    alt="Verified showroom partner" 
+    title="Verified showroom partner" 
+    style={{ width: '16px', height: '16px', objectFit: 'contain', flexShrink: 0 }}
+  />
 );
 
 const ContactLine = ({ icon: Icon, label, value, href }) => {

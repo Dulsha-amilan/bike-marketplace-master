@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, Clipboard, Check, Upload, Clock } from 'lucide-react';
 import { getMemberships, submitMembershipRequest, getMyPendingMembershipRequest, getMyApprovedMembershipRequest, updateMyApprovedMembershipRequest } from '../api/bikeApi';
 import { useAuth } from './AuthContext';
+import verifiedIcon from '../Images/verififedbutton.png';
 
 export default function ShowroomMembershipsPage() {
   const navigate = useNavigate();
@@ -422,11 +423,12 @@ export default function ShowroomMembershipsPage() {
                   </div>
                   <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1530] tracking-tight flex items-center justify-center sm:justify-start gap-2">
                     {myApprovedRequest.shopName}
-                    <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-0.5 w-5.5 h-5.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </span>
+                    <img 
+                      src={verifiedIcon} 
+                      alt="Verified Showroom Partner" 
+                      className="w-6 h-6 object-contain flex-shrink-0"
+                      title="Verified Showroom Partner"
+                    />
                   </h2>
                 </div>
               </div>

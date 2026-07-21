@@ -5,6 +5,7 @@ import { ArrowRight, CalendarDays, Gauge, MapPin, Home } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { useVehicles } from './vehiclesStore';
 import './FeaturedListings.css';
+import verifiedIcon from '../Images/verififedbutton.png';
 
 const formatPrice = price => {
   if (price == null) return 'Negotiable';
@@ -101,11 +102,12 @@ const FeaturedListings = ({ translations }) => {
                     <div className="featured-card__shop" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '900', color: '#0B1530', marginTop: '6px' }}>
                       <Home aria-hidden="true" style={{ width: '13px', height: '13px', color: '#F59E0B' }} />
                       <span>{approvedRequest.shopName}</span>
-                      <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-3.5 h-3.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
+                      <img 
+                        src={verifiedIcon} 
+                        alt="Verified Showroom Partner" 
+                        className="w-4 h-4 object-contain flex-shrink-0"
+                        title="Verified Showroom Partner"
+                      />
                     </div>
                   )}
 
