@@ -1,42 +1,98 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Bike,
+  Calendar,
+  Camera,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Fuel,
+  Gauge,
+  Heart,
+  Home,
+  Layers,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Settings,
+  Share2,
+  ShieldCheck,
+  Wrench,
+} from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa6';
 import { getVehicleById } from '../api/bikeApi';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
-import {
-  FiMapPin, FiCalendar, FiChevronLeft, FiChevronRight,
-  FiPhone, FiHeart, FiActivity, FiSettings, FiTag, FiDroplet,
-  FiAward, FiTruck, FiShare2, FiMessageCircle, FiArrowLeft, FiHome, FiMail
-} from 'react-icons/fi';
-import { FaWhatsapp, FaFacebookF, FaXTwitter, FaInstagram } from 'react-icons/fa6';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
 import './VehicleDetails.css';
 
-const formatPrice = price => (price == null ? 'Negotiable' : `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`);
-const toISODate = d => new Date(d).toISOString().slice(0, 10);
-const onlyDigits = s => (s || '').replace(/\D/g, '');
-const whatsappPhoneFromLK = phone => {
-  const d = onlyDigits(phone);
-  if (!d) return '';
-  return d.startsWith('0') ? `94${d.slice(1)}` : (d.startsWith('94') ? d : `94${d}`);
+const hasValue = value => value !== undefined && value !== null && value !== '';
+
+const formatNumber = value => {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return number.toLocaleString('en-LK', { maximumFractionDigits: 0 });
 };
 
-const VehicleDetails = ({ allVehicles }) => {
+const formatPrice = price => (hasValue(price) ? `Rs: ${formatNumber(price)}` : 'Negotiable');
+
+const formatDate = date => {
+  if (!date) return 'Recently';
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? 'Recently' : parsed.toISOString().slice(0, 10);
+};
+
+const onlyDigits = value => (value || '').replace(/\D/g, '');
+
+const whatsappPhoneFromLK = phone => {
+  const digits = onlyDigits(phone);
+  if (!digits) return '';
+  if (digits.startsWith('0')) return `94${digits.slice(1)}`;
+  return digits.startsWith('94') ? digits : `94${digits}`;
+};
+
+const formatMileage = value => (hasValue(value) ? `${formatNumber(value)} km` : null);
+const formatEngine = value => (hasValue(value) ? `${formatNumber(value)} cc` : null);
+
+const getInitials = name => {
+  if (!name) return 'BE';
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return 'BE';
+  return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase();
+};
+
+const buildDescription = vehicle => {
+  const makeLine = [vehicle.make, vehicle.model].filter(Boolean).join(' ') || 'bike';
+  const condition = vehicle.condition ? `${vehicle.condition.toLowerCase()} ` : '';
+  const year = vehicle.year ? ` from ${vehicle.year}` : '';
+  const location = vehicle.location ? ` in ${vehicle.location}` : '';
+  const mileage = hasValue(vehicle.mileageKm)
+    ? ` It has done approximately ${formatNumber(vehicle.mileageKm)} km.`
+    : '';
+
+  return `This ${condition}${makeLine}${year} is listed${location}.${mileage} Contact the seller to confirm availability, documents, inspection time, and final price.`;
+};
+
+const VehicleDetails = ({ allVehicles = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [idx, setIdx] = useState(0);
   const [remoteVehicle, setRemoteVehicle] = useState(null);
   const [remoteError, setRemoteError] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [shareMessage, setShareMessage] = useState('');
 
-  // Scroll to top and reset gallery index when visiting/changing vehicle
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setIdx(0);
+    setShareMessage('');
   }, [id]);
 
   const vehicle = useMemo(
-    () => allVehicles.find(v => v.id === id),
+    () => allVehicles.find(v => String(v.id) === String(id)),
     [allVehicles, id]
   );
 
@@ -46,13 +102,13 @@ const VehicleDetails = ({ allVehicles }) => {
 
     if (!vehicle && id) {
       getVehicleById(id)
-        .then((v) => {
+        .then(data => {
           if (!alive) return;
-          setRemoteVehicle(v);
+          setRemoteVehicle(data);
         })
-        .catch((e) => {
+        .catch(error => {
           if (!alive) return;
-          console.error(e);
+          console.error(error);
           setRemoteError('Failed to load listing from server.');
           setRemoteVehicle(null);
         });
@@ -69,388 +125,508 @@ const VehicleDetails = ({ allVehicles }) => {
 
   const photos = useMemo(() => {
     if (!activeVehicle) return [];
-    const arr = (activeVehicle.gallery && activeVehicle.gallery.length) ? activeVehicle.gallery : [activeVehicle.image];
-    return arr.filter(Boolean).map(resolveMediaUrl);
+    const gallery = activeVehicle.gallery?.length ? activeVehicle.gallery : [activeVehicle.image];
+    return gallery.filter(Boolean).map(resolveMediaUrl);
   }, [activeVehicle]);
 
-  const next = () => setIdx(i => (photos.length ? (i + 1) % photos.length : 0));
-  const prev = () => setIdx(i => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
+  const activePhoto = photos[idx] || photos[0] || '';
+
   const approvedRequest = useMemo(() => {
-    if (!activeVehicle || !activeVehicle.user) return null;
-    return activeVehicle.user.membershipRequests?.find(r => r.status === 'approved') || activeVehicle.user.membershipRequests?.[0] || null;
+    if (!activeVehicle?.user) return null;
+    return activeVehicle.user.membershipRequests?.find(r => r.status === 'approved')
+      || activeVehicle.user.membershipRequests?.[0]
+      || null;
   }, [activeVehicle]);
 
-  const shopPhone = useMemo(() => {
-    if (activeVehicle?.source === 'showroom' && approvedRequest?.phone) {
-      return approvedRequest.phone;
-    }
-    return activeVehicle?.phone;
-  }, [activeVehicle, approvedRequest]);
+  const isShowroom = activeVehicle?.source === 'showroom' && approvedRequest;
+  const sellerName = isShowroom
+    ? approvedRequest.shopName
+    : activeVehicle?.user?.name || activeVehicle?.sellerName || 'Private Seller';
+  const sellerEmail = isShowroom
+    ? approvedRequest.email
+    : activeVehicle?.user?.email || activeVehicle?.email;
+  const sellerPhone = isShowroom && approvedRequest?.phone ? approvedRequest.phone : activeVehicle?.phone;
+  const phoneDigits = onlyDigits(sellerPhone);
+  const whatsappNumber = whatsappPhoneFromLK(sellerPhone);
+  const makeLine = [activeVehicle?.make, activeVehicle?.model].filter(Boolean).join(' ');
+  const postedDate = formatDate(activeVehicle?.postedAt);
+  const listingTitle = activeVehicle?.title || makeLine || 'Vehicle listing';
+  const sellerAvatar = isShowroom && approvedRequest?.shopImage ? resolveMediaUrl(approvedRequest.shopImage) : '';
+  const sellerCover = isShowroom && approvedRequest?.coverImage ? resolveMediaUrl(approvedRequest.coverImage) : '';
+  const sellerTypeLabel = isShowroom ? 'Verified Showroom Dealer' : 'Registered Private Seller';
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const whatsappMessage = encodeURIComponent(`Hi, I am interested in your ${listingTitle} listed on BikeEka.`);
+  const emailSubject = encodeURIComponent(`Inquiry about ${listingTitle}`);
+  const emailBody = encodeURIComponent(`Hi, I am interested in your ${listingTitle} listed on BikeEka. Is it still available?`);
 
-  const whats = useMemo(() => (shopPhone ? whatsappPhoneFromLK(shopPhone) : ''), [shopPhone]);
+  const heroFacts = [
+    { label: 'Year', value: activeVehicle?.year || 'Not listed' },
+    { label: 'Engine', value: formatEngine(activeVehicle?.engineCapacityCc) || 'Not listed' },
+    { label: 'Mileage', value: formatMileage(activeVehicle?.mileageKm) || 'Not listed' },
+  ];
+
+  const specItems = [
+    { icon: Bike, label: 'Make', value: activeVehicle?.make },
+    { icon: Wrench, label: 'Model', value: activeVehicle?.model },
+    { icon: Calendar, label: 'Year', value: activeVehicle?.year },
+    { icon: Calendar, label: 'Registered', value: activeVehicle?.registerYear },
+    { icon: Gauge, label: 'Mileage', value: formatMileage(activeVehicle?.mileageKm) },
+    { icon: Settings, label: 'Engine', value: formatEngine(activeVehicle?.engineCapacityCc) },
+    { icon: Settings, label: 'Transmission', value: activeVehicle?.transmission },
+    { icon: Fuel, label: 'Fuel Type', value: activeVehicle?.fuelType },
+    { icon: Layers, label: 'Condition', value: activeVehicle?.condition },
+    { icon: Layers, label: 'Color', value: activeVehicle?.color },
+  ];
+
+  const highlights = [
+    activeVehicle?.condition && { label: activeVehicle.condition },
+    activeVehicle?.type && { label: activeVehicle.type },
+    isShowroom && { label: 'Showroom', icon: Home },
+  ].filter(Boolean);
+
+  const next = () => setIdx(current => (photos.length ? (current + 1) % photos.length : 0));
+  const prev = () => setIdx(current => (photos.length ? (current - 1 + photos.length) % photos.length : 0));
+
+  const handleShare = async () => {
+    setShareMessage('');
+    const data = {
+      title: listingTitle,
+      text: `Check this listing on BikeEka: ${listingTitle}`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        setShareMessage('Shared');
+        return;
+      }
+
+      if (navigator.clipboard && shareUrl) {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareMessage('Link copied');
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      console.error(error);
+    }
+
+    setShareMessage('Copy link from the address bar');
+  };
 
   if (!activeVehicle && remoteError) {
     return (
-      <div className="container mx-auto py-12 px-4 text-center">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Listing not found</h2>
-        <p className="text-muted-foreground mb-6">{remoteError}</p>
-        <Button onClick={() => navigate(-1)} variant="outline">
-          <FiArrowLeft className="mr-2" /> Go Back
-        </Button>
-      </div>
+      <main className="vehicle-details-page">
+        <div className="vd-container">
+          <div className="vd-state-card">
+            <h1>Listing not found</h1>
+            <p>{remoteError}</p>
+            <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+              <ArrowLeft size={18} aria-hidden="true" />
+              Go back
+            </button>
+          </div>
+        </div>
+      </main>
     );
   }
 
   if (!activeVehicle) {
     return (
-      <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[50vh]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 w-48 bg-gray-200 rounded"></div>
+      <main className="vehicle-details-page">
+        <div className="vd-container">
+          <div className="vd-loading" aria-label="Loading listing">
+            <span />
+            <span />
+            <span />
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50 pb-20 pt-8 md:pt-14">
-      {/* Breadcrumb / Back Navigation - Floating or Fixed top if needed, but here just standard */}
-      <div className="container mx-auto px-4 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="text-muted-foreground hover:text-foreground pl-0 hover:bg-transparent transition-colors"
-        >
-          <FiArrowLeft className="mr-2 h-4 w-4" /> Back to listings
-        </Button>
-      </div>
+    <main className="vehicle-details-page">
+      <div className="vd-container">
+        <div className="vd-topbar">
+          <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+            <ArrowLeft size={18} aria-hidden="true" />
+            Back to listings
+          </button>
+        </div>
 
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="vd-layout">
+          <section className="vd-main-column" aria-label="Vehicle photos and details">
+            <Gallery
+              activePhoto={activePhoto}
+              idx={idx}
+              listingTitle={listingTitle}
+              next={next}
+              photos={photos}
+              prev={prev}
+              setIdx={setIdx}
+            />
 
-          {/* LEFT COLUMN: Gallery & Details */}
-          <div className="lg:col-span-8 space-y-8">
-
-            {/* Gallery Section */}
-            <div className="space-y-4">
-              <div className="relative aspect-[16/9] bg-black rounded-xl overflow-hidden shadow-lg group">
-                {photos.length > 0 ? (
-                  <img
-                    src={photos[idx]}
-                    alt={`${activeVehicle.title} - View ${idx + 1}`}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-500">No images available</div>
-                )}
-
-                {photos.length > 1 && (
-                  <>
-                    <button
-                      onClick={prev}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
-                      aria-label="Previous image"
-                    >
-                      <FiChevronLeft size={24} />
-                    </button>
-                    <button
-                      onClick={next}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
-                      aria-label="Next image"
-                    >
-                      <FiChevronRight size={24} />
-                    </button>
-                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {idx + 1} / {photos.length}
-                    </div>
-                  </>
-                )}
+            <section className="vd-section">
+              <div className="vd-section-header">
+                <span className="vd-section-icon">
+                  <Gauge size={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="vd-section-kicker">Details</p>
+                  <h2>Vehicle Specifications</h2>
+                </div>
               </div>
 
-              {/* Thumbnails */}
-              {photos.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                  {photos.map((p, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setIdx(i)}
-                      className={`relative flex-shrink-0 w-24 aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent opacity-70 hover:opacity-100'
-                        }`}
-                    >
-                      <img src={p} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
-                    </button>
+              <div className="vd-spec-grid">
+                {specItems.map(item => (
+                  <SpecItem key={item.label} {...item} />
+                ))}
+              </div>
+            </section>
+
+            <section className="vd-section">
+              <div className="vd-section-header">
+                <span className="vd-section-icon">
+                  <MessageCircle size={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="vd-section-kicker">Seller notes</p>
+                  <h2>Description</h2>
+                </div>
+              </div>
+
+              <p className="vd-description">
+                {activeVehicle.description || buildDescription(activeVehicle)}
+              </p>
+            </section>
+          </section>
+
+          <aside className="vd-sidebar" aria-label="Listing summary and seller contact">
+            <section className="vd-summary-card">
+              {highlights.length > 0 && (
+                <div className="vd-chip-row" aria-label="Listing highlights">
+                  {highlights.map(({ label, icon: Icon }) => (
+                    <span className="vd-chip" key={label}>
+                      {Icon && <Icon size={14} aria-hidden="true" />}
+                      {label}
+                    </span>
                   ))}
                 </div>
               )}
-            </div>
 
-            {/* Vehicle Overview / Specs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <FiActivity className="text-primary" /> Vehicle Specifications
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Spec Items */}
-                  <SpecItem icon={FiAward} label="Make" value={activeVehicle.make} />
-                  <SpecItem icon={FiTruck} label="Model" value={activeVehicle.model} />
-                  <SpecItem icon={FiCalendar} label="Year" value={activeVehicle.year} />
-                  <SpecItem icon={FiActivity} label="Mileage" value={activeVehicle.mileageKm ? `${activeVehicle.mileageKm.toLocaleString()} km` : null} />
-                  <SpecItem icon={FiSettings} label="Engine" value={activeVehicle.engineCapacityCc ? `${activeVehicle.engineCapacityCc} cc` : null} />
-                  <SpecItem icon={FiSettings} label="Transmission" value={activeVehicle.transmission} />
-                  <SpecItem icon={FiDroplet} label="Fuel Type" value={activeVehicle.fuelType} />
-                  <SpecItem icon={FiTag} label="Condition" value={activeVehicle.condition} />
-                  <SpecItem icon={FiTag} label="Color" value={activeVehicle.color} />
-                </div>
-              </CardContent>
-            </Card>
+              <h1 className="vd-title">{listingTitle}</h1>
 
-            {/* Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Description</CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
-                {activeVehicle.description ? (
-                  <p>{activeVehicle.description}</p>
-                ) : (
-                  <p>
-                    Check out this {activeVehicle.condition || 'used'} {activeVehicle.make} {activeVehicle.model} from {activeVehicle.year}.
-                    It is currently located in {activeVehicle.location}.
-                    {activeVehicle.mileageKm ? ` This vehicle has done approximately ${activeVehicle.mileageKm.toLocaleString()} km.` : ''}
-                    For more details or to arrange a viewing, please contact the seller using the options provided.
-                  </p>
+              <div className="vd-meta-list">
+                <MetaLine icon={MapPin} value={activeVehicle.location || 'Sri Lanka'} />
+                {isShowroom && (
+                  <MetaLine
+                    icon={Home}
+                    value={approvedRequest.shopName}
+                    verified
+                  />
                 )}
-              </CardContent>
-            </Card>
+                <MetaLine icon={Calendar} value={`Posted ${postedDate}`} />
+              </div>
 
-          </div>
+              <div className="vd-price-box">
+                <span>Price</span>
+                <strong>{formatPrice(activeVehicle.price)}</strong>
+              </div>
 
-          {/* RIGHT COLUMN: Info & Actions */}
-          <div className="lg:col-span-4 space-y-6">
-
-            {/* Main Info Card */}
-            <Card className="border-primary/20 shadow-md">
-              <CardContent className="p-6 space-y-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-2">{activeVehicle.title}</h1>
-                  <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
-                    <FiMapPin className="text-primary shrink-0" />
-                    <span>{activeVehicle.location}</span>
-                    {activeVehicle.source === 'showroom' && approvedRequest && (
-                      <>
-                        <span className="mx-0.5 text-muted-foreground/60">•</span>
-                        <FiHome className="text-amber-500 shrink-0" />
-                        <span className="text-slate-900 font-extrabold flex items-center gap-1">
-                          {approvedRequest.shopName}
-                          <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-3.5 h-3.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </span>
-                        </span>
-                      </>
-                    )}
-                    <span className="mx-0.5 text-muted-foreground/60">•</span>
-                    <span>{toISODate(activeVehicle.postedAt)}</span>
+              <div className="vd-hero-facts" aria-label="Quick vehicle facts">
+                {heroFacts.map(fact => (
+                  <div className="vd-hero-fact" key={fact.label}>
+                    <span>{fact.label}</span>
+                    <strong>{fact.value}</strong>
                   </div>
-                </div>
+                ))}
+              </div>
 
-                <div className="pt-4 border-t">
-                  <div className="text-sm text-muted-foreground mb-1">Price</div>
-                  <div className="text-4xl font-bold text-primary">{formatPrice(activeVehicle.price)}</div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 pt-2">
-                  <a href={`tel:${onlyDigits(shopPhone || '')}`} className="w-full">
-                    <Button className="w-full text-lg h-12 gap-2 shadow-sm" size="lg">
-                      <FiPhone /> Call Seller
-                    </Button>
+              <div className="vd-actions">
+                {phoneDigits ? (
+                  <a className="vd-action vd-action--primary" href={`tel:${phoneDigits}`}>
+                    <Phone size={19} aria-hidden="true" />
+                    Call Seller
                   </a>
+                ) : (
+                  <button className="vd-action vd-action--disabled" type="button" disabled>
+                    <Phone size={19} aria-hidden="true" />
+                    Call unavailable
+                  </button>
+                )}
 
-                  {whats && (
-                    <a
-                      href={`https://wa.me/${whats}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full"
-                    >
-                      <Button variant="outline" className="w-full h-12 gap-2 border-green-500 text-green-600 hover:bg-green-50">
-                        <FaWhatsapp size={20} /> WhatsApp
-                      </Button>
-                    </a>
-                  )}
+                {whatsappNumber && (
+                  <a
+                    className="vd-action vd-action--whatsapp"
+                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaWhatsapp aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                )}
 
-                  <Button variant="secondary" className="w-full h-12 gap-2">
-                    <FiMessageCircle /> Chat with Owner
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                {sellerEmail ? (
+                  <a
+                    className="vd-action vd-action--secondary"
+                    href={`mailto:${sellerEmail}?subject=${emailSubject}&body=${emailBody}`}
+                  >
+                    <Mail size={18} aria-hidden="true" />
+                    Email Seller
+                  </a>
+                ) : (
+                  <button className="vd-action vd-action--secondary" type="button">
+                    <MessageCircle size={18} aria-hidden="true" />
+                    Chat with Owner
+                  </button>
+                )}
+              </div>
+            </section>
 
-            {/* Seller Info / Safety */}
-            <Card 
-              className="overflow-hidden shadow-lg relative border-0 rounded-2xl transition-all duration-300"
+            <section 
+              className={`vd-seller-card relative overflow-hidden ${isShowroom ? 'vd-seller-card--dark shadow-lg' : ''}`}
               style={{
-                backgroundImage: activeVehicle.source === 'showroom' && approvedRequest?.coverImage ? `url(${approvedRequest.coverImage})` : 'none',
+                backgroundImage: isShowroom && sellerCover ? `url(${sellerCover})` : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                backgroundColor: activeVehicle.source === 'showroom' && approvedRequest ? '#0B1530' : 'white',
-                color: activeVehicle.source === 'showroom' && approvedRequest ? 'white' : 'inherit'
               }}
             >
-              {activeVehicle.source === 'showroom' && approvedRequest ? (
+              {isShowroom ? (
                 <>
                   {/* Glassmorphic blur overlay */}
                   <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] z-0" />
                   
-                  <CardContent className="space-y-4 relative z-10 p-6">
-                    <div className="space-y-4">
-                      {/* Logo and Name block */}
-                      <div className="flex items-center gap-3">
-                        {approvedRequest.shopImage ? (
-                          <img 
-                            src={approvedRequest.shopImage} 
-                            alt="Shop Logo" 
-                            className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20 shadow-md flex-shrink-0 bg-white"
-                          />
+                  <div className="vd-seller-content relative z-10">
+                    <div className="vd-seller-profile">
+                      <div className="vd-seller-avatar border-2 border-white/20 shadow-md">
+                        {sellerAvatar ? (
+                          <img src={sellerAvatar} alt={`${sellerName} logo`} />
                         ) : (
-                          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#FFC700] font-black text-lg border-2 border-white/20 shadow-md flex-shrink-0">
-                            {approvedRequest.shopName?.slice(0, 2).toUpperCase() || 'SR'}
-                          </div>
+                          <span>{getInitials(sellerName)}</span>
                         )}
-                        <div>
-                          <div className="font-extrabold text-white text-base flex items-center gap-1.5 leading-tight">
-                            {approvedRequest.shopName}
-                            <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-[14px] h-[14px] flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
-                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-1 leading-none">
-                            <svg className="w-3 h-3 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Verified Showroom Dealer
-                          </div>
+                      </div>
+                      <div className="vd-seller-main">
+                        <div className="vd-seller-name text-white">
+                          <strong className="text-white">{sellerName}</strong>
+                          <VerifiedBadge />
                         </div>
+                        <span className="text-emerald-400 font-bold">{sellerTypeLabel}</span>
                       </div>
+                    </div>
 
-                      <div className="space-y-2 pt-3 border-t border-white/10 text-sm font-semibold">
-                        {approvedRequest.phone && (
-                          <div className="flex items-center gap-2 text-slate-300">
-                            <FiPhone className="text-amber-400 w-4 h-4 shrink-0" />
-                            <span>Hotline: <strong className="text-white font-bold">{approvedRequest.phone}</strong></span>
-                          </div>
-                        )}
-                        {approvedRequest.email && (
-                          <div className="flex items-center gap-2 text-slate-300">
-                            <FiMail className="text-amber-400 w-4 h-4 shrink-0" />
-                            <span>Email: <strong className="text-white font-bold">{approvedRequest.email}</strong></span>
-                          </div>
-                        )}
+                    <div className="vd-contact-list vd-contact-list--dark">
+                      {sellerPhone && <ContactLine icon={Phone} label="Hotline" value={sellerPhone} href={`tel:${phoneDigits}`} />}
+                      {sellerEmail && <ContactLine icon={Mail} label="Email" value={sellerEmail} href={`mailto:${sellerEmail}`} />}
+                    </div>
+
+                    <div className="vd-safety-tip vd-safety-tip--dark">
+                      <ShieldCheck size={20} className="text-amber-400 shrink-0" aria-hidden="true" />
+                      <div>
+                        <strong>Safety Tip</strong>
+                        <p>Meet in a public place and inspect the vehicle before making any payment.</p>
                       </div>
                     </div>
-                    <div className="text-xs text-amber-200 bg-white/5 p-3 rounded-xl border border-white/10 mt-2 font-medium">
-                      <strong className="text-amber-400 block mb-1 font-bold">Safety Tip</strong>
-                      Always meet in a public place. Do not make payments before inspecting the vehicle.
-                    </div>
-                  </CardContent>
+                  </div>
                 </>
               ) : (
-                <>
-                  <CardHeader className="pb-3 text-slate-900">
-                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground font-semibold">
-                      Seller Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 text-slate-900">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-400">
-                        <FiTruck />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900 text-base">
-                          {activeVehicle.user?.name || 'Private Seller'}
-                        </div>
-                        <div className="text-xs text-muted-foreground font-medium">
-                          Registered Private Seller
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2 pt-3 border-t border-slate-100 text-sm font-semibold">
-                      {activeVehicle.phone && (
-                        <div className="flex items-center gap-2 text-slate-600">
-                          <FiPhone className="text-primary w-4 h-4 shrink-0" />
-                          <span>Phone: <strong className="text-slate-800 font-bold">{activeVehicle.phone}</strong></span>
-                        </div>
-                      )}
-                      {activeVehicle.user?.email && (
-                        <div className="flex items-center gap-2 text-slate-600">
-                          <FiMail className="text-primary w-4 h-4 shrink-0" />
-                          <span>Email: <strong className="text-slate-800 font-bold">{activeVehicle.user.email}</strong></span>
-                        </div>
+                <div className="vd-seller-content">
+                  <div className="vd-seller-profile">
+                    <div className="vd-seller-avatar">
+                      {sellerAvatar ? (
+                        <img src={sellerAvatar} alt={`${sellerName} logo`} />
+                      ) : (
+                        <span>{getInitials(sellerName)}</span>
                       )}
                     </div>
-
-                    <div className="text-xs text-muted-foreground bg-yellow-50 p-3 rounded-xl border border-yellow-100 font-medium">
-                      <strong className="text-yellow-800 block mb-1 font-bold">Safety Tip</strong>
-                      Always meet in a public place. Do not make payments before inspecting the vehicle.
+                    <div className="vd-seller-main">
+                      <div className="vd-seller-name">
+                        <strong>{sellerName}</strong>
+                      </div>
+                      <span>{sellerTypeLabel}</span>
                     </div>
-                  </CardContent>
-                </>
-              )}
-            </Card>
+                  </div>
 
-            {/* Share */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FiShare2 /> Share this Ad
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-2 justify-between">
-                  <Button variant="outline" size="icon" className="rounded-full hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200">
-                    <FaFacebookF />
-                  </Button>
-                  <Button variant="outline" size="icon" className="rounded-full hover:text-black hover:bg-gray-50 hover:border-gray-400">
-                    <FaXTwitter />
-                  </Button>
-                  <Button variant="outline" size="icon" className="rounded-full hover:text-pink-600 hover:bg-pink-50 hover:border-pink-200">
-                    <FaInstagram />
-                  </Button>
-                  <Button variant="outline" className="flex-grow gap-2">
-                    <FiHeart /> Save
-                  </Button>
+                  <div className="vd-contact-list">
+                    {sellerPhone && <ContactLine icon={Phone} label="Hotline" value={sellerPhone} href={`tel:${phoneDigits}`} />}
+                    {sellerEmail && <ContactLine icon={Mail} label="Email" value={sellerEmail} href={`mailto:${sellerEmail}`} />}
+                  </div>
+
+                  <div className="vd-safety-tip">
+                    <ShieldCheck size={20} aria-hidden="true" />
+                    <div>
+                      <strong>Safety Tip</strong>
+                      <p>Meet in a public place and inspect the vehicle before making any payment.</p>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </section>
 
-          </div>
+            <section className="vd-share-card">
+              <div className="vd-share-heading">
+                <Share2 size={19} aria-hidden="true" />
+                <h2>Share this Ad</h2>
+              </div>
+              <div className="vd-share-actions">
+                <button type="button" className="vd-share-button" onClick={handleShare}>
+                  <Copy size={17} aria-hidden="true" />
+                  Copy Link
+                </button>
+                <button
+                  type="button"
+                  className={`vd-share-button ${saved ? 'vd-share-button--saved' : ''}`}
+                  onClick={() => setSaved(current => !current)}
+                >
+                  <Heart size={17} aria-hidden="true" fill={saved ? 'currentColor' : 'none'} />
+                  {saved ? 'Saved' : 'Save Ad'}
+                </button>
+              </div>
+              {shareMessage && <p className="vd-share-status">{shareMessage}</p>}
+            </section>
+          </aside>
         </div>
       </div>
+
+      {(phoneDigits || whatsappNumber) && (
+        <div className="vd-mobile-contact-bar" aria-label="Quick contact actions">
+          {phoneDigits && (
+            <a className="vd-mobile-action vd-mobile-action--call" href={`tel:${phoneDigits}`}>
+              <Phone size={18} aria-hidden="true" />
+              Call
+            </a>
+          )}
+          {whatsappNumber && (
+            <a
+              className="vd-mobile-action vd-mobile-action--whatsapp"
+              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaWhatsapp aria-hidden="true" />
+              WhatsApp
+            </a>
+          )}
+        </div>
+      )}
     </main>
   );
 };
 
-const SpecItem = ({ icon: Icon, label, value }) => {
-  return (
-    <div className="flex flex-col p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-        <Icon className="w-4 h-4" />
-        {label}
-      </div>
-      <div className="font-medium text-gray-900 truncate">
-        {value || '—'}
+const Gallery = ({ activePhoto, idx, listingTitle, next, photos, prev, setIdx }) => (
+  <section className="vd-gallery-card" aria-label="Vehicle gallery">
+    <div className="vd-gallery-stage">
+      {activePhoto ? (
+        <>
+          <img className="vd-gallery-backdrop" src={activePhoto} alt="" aria-hidden="true" />
+          <img
+            className="vd-gallery-image"
+            src={activePhoto}
+            alt={`${listingTitle} view ${idx + 1}`}
+            decoding="async"
+          />
+        </>
+      ) : (
+        <div className="vd-gallery-empty">
+          <Camera size={34} aria-hidden="true" />
+          <span>No images available</span>
+        </div>
+      )}
+
+      {photos.length > 1 && (
+        <>
+          <button
+            type="button"
+            className="vd-gallery-nav vd-gallery-nav--prev"
+            onClick={prev}
+            aria-label="Previous image"
+            title="Previous image"
+          >
+            <ChevronLeft size={24} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="vd-gallery-nav vd-gallery-nav--next"
+            onClick={next}
+            aria-label="Next image"
+            title="Next image"
+          >
+            <ChevronRight size={24} aria-hidden="true" />
+          </button>
+        </>
+      )}
+
+      <div className="vd-photo-count">
+        <Camera size={15} aria-hidden="true" />
+        {photos.length ? `${idx + 1} / ${photos.length}` : '0 photos'}
       </div>
     </div>
+
+    {photos.length > 1 && (
+      <div className="vd-thumb-strip" aria-label="Gallery thumbnails">
+        {photos.map((photo, index) => (
+          <button
+            type="button"
+            key={`${photo}-${index}`}
+            className={`vd-thumb ${idx === index ? 'is-active' : ''}`}
+            onClick={() => setIdx(index)}
+            aria-label={`Show photo ${index + 1}`}
+            aria-current={idx === index ? 'true' : undefined}
+          >
+            <img src={photo} alt="" aria-hidden="true" loading="lazy" />
+          </button>
+        ))}
+      </div>
+    )}
+  </section>
+);
+
+const SpecItem = ({ icon: Icon, label, value }) => (
+  <div className="vd-spec-item">
+    <span className="vd-spec-item__icon">
+      <Icon size={18} aria-hidden="true" />
+    </span>
+    <span className="vd-spec-item__label">{label}</span>
+    <strong>{hasValue(value) ? value : 'Not listed'}</strong>
+  </div>
+);
+
+const MetaLine = ({ icon: Icon, value, verified = false }) => (
+  <div className="vd-meta-line">
+    <Icon size={17} aria-hidden="true" />
+    <span>{value}</span>
+    {verified && <VerifiedBadge />}
+  </div>
+);
+
+const VerifiedBadge = () => (
+  <span className="vd-verified-badge" title="Verified showroom partner" aria-label="Verified showroom partner">
+    <CheckCircle size={14} aria-hidden="true" />
+  </span>
+);
+
+const ContactLine = ({ icon: Icon, label, value, href }) => {
+  const content = (
+    <>
+      <span className="vd-contact-icon">
+        <Icon size={17} aria-hidden="true" />
+      </span>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </>
   );
+
+  if (href) {
+    return (
+      <a className="vd-contact-line" href={href}>
+        {content}
+      </a>
+    );
+  }
+
+  return <div className="vd-contact-line">{content}</div>;
 };
 
 export default VehicleDetails;
