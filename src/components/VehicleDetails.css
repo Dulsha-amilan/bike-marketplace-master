@@ -4,6 +4,7 @@
   color: #0f172a;
   background:
     linear-gradient(180deg, #f6f8fb 0%, #ffffff 54%, #f7f9fc 100%);
+  font-family: 'Poppins', sans-serif;
 }
 
 .vd-container {
@@ -270,7 +271,7 @@
   color: #0f172a;
   font-size: 1.2rem;
   line-height: 1.2;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .vd-spec-grid {
@@ -320,7 +321,7 @@
   min-width: 0;
   color: #111827;
   font-size: 0.98rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -366,7 +367,7 @@
   color: #071225;
   font-size: clamp(1.6rem, 2vw, 2.1rem);
   line-height: 1.12;
-  font-weight: 900;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
@@ -426,7 +427,7 @@
   color: #020b22;
   font-size: clamp(2rem, 3.2vw, 2.55rem);
   line-height: 1;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0;
   overflow-wrap: anywhere;
 }
@@ -459,7 +460,7 @@
   display: block;
   color: #111827;
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -481,7 +482,7 @@
   padding: 0 14px;
   font: inherit;
   font-size: 0.98rem;
-  font-weight: 900;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
@@ -532,11 +533,20 @@
 
 .vd-seller-card {
   padding: 0;
+  font-family: 'Poppins', sans-serif;
 }
 
 .vd-seller-card--dark {
   border: 0 !important;
   background-color: #0b1530 !important;
+}
+
+.vd-seller-card--dark .vd-seller-name strong {
+  color: #ffffff !important;
+}
+
+.vd-seller-card--dark .vd-seller-main > span {
+  color: #ffffff !important;
 }
 
 .vd-contact-list--dark {
@@ -618,7 +628,7 @@
 
 .vd-seller-avatar span {
   font-size: 1.15rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .vd-seller-main {
@@ -638,7 +648,7 @@
   min-width: 0;
   color: #0f172a;
   font-size: 1.02rem;
-  font-weight: 900;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -647,7 +657,7 @@
 .vd-seller-main > span {
   color: #059669;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .vd-contact-list {
@@ -666,7 +676,7 @@
   min-height: 34px;
   color: #526277;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -687,7 +697,7 @@
 .vd-contact-line strong {
   min-width: 0;
   color: #172033;
-  font-weight: 900;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 
@@ -706,14 +716,14 @@
   display: block;
   margin-bottom: 2px;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .vd-safety-tip p {
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.45;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .vd-share-heading {
@@ -745,7 +755,7 @@
   color: #334155;
   font: inherit;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
