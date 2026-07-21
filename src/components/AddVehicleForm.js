@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
 import { useAuth } from './AuthContext';
-import { getStorageUpgradeStatus, requestStorageUpgrade } from '../api/bikeApi';
+import { getStorageUpgradeStatus, requestStorageUpgrade, getMyApprovedMembershipRequest } from '../api/bikeApi';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import {
@@ -285,6 +285,7 @@ export default function AddVehicleForm() {
   const [maxUploadImages, setMaxUploadImages] = useState(user?.storageLimit || MAX_UPLOAD_IMAGES);
   const [upgradeStatus, setUpgradeStatus] = useState('none');
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [showroomDetails, setShowroomDetails] = useState(null);
 
   // Wizard state
   const [step, setStep] = useState(1);
@@ -316,6 +317,24 @@ export default function AddVehicleForm() {
           }
         })
         .catch((err) => console.error("Error fetching upgrade status:", err));
+    }
+  }, [user]);
+
+  // Fetch approved showroom details if dealer
+  useEffect(() => {
+    if (user && user.role === 'dealer') {
+      getMyApprovedMembershipRequest()
+        .then((data) => {
+          if (data) {
+            setShowroomDetails(data);
+            setForm(prev => ({
+              ...prev,
+              location: prev.location || data.shopName || '',
+              phone: prev.phone || data.phone || ''
+            }));
+          }
+        })
+        .catch((err) => console.error("Error fetching showroom details:", err));
     }
   }, [user]);
 
@@ -597,6 +616,7 @@ export default function AddVehicleForm() {
     }
   };
 
+
   return (
     <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
       <div className="mx-auto max-w-6xl pb-12">
@@ -764,6 +784,41 @@ export default function AddVehicleForm() {
 
           {/* Form Content area */}
           <form onSubmit={onSubmit} id="vehicle-form" className="space-y-6">
+            
+            {/* Showroom Dealer Banner */}
+            {user?.role === 'dealer' && showroomDetails && (
+              <div className="bg-[#F8FAFC] border border-[#0B1530]/20 rounded-2xl p-5 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
+                <div className="flex items-center gap-4">
+                  {showroomDetails.shopImage ? (
+                    <img 
+                      src={showroomDetails.shopImage} 
+                      alt="Shop Logo" 
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-200/50 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-[#0B1530] flex items-center justify-center text-[#FFC700] shadow-sm">
+                      <ShieldCheck className="h-6 w-6" />
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-black text-[#0B1530] uppercase tracking-wide flex items-center gap-1.5">
+                      Showroom Dealer Mode Active
+                      <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-4 h-4 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                      Dealership: <span className="text-slate-800 font-bold">{showroomDetails.shopName}</span> • Plan: {showroomDetails.membership?.planName}
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 bg-[#FEF3C7] border border-[#FDE68A] text-[#B45309] text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+                  Verified Dealer
+                </div>
+              </div>
+            )}
             
             {/* Step 1: General Details */}
             {step === 1 && (

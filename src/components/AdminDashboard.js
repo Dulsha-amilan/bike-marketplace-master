@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, Bike, Wrench, Trash2, Plus, X, 
   LayoutDashboard, ShoppingBag, AlertCircle, 
-  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban, HardDrive
+  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban, HardDrive,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { 
@@ -11,7 +12,9 @@ import {
   getAdminUsers, updateUserRole, deleteUser,
   createSparePart, deleteSparePart, createBikerGear, deleteBikerGear,
   updateVehicleStatus, deleteAllVehicles, getAdminStorageUpgrades,
-  updateStorageUpgradeRequest
+  updateStorageUpgradeRequest,
+  getMemberships, createMembership, updateMembership, deleteMembership,
+  getMembershipRequests, updateMembershipRequestStatus
 } from '../api/bikeApi';
 import './AdminDashboard.css';
 
@@ -28,6 +31,8 @@ const AdminDashboard = () => {
   const [spareParts, setSpareParts] = useState([]);
   const [bikerGear, setBikerGear] = useState([]);
   const [upgrades, setUpgrades] = useState([]);
+  const [memberships, setMemberships] = useState([]);
+  const [membershipRequests, setMembershipRequests] = useState([]);
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -38,6 +43,21 @@ const AdminDashboard = () => {
   // Modals state
   const [showSparePartModal, setShowSparePartModal] = useState(false);
   const [showBikerGearModal, setShowBikerGearModal] = useState(false);
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [isEditingMembership, setIsEditingMembership] = useState(false);
+  const [currentMembershipId, setCurrentMembershipId] = useState(null);
+
+  // Form states
+  const [membershipForm, setMembershipForm] = useState({
+    tier: 'plus',
+    planName: '',
+    costPerAd: '',
+    inventoryCap: '',
+    monthlyVouchers: '',
+    discountText: '',
+    totalCost: '',
+    isBestValue: false
+  });
 
   // Search/Filter state
   const [userSearch, setUserSearch] = useState('');
@@ -84,18 +104,22 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [vehiclesData, sparePartsData, bikerGearData, usersData, upgradesData] = await Promise.all([
+      const [vehiclesData, sparePartsData, bikerGearData, usersData, upgradesData, membershipsData, requestsData] = await Promise.all([
         getAdminVehicles(),
         getSpareParts(),
         getBikerGear(),
         getAdminUsers(),
-        getAdminStorageUpgrades()
+        getAdminStorageUpgrades(),
+        getMemberships(),
+        getMembershipRequests()
       ]);
       setVehicles(vehiclesData || []);
       setSpareParts(sparePartsData || []);
       setBikerGear(bikerGearData || []);
       setUsers(usersData || []);
       setUpgrades(upgradesData || []);
+      setMemberships(membershipsData || []);
+      setMembershipRequests(requestsData || []);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch dashboard data. Please try again.');
@@ -207,6 +231,139 @@ const AdminDashboard = () => {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  // Handle showroom dealer membership request approval/rejection
+  const handleUpdateMembershipRequest = async (requestId, status) => {
+    setActionLoading(true);
+    try {
+      await updateMembershipRequestStatus(requestId, status);
+      setMembershipRequests(membershipRequests.map(req => req.id === requestId ? { ...req, status } : req));
+      showToast(`Membership request successfully ${status}.`);
+      
+      // Reload users to reflect any updated role
+      const usersData = await getAdminUsers();
+      setUsers(usersData || []);
+    } catch (err) {
+      showToast(err.message || 'Failed to update membership request.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Add Membership Plan
+  const handleAddMembership = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const payload = {
+        ...membershipForm,
+        costPerAd: parseFloat(membershipForm.costPerAd),
+        inventoryCap: parseInt(membershipForm.inventoryCap, 10),
+        totalCost: parseFloat(membershipForm.totalCost),
+      };
+      const res = await createMembership(payload);
+      setMemberships([...memberships, res.membership]);
+      setShowMembershipModal(false);
+      setMembershipForm({
+        tier: 'plus',
+        planName: '',
+        costPerAd: '',
+        inventoryCap: '',
+        monthlyVouchers: '',
+        discountText: '',
+        totalCost: '',
+        isBestValue: false
+      });
+      showToast('Membership plan created successfully.');
+    } catch (err) {
+      showToast(err.message || 'Failed to create membership plan.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Edit Membership Plan
+  const handleEditMembership = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const payload = {
+        ...membershipForm,
+        costPerAd: parseFloat(membershipForm.costPerAd),
+        inventoryCap: parseInt(membershipForm.inventoryCap, 10),
+        totalCost: parseFloat(membershipForm.totalCost),
+      };
+      const res = await updateMembership(currentMembershipId, payload);
+      setMemberships(memberships.map(m => m.id === currentMembershipId ? res.membership : m));
+      setShowMembershipModal(false);
+      setIsEditingMembership(false);
+      setCurrentMembershipId(null);
+      setMembershipForm({
+        tier: 'plus',
+        planName: '',
+        costPerAd: '',
+        inventoryCap: '',
+        monthlyVouchers: '',
+        discountText: '',
+        totalCost: '',
+        isBestValue: false
+      });
+      showToast('Membership plan updated successfully.');
+    } catch (err) {
+      showToast(err.message || 'Failed to update membership plan.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Delete Membership Plan
+  const handleDeleteMembership = async (membershipId) => {
+    if (!window.confirm('Are you sure you want to delete this membership plan?')) {
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await deleteMembership(membershipId);
+      setMemberships(memberships.filter(m => m.id !== membershipId));
+      showToast('Membership plan deleted successfully.');
+    } catch (err) {
+      showToast(err.message || 'Failed to delete membership plan.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openAddMembershipModal = () => {
+    setIsEditingMembership(false);
+    setMembershipForm({
+      tier: 'plus',
+      planName: '',
+      costPerAd: '',
+      inventoryCap: '',
+      monthlyVouchers: '',
+      discountText: '',
+      totalCost: '',
+      isBestValue: false
+    });
+    setShowMembershipModal(true);
+  };
+
+  const openEditMembershipModal = (membership) => {
+    setIsEditingMembership(true);
+    setCurrentMembershipId(membership.id);
+    setMembershipForm({
+      tier: membership.tier,
+      planName: membership.planName,
+      costPerAd: membership.costPerAd,
+      inventoryCap: membership.inventoryCap,
+      monthlyVouchers: membership.monthlyVouchers,
+      discountText: membership.discountText || '',
+      totalCost: membership.totalCost,
+      isBestValue: !!membership.isBestValue
+    });
+    setShowMembershipModal(true);
   };
 
   // Delete all vehicle listings
@@ -410,6 +567,20 @@ const AdminDashboard = () => {
             >
               <ShoppingBag size={18} />
               <span>Manage Biker Gear</span>
+            </button>
+            <button 
+              className={`admin-menu-item ${activeTab === 'memberships' ? 'active' : ''}`}
+              onClick={() => setActiveTab('memberships')}
+            >
+              <CreditCard size={18} />
+              <span>Manage Memberships</span>
+            </button>
+            <button 
+              className={`admin-menu-item ${activeTab === 'membershipRequests' ? 'active' : ''}`}
+              onClick={() => setActiveTab('membershipRequests')}
+            >
+              <CheckCircle size={18} />
+              <span>Membership Requests</span>
             </button>
           </nav>
 
@@ -930,6 +1101,201 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Tab: Manage Memberships */}
+          {activeTab === 'memberships' && (
+            <div className="admin-tab-content fade-in">
+              <div className="tab-actions-header">
+                <h3>Commercial Showroom Memberships ({memberships.length})</h3>
+                <button className="admin-action-btn" onClick={openAddMembershipModal}>
+                  <Plus size={16} />
+                  <span>Add Membership Plan</span>
+                </button>
+              </div>
+
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Plan Name</th>
+                      <th>Tier</th>
+                      <th>Cost Per Ad</th>
+                      <th>Inventory Cap</th>
+                      <th>Monthly Vouchers</th>
+                      <th>Discount/Badge</th>
+                      <th>Total Cost</th>
+                      <th>Best Value?</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {memberships.length > 0 ? (
+                      memberships.map(m => (
+                        <tr key={m.id}>
+                          <td style={{ fontWeight: 'bold' }}>{m.planName}</td>
+                          <td>
+                            <span className={`badge-cond ${m.tier === 'plus' ? 'badge-new' : 'badge-used'}`} style={{ textTransform: 'capitalize' }}>
+                              {m.tier}
+                            </span>
+                          </td>
+                          <td>LKR {parseFloat(m.costPerAd).toLocaleString()}</td>
+                          <td>{m.inventoryCap} Active Listings</td>
+                          <td>{m.monthlyVouchers}</td>
+                          <td>{m.discountText || 'N/A'}</td>
+                          <td style={{ fontWeight: 'bold' }}>LKR {parseFloat(m.totalCost).toLocaleString()}</td>
+                          <td>{m.isBestValue ? 'Yes' : 'No'}</td>
+                          <td>
+                            <div className="flex gap-2">
+                              <button 
+                                className="admin-action-btn" 
+                                style={{ padding: '4px 8px', fontSize: '11px', background: '#e2e8f0', color: '#1e293b' }}
+                                onClick={() => openEditMembershipModal(m)}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="action-btn-delete"
+                                onClick={() => handleDeleteMembership(m.id)}
+                                disabled={actionLoading}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="9" className="table-empty-row">No showroom membership plans available.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Manage Membership Requests */}
+          {activeTab === 'membershipRequests' && (
+            <div className="admin-tab-content fade-in">
+              <div className="tab-actions-header">
+                <h3>Membership Bank Slip Verification ({membershipRequests.length})</h3>
+              </div>
+
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Shop Logo</th>
+                      <th>Dealer Name</th>
+                      <th>Email & Hotline</th>
+                      <th>Target Plan</th>
+                      <th>Bank Deposit Slip</th>
+                      <th>Submitted</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {membershipRequests.length > 0 ? (
+                      membershipRequests.map(r => (
+                        <tr key={r.id}>
+                          <td>
+                            {r.shopImage ? (
+                              <img 
+                                src={r.shopImage} 
+                                alt="Shop Logo" 
+                                style={{ 
+                                  width: '50px', 
+                                  height: '50px', 
+                                  objectFit: 'cover', 
+                                  borderRadius: '8px', 
+                                  border: '1px solid #e2e8f0' 
+                                }} 
+                              />
+                            ) : (
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>No Logo</span>
+                            )}
+                          </td>
+                          <td style={{ fontWeight: 'bold' }}>{r.shopName}</td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                              <span>{r.email}</span>
+                              <span style={{ fontSize: '11px', color: '#64748b' }}>+94 {r.phone}</span>
+                            </div>
+                          </td>
+                          <td>
+                            {r.membership ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                <span style={{ fontWeight: 'bold' }}>{r.membership.planName}</span>
+                                <span style={{ fontSize: '11px', color: '#64748b' }}>LKR {parseFloat(r.membership.totalCost).toLocaleString()}</span>
+                              </div>
+                            ) : 'N/A'}
+                          </td>
+                          <td>
+                            {r.slipImage ? (
+                              <a href={r.slipImage} target="_blank" rel="noopener noreferrer" title="Click to view full receipt">
+                                <img 
+                                  src={r.slipImage} 
+                                  alt="Bank slip receipt" 
+                                  style={{ 
+                                    width: '60px', 
+                                    height: '60px', 
+                                    objectFit: 'cover', 
+                                    borderRadius: '8px', 
+                                    border: '1px solid #e2e8f0', 
+                                    cursor: 'zoom-in' 
+                                  }} 
+                                />
+                              </a>
+                            ) : 'No Image'}
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              {new Date(r.createdAt).toLocaleDateString()}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`badge-status badge-status-${r.status}`} style={{ textTransform: 'capitalize' }}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td>
+                            {r.status === 'pending' ? (
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                  className="admin-action-btn"
+                                  style={{ padding: '6px 12px', fontSize: '11px', background: '#22c55e', color: 'white' }}
+                                  onClick={() => handleUpdateMembershipRequest(r.id, 'approved')}
+                                  disabled={actionLoading}
+                                >
+                                  Approve
+                                </button>
+                                <button 
+                                  className="action-btn-delete"
+                                  style={{ padding: '6px 12px', fontSize: '11px', background: '#ef4444', color: 'white', borderRadius: '8px', border: 'none' }}
+                                  onClick={() => handleUpdateMembershipRequest(r.id, 'rejected')}
+                                  disabled={actionLoading}
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>Verified</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="8" className="table-empty-row">No showroom membership verification requests.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -1196,6 +1562,123 @@ const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="modal-submit-btn" disabled={actionLoading}>
                   {actionLoading ? 'Creating...' : 'Create Listing'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Add/Edit Membership */}
+      {showMembershipModal && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal">
+            <div className="modal-header">
+              <h3>{isEditingMembership ? 'Edit Membership Plan' : 'Create New Membership Plan'}</h3>
+              <button className="modal-close-btn" onClick={() => setShowMembershipModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={isEditingMembership ? handleEditMembership : handleAddMembership} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Plan Name *</label>
+                  <input 
+                    type="text" 
+                    value={membershipForm.planName} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, planName: e.target.value })} 
+                    required
+                    placeholder="e.g. Monthly Plan, Quarterly Plan"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Tier *</label>
+                  <select 
+                    value={membershipForm.tier} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, tier: e.target.value })}
+                  >
+                    <option value="plus">Plus Tier</option>
+                    <option value="premium">Premium Tier</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Calculated Cost Per Ad (LKR) *</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={membershipForm.costPerAd} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, costPerAd: e.target.value })} 
+                    required
+                    placeholder="e.g. 350.00"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Active Inventory Cap *</label>
+                  <input 
+                    type="number" 
+                    value={membershipForm.inventoryCap} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, inventoryCap: e.target.value })} 
+                    required
+                    placeholder="e.g. 20"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Bundled Vouchers *</label>
+                  <input 
+                    type="text" 
+                    value={membershipForm.monthlyVouchers} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, monthlyVouchers: e.target.value })} 
+                    required
+                    placeholder="e.g. 1 Top Ad + 5 Bumps"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Discount/Savings Text</label>
+                  <input 
+                    type="text" 
+                    value={membershipForm.discountText} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, discountText: e.target.value })} 
+                    placeholder="e.g. Contract Discount Applied"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Total Cost (LKR) *</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={membershipForm.totalCost} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, totalCost: e.target.value })} 
+                    required
+                    placeholder="e.g. 7000.00"
+                  />
+                </div>
+                <div className="form-group flex items-center gap-2 pt-6">
+                  <input 
+                    type="checkbox" 
+                    id="isBestValue"
+                    checked={membershipForm.isBestValue} 
+                    onChange={(e) => setMembershipForm({ ...membershipForm, isBestValue: e.target.checked })} 
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="isBestValue" className="font-bold cursor-pointer select-none">Mark as Best Value</label>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="modal-cancel-btn" onClick={() => setShowMembershipModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="modal-submit-btn" disabled={actionLoading}>
+                  {actionLoading ? 'Saving...' : (isEditingMembership ? 'Save Changes' : 'Create Plan')}
                 </button>
               </div>
             </form>

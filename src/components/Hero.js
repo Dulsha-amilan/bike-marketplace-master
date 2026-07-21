@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { PlusCircle, ShieldCheck, Wrench, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import { useAuth } from './AuthContext';
 import desktopVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261152.mp4';
 import mobileVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261153.mp4';
 
-const Hero = ({ translations, searchFilters, setSearchFilters }) => {
+const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) => {
+    const { user } = useAuth();
     const [animationState, setAnimationState] = useState('initial'); // 'initial', 'shifting', 'revealed'
     const navigate = useNavigate();
 
@@ -99,24 +101,32 @@ const Hero = ({ translations, searchFilters, setSearchFilters }) => {
                     </div>
 
                     {/* Mobile Post Ad CTA */}
-                    <div 
-                        className={`flex justify-center pt-6 transition-all duration-1000 delay-500 ease-out lg:hidden ${
-                            animationState === 'revealed'
-                                ? 'opacity-100 translate-y-0'
-                                : 'opacity-0 translate-y-4 pointer-events-none'
-                        }`}
-                    >
-                        <button
-                            type="button"
-                            onClick={() => navigate('/post-ad')}
-                            className="group relative inline-flex min-h-[48px] items-center justify-center gap-2 overflow-hidden rounded-full border border-white/35 bg-white/15 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 active:scale-[0.98]"
+                    {user?.role !== 'admin' && (
+                        <div 
+                            className={`flex justify-center pt-6 transition-all duration-1000 delay-500 ease-out lg:hidden ${
+                                animationState === 'revealed'
+                                    ? 'opacity-100 translate-y-0'
+                                    : 'opacity-0 translate-y-4 pointer-events-none'
+                            }`}
                         >
-                            <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-white/10 to-yellow-400/20 opacity-90" />
-                            <span className="absolute -left-8 top-0 h-full w-14 rotate-12 bg-white/35 blur-md transition-transform duration-500 group-hover:translate-x-44" />
-                            <PlusCircle className="relative z-10 h-5 w-5 text-yellow-300" />
-                            <span className="relative z-10">{translations.postAd}</span>
-                        </button>
-                    </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (onPostAdClick) {
+                                        onPostAdClick();
+                                    } else {
+                                        navigate('/post-ad');
+                                    }
+                                }}
+                                className="group relative inline-flex min-h-[48px] items-center justify-center gap-2 overflow-hidden rounded-full border border-white/35 bg-white/15 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 active:scale-[0.98]"
+                            >
+                                <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-white/10 to-yellow-400/20 opacity-90" />
+                                <span className="absolute -left-8 top-0 h-full w-14 rotate-12 bg-white/35 blur-md transition-transform duration-500 group-hover:translate-x-44" />
+                                <PlusCircle className="relative z-10 h-5 w-5 text-yellow-300" />
+                                <span className="relative z-10">{translations.postAd}</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Content (Premium Site Features - Reveals after text shifts to the left) */}

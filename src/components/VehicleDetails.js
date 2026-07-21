@@ -5,7 +5,7 @@ import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import {
   FiMapPin, FiCalendar, FiChevronLeft, FiChevronRight,
   FiPhone, FiHeart, FiActivity, FiSettings, FiTag, FiDroplet,
-  FiAward, FiTruck, FiShare2, FiMessageCircle, FiArrowLeft
+  FiAward, FiTruck, FiShare2, FiMessageCircle, FiArrowLeft, FiHome, FiMail
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF, FaXTwitter, FaInstagram } from 'react-icons/fa6';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -75,7 +75,19 @@ const VehicleDetails = ({ allVehicles }) => {
 
   const next = () => setIdx(i => (photos.length ? (i + 1) % photos.length : 0));
   const prev = () => setIdx(i => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
-  const whats = useMemo(() => (activeVehicle ? whatsappPhoneFromLK(activeVehicle.phone ?? '0714029197') : ''), [activeVehicle]);
+  const approvedRequest = useMemo(() => {
+    if (!activeVehicle || !activeVehicle.user) return null;
+    return activeVehicle.user.membershipRequests?.find(r => r.status === 'approved') || activeVehicle.user.membershipRequests?.[0] || null;
+  }, [activeVehicle]);
+
+  const shopPhone = useMemo(() => {
+    if (activeVehicle?.source === 'showroom' && approvedRequest?.phone) {
+      return approvedRequest.phone;
+    }
+    return activeVehicle?.phone;
+  }, [activeVehicle, approvedRequest]);
+
+  const whats = useMemo(() => (shopPhone ? whatsappPhoneFromLK(shopPhone) : ''), [shopPhone]);
 
   if (!activeVehicle && remoteError) {
     return (
@@ -225,10 +237,24 @@ const VehicleDetails = ({ allVehicles }) => {
               <CardContent className="p-6 space-y-6">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-2">{activeVehicle.title}</h1>
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                    <FiMapPin className="text-primary" />
-                    {activeVehicle.location}
-                    <span className="mx-1">•</span>
+                  <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+                    <FiMapPin className="text-primary shrink-0" />
+                    <span>{activeVehicle.location}</span>
+                    {activeVehicle.source === 'showroom' && approvedRequest && (
+                      <>
+                        <span className="mx-0.5 text-muted-foreground/60">•</span>
+                        <FiHome className="text-amber-500 shrink-0" />
+                        <span className="text-slate-900 font-extrabold flex items-center gap-1">
+                          {approvedRequest.shopName}
+                          <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-3.5 h-3.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
+                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        </span>
+                      </>
+                    )}
+                    <span className="mx-0.5 text-muted-foreground/60">•</span>
                     <span>{toISODate(activeVehicle.postedAt)}</span>
                   </div>
                 </div>
@@ -239,7 +265,7 @@ const VehicleDetails = ({ allVehicles }) => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 pt-2">
-                  <a href={`tel:${onlyDigits(activeVehicle.phone || '0714029197')}`} className="w-full">
+                  <a href={`tel:${onlyDigits(shopPhone || '')}`} className="w-full">
                     <Button className="w-full text-lg h-12 gap-2 shadow-sm" size="lg">
                       <FiPhone /> Call Seller
                     </Button>
@@ -266,25 +292,119 @@ const VehicleDetails = ({ allVehicles }) => {
             </Card>
 
             {/* Seller Info / Safety */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground font-semibold">Seller Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-400">
-                    <FiTruck />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Verified Seller</div>
-                    <div className="text-xs text-muted-foreground">Member since 2024</div>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground bg-yellow-50 p-3 rounded-md border border-yellow-100">
-                  <strong className="text-yellow-800 block mb-1">Safety Tip</strong>
-                  Always meet in a public place. Do not make payments before inspecting the vehicle.
-                </div>
-              </CardContent>
+            <Card 
+              className="overflow-hidden shadow-lg relative border-0 rounded-2xl transition-all duration-300"
+              style={{
+                backgroundImage: activeVehicle.source === 'showroom' && approvedRequest?.coverImage ? `url(${approvedRequest.coverImage})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundColor: activeVehicle.source === 'showroom' && approvedRequest ? '#0B1530' : 'white',
+                color: activeVehicle.source === 'showroom' && approvedRequest ? 'white' : 'inherit'
+              }}
+            >
+              {activeVehicle.source === 'showroom' && approvedRequest ? (
+                <>
+                  {/* Glassmorphic blur overlay */}
+                  <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] z-0" />
+                  
+                  <CardContent className="space-y-4 relative z-10 p-6">
+                    <div className="space-y-4">
+                      {/* Logo and Name block */}
+                      <div className="flex items-center gap-3">
+                        {approvedRequest.shopImage ? (
+                          <img 
+                            src={approvedRequest.shopImage} 
+                            alt="Shop Logo" 
+                            className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20 shadow-md flex-shrink-0 bg-white"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#FFC700] font-black text-lg border-2 border-white/20 shadow-md flex-shrink-0">
+                            {approvedRequest.shopName?.slice(0, 2).toUpperCase() || 'SR'}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-extrabold text-white text-base flex items-center gap-1.5 leading-tight">
+                            {approvedRequest.shopName}
+                            <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-[14px] h-[14px] flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-1 leading-none">
+                            <svg className="w-3 h-3 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Verified Showroom Dealer
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-3 border-t border-white/10 text-sm font-semibold">
+                        {approvedRequest.phone && (
+                          <div className="flex items-center gap-2 text-slate-300">
+                            <FiPhone className="text-amber-400 w-4 h-4 shrink-0" />
+                            <span>Hotline: <strong className="text-white font-bold">{approvedRequest.phone}</strong></span>
+                          </div>
+                        )}
+                        {approvedRequest.email && (
+                          <div className="flex items-center gap-2 text-slate-300">
+                            <FiMail className="text-amber-400 w-4 h-4 shrink-0" />
+                            <span>Email: <strong className="text-white font-bold">{approvedRequest.email}</strong></span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-xs text-amber-200 bg-white/5 p-3 rounded-xl border border-white/10 mt-2 font-medium">
+                      <strong className="text-amber-400 block mb-1 font-bold">Safety Tip</strong>
+                      Always meet in a public place. Do not make payments before inspecting the vehicle.
+                    </div>
+                  </CardContent>
+                </>
+              ) : (
+                <>
+                  <CardHeader className="pb-3 text-slate-900">
+                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground font-semibold">
+                      Seller Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 text-slate-900">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-400">
+                        <FiTruck />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900 text-base">
+                          {activeVehicle.user?.name || 'Private Seller'}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-medium">
+                          Registered Private Seller
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 pt-3 border-t border-slate-100 text-sm font-semibold">
+                      {activeVehicle.phone && (
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <FiPhone className="text-primary w-4 h-4 shrink-0" />
+                          <span>Phone: <strong className="text-slate-800 font-bold">{activeVehicle.phone}</strong></span>
+                        </div>
+                      )}
+                      {activeVehicle.user?.email && (
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <FiMail className="text-primary w-4 h-4 shrink-0" />
+                          <span>Email: <strong className="text-slate-800 font-bold">{activeVehicle.user.email}</strong></span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-muted-foreground bg-yellow-50 p-3 rounded-xl border border-yellow-100 font-medium">
+                      <strong className="text-yellow-800 block mb-1 font-bold">Safety Tip</strong>
+                      Always meet in a public place. Do not make payments before inspecting the vehicle.
+                    </div>
+                  </CardContent>
+                </>
+              )}
             </Card>
 
             {/* Share */}

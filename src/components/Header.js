@@ -5,7 +5,7 @@ import LanguageToggle from './LanguageToggle';
 import bikeekaLogo from '../Images/bikeeka.com logos.png';
 import './Header.css';
 
-const Header = ({ language, setLanguage, translations, currentPage, setCurrentPage }) => {
+const Header = ({ language, setLanguage, translations, currentPage, setCurrentPage, onPostAdClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -134,10 +134,10 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
 
             <LanguageToggle language={language} setLanguage={setLanguage} />
 
-            {isAuthenticated && (
+            {isAuthenticated && user?.role !== 'admin' && (
               <button
                 className={`cta-button ${isHome && !isScrolled ? 'cta-button--ghost-light' : ''}`}
-                onClick={() => navigate('/post-ad')}
+                onClick={onPostAdClick || (() => navigate('/post-ad'))}
               >
                 {translations.postAd}
               </button>
@@ -168,13 +168,15 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                       </div>
                     </div>
                     <div className="header-user-divider"></div>
-                    <button className="header-user-option" onClick={() => { setIsUserMenuOpen(false); navigate('/post-ad'); }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                      Post an Ad
-                    </button>
+                    {user?.role !== 'admin' && (
+                      <button className="header-user-option" onClick={() => { setIsUserMenuOpen(false); if (onPostAdClick) { onPostAdClick(); } else { navigate('/post-ad'); } }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"/>
+                          <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Post an Ad
+                      </button>
+                    )}
                     {user?.role === 'admin' && (
                       <button className="header-user-option" onClick={() => { setIsUserMenuOpen(false); navigate('/admin'); }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -281,12 +283,16 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                       </button>
                     </div>
                   )}
-                  {isAuthenticated && (
+                  {isAuthenticated && user?.role !== 'admin' && (
                     <div className="dropdown-item">
                       <button
                         className={`cta-button mobile-cta ${isHome && !isScrolled ? 'cta-button--ghost-light' : ''}`}
                         onClick={() => {
-                          navigate('/post-ad');
+                          if (onPostAdClick) {
+                            onPostAdClick();
+                          } else {
+                            navigate('/post-ad');
+                          }
                           setIsDropdownOpen(false);
                         }}
                       >

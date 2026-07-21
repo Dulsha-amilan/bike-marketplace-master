@@ -1,7 +1,7 @@
 // components/VehicleCard.jsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCalendar, FiMapPin, FiX } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiX, FiHome } from 'react-icons/fi';
 import { Activity, Camera, Cpu, Droplet, Zap } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { Card, CardContent, CardFooter } from './ui/card';
@@ -34,6 +34,7 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const allImages = [image, ...(gallery || [])].filter(Boolean).map(resolveMediaUrl);
   const makeLine = [vehicle.make, vehicle.model].filter(Boolean).join(' ');
+  const approvedRequest = vehicle.user?.membershipRequests?.find(r => r.status === 'approved') || vehicle.user?.membershipRequests?.[0];
 
   useEffect(() => {
     document.body.style.overflow = isLightboxOpen ? 'hidden' : 'unset';
@@ -127,6 +128,11 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
             />
             <span className="vehicle-card__media-shade" aria-hidden="true" />
             <div className="vehicle-card__badges">
+              {vehicle.source === 'showroom' && (
+                <span className="vehicle-card__badge" style={{ background: '#0F172A', color: '#F59E0B', fontWeight: '900', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                  ★ Showroom
+                </span>
+              )}
               {vehicle.condition && (
                 <span className="vehicle-card__badge vehicle-card__badge--new">
                   {vehicle.condition}
@@ -157,6 +163,17 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
                 <FiMapPin aria-hidden="true" />
                 <span>{location || 'Sri Lanka'}</span>
               </div>
+              {vehicle.source === 'showroom' && approvedRequest && (
+                <div className="vehicle-card__shop-info" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px', fontSize: '12px', fontWeight: '900', color: '#0B1530' }}>
+                  <FiHome aria-hidden="true" style={{ color: '#F59E0B', width: '14px', height: '14px' }} />
+                  <span className="truncate">{approvedRequest.shopName}</span>
+                  <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-[14px] h-[14px] flex-shrink-0 shadow-sm" style={{ fontSize: '7px' }} title="Verified Showroom Partner">
+                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                </div>
+              )}
 
               <div className="vehicle-card__price-row vehicle-card__price-row--mobile">
                 <div>
@@ -228,6 +245,11 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           <div className="absolute top-2 left-2 flex gap-1.5 z-10">
+            {vehicle.source === 'showroom' && (
+              <span className="bg-[#0F172A] text-amber-400 text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-amber-400/30 flex items-center gap-1">
+                ★ Showroom
+              </span>
+            )}
             {vehicle.condition && (
               <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
                 {vehicle.condition}
@@ -262,6 +284,18 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
               <FiMapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">{location}</span>
             </div>
+
+            {vehicle.source === 'showroom' && approvedRequest && (
+              <div className="text-xs text-slate-900 font-black flex items-center gap-1 mt-0.5">
+                <FiHome className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="truncate">{approvedRequest.shopName}</span>
+                <span className="inline-flex items-center justify-center bg-[#0084FF] text-white rounded-full p-[1.5px] w-3.5 h-3.5 flex-shrink-0 shadow-sm" title="Verified Showroom Partner">
+                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-baseline justify-between mt-1">

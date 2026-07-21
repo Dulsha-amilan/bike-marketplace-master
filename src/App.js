@@ -1,6 +1,8 @@
 // App.js - Frontend-only posting via localStorage (VehiclesProvider) + AddVehicleForm route
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import SellerPathwayModal from './components/SellerPathwayModal';
+
 
 import Header from './components/Header';
 import QuickFilters from './components/QuickFilters';
@@ -21,6 +23,7 @@ import ScrollToTop from './components/ScrollToTop';
 import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
 import AddVehicleForm from './components/AddVehicleForm';
 import Hero from './components/Hero';
+import ShowroomMembershipsPage from './components/ShowroomMembershipsPage';
 
 // Auth
 import { AuthProvider, useAuth } from './components/AuthContext';
@@ -89,7 +92,10 @@ function AdminProtectedRoute({ children }) {
   return children;
 }
 
-function App() {
+function AppContent() {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const [showPathwayModal, setShowPathwayModal] = useState(false);
   const [language, setLanguage] = useState('english');
   const [currentPage, setCurrentPage] = useState('home');
   const [searchFilters, setSearchFilters] = useState({
@@ -98,6 +104,18 @@ function App() {
     priceRange: '',
     location: ''
   });
+
+  const handlePostAdClick = () => {
+    if (isAuthenticated) {
+      if (user?.role === 'admin') {
+        navigate('/post-ad');
+      } else {
+        setShowPathwayModal(true);
+      }
+    } else {
+      navigate('/post-ad');
+    }
+  };
 
   const translations = {
     english: {
@@ -248,10 +266,11 @@ function App() {
       default:
         return (
           <>
-            <Hero
+             <Hero
               translations={translations[language]}
               searchFilters={searchFilters}
               setSearchFilters={setSearchFilters}
+              onPostAdClick={handlePostAdClick}
             />
 
             <section
@@ -272,59 +291,81 @@ function App() {
   };
 
   return (
+    <div className="App">
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
+        <Route path="/admin" element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        } />
+
+        {/* All other pages — rendered WITH Header/Footer */}
+        <Route path="*" element={
+          <>
+            <Header
+              language={language}
+              setLanguage={setLanguage}
+              translations={translations[language]}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              onPostAdClick={handlePostAdClick}
+            />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={renderCurrentPage()} />
+                <Route path="/browse/:type" element={<CategoryListRoute />} />
+                <Route path="/vehicle/:id" element={<VehicleDetailsRoute />} />
+                <Route path="/post-ad" element={
+                  <ProtectedRoute>
+                    <AddVehicleForm />
+                  </ProtectedRoute>
+                } />
+                <Route path="/showroom-membership" element={<ShowroomMembershipsPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+            <Footer
+              language={language}
+              setLanguage={setLanguage}
+              translations={translations[language]}
+            />
+            <Chatbot language={language} translations={translations[language]} />
+          </>
+        } />
+      </Routes>
+
+      {showPathwayModal && (
+        <SellerPathwayModal
+          isDealer={user?.role === 'dealer'}
+          onClose={() => setShowPathwayModal(false)}
+          onSelectPrivate={() => {
+            if (user?.role === 'dealer') return;
+            setShowPathwayModal(false);
+            navigate('/post-ad');
+          }}
+          onSelectShowroom={() => {
+            setShowPathwayModal(false);
+            navigate('/showroom-membership');
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
     <Router>
       <ScrollToTop />
       <AuthProvider>
         {/* Wrap everything with VehiclesProvider to supply allVehicles + actions */}
         <VehiclesProvider>
-          <div className="App">
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/admin-login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={
-                <AdminProtectedRoute>
-                  <AdminDashboard />
-                </AdminProtectedRoute>
-              } />
-
-              {/* All other pages — rendered WITH Header/Footer */}
-              <Route path="*" element={
-                <>
-                  <Header
-                    language={language}
-                    setLanguage={setLanguage}
-                    translations={translations[language]}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                  />
-                  <main className="main-content">
-                    <Routes>
-                      <Route path="/" element={renderCurrentPage()} />
-                      <Route path="/browse/:type" element={<CategoryListRoute />} />
-                      <Route path="/vehicle/:id" element={<VehicleDetailsRoute />} />
-                      <Route path="/post-ad" element={
-                        <ProtectedRoute>
-                          <AddVehicleForm />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </main>
-                  <Footer
-                    language={language}
-                    setLanguage={setLanguage}
-                    translations={translations[language]}
-                  />
-                  <Chatbot language={language} translations={translations[language]} />
-                </>
-              } />
-            </Routes>
-          </div>
+          <AppContent />
         </VehiclesProvider>
       </AuthProvider>
     </Router>
   );
 }
-
-export default App;

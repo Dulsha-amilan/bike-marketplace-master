@@ -144,3 +144,60 @@ export function updateStorageUpgradeRequest(id, status) {
     body: JSON.stringify({ status }),
   });
 }
+
+export function getMemberships() {
+  return request('/memberships', { method: 'GET' });
+}
+
+export function createMembership(payload) {
+  return request('/memberships', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateMembership(id, payload) {
+  return request(`/memberships/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteMembership(id) {
+  return request(`/memberships/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
+export function submitMembershipRequest(formData) {
+  return request('/memberships/requests', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export function getMembershipRequests() {
+  return request('/memberships/requests', { method: 'GET' });
+}
+
+export function updateMembershipRequestStatus(id, status) {
+  return request(`/memberships/requests/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function getMyPendingMembershipRequest() {
+  return request('/memberships/requests/my-pending', { method: 'GET' });
+}
+
+export function getMyApprovedMembershipRequest() {
+  return request('/memberships/requests/my-approved', { method: 'GET' });
+}
+
+export function updateMyApprovedMembershipRequest(formData) {
+  return request('/memberships/requests/my-approved', {
+    method: 'PATCH',
+    body: formData,
+  });
+}
