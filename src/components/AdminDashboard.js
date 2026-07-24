@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, Bike, Wrench, Trash2, Plus, X, 
   LayoutDashboard, ShoppingBag, AlertCircle, 
-  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban, HardDrive,
+  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban,
   CreditCard
 } from 'lucide-react';
 import { useAuth } from './AuthContext';

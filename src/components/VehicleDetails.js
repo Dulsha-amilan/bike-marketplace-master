@@ -5,7 +5,6 @@ import {
   Bike,
   Calendar,
   Camera,
-  CheckCircle,
   ChevronLeft,
   ChevronRight,
   Copy,
