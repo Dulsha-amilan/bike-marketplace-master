@@ -517,22 +517,12 @@ const SmoothPriceSlider = React.memo(({ min = 0, max = MAX_SLIDER_LIMIT, step = 
   // Mutable drag values — never trigger React re-renders
   const dragRef = useRef({ min: valueMin, max: valueMax, dragging: false });
 
-  // Sync ref when props change (e.g. from preset dropdown)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!dragRef.current.dragging) {
-      dragRef.current.min = valueMin;
-      dragRef.current.max = valueMax;
-      paintSlider(valueMin, valueMax);
-    }
-  }, [valueMin, valueMax]);
+  const toPercent = useCallback(val => Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100)), [min, max]);
 
-  const toPercent = val => Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
-
-  const formatLabel = val => val >= max ? 'Rs 15M+' : `Rs ${val.toLocaleString('en-LK')}`;
+  const formatLabel = useCallback(val => val >= max ? 'Rs 15M+' : `Rs ${val.toLocaleString('en-LK')}`, [max]);
 
   // Pure DOM update — zero React overhead
-  const paintSlider = (curMin, curMax) => {
+  const paintSlider = useCallback((curMin, curMax) => {
     const pMin = toPercent(curMin);
     const pMax = toPercent(curMax);
     if (thumbMinRef.current) thumbMinRef.current.style.left = pMin + '%';
@@ -543,7 +533,16 @@ const SmoothPriceSlider = React.memo(({ min = 0, max = MAX_SLIDER_LIMIT, step = 
     }
     if (labelMinRef.current) labelMinRef.current.textContent = formatLabel(curMin);
     if (labelMaxRef.current) labelMaxRef.current.textContent = formatLabel(curMax);
-  };
+  }, [toPercent, formatLabel]);
+
+  // Sync ref when props change (e.g. from preset dropdown)
+  useEffect(() => {
+    if (!dragRef.current.dragging) {
+      dragRef.current.min = valueMin;
+      dragRef.current.max = valueMax;
+      paintSlider(valueMin, valueMax);
+    }
+  }, [valueMin, valueMax, paintSlider]);
 
   const getValueFromX = clientX => {
     if (!trackRef.current) return min;

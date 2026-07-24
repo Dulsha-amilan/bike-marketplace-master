@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { 
   Upload, CheckCircle, Image as ImageIcon, MapPin, Phone, 
   Bike, DollarSign, Calendar, Gauge, Fuel, Settings, Layers,
-  ChevronLeft, ChevronRight, Sparkles, Check, Trash2, Eye, AlertCircle,
+  ChevronLeft, ChevronRight, Check, Trash2, Eye, AlertCircle,
   Camera, ClipboardCheck, ShieldCheck, Users, Timer
 } from 'lucide-react';
 
