@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiCalendar, FiMapPin, FiX, FiHome } from 'react-icons/fi';
-import { Activity, Camera, Cpu, Droplet, Zap } from 'lucide-react';
+import { Activity, Bike, Camera, Cpu, Droplet, Zap } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -19,7 +19,7 @@ const toISODate = date => {
   return Number.isNaN(parsed.getTime()) ? 'Recently' : parsed.toISOString().slice(0, 10);
 };
 
-const VehicleCard = ({ vehicle, horizontal = false }) => {
+const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
   const {
     id,
     title,
@@ -236,14 +236,25 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
 
   return (
     <>
-      <Card className="vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto">
-        <div className="vehicle-media relative aspect-[16/9] overflow-hidden cursor-pointer bg-gray-900" onClick={openLightbox}>
-          <img
-            src={resolveMediaUrl(image)}
-            alt={title}
-            loading="lazy"
-            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-          />
+      <Card className={`vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 ${isPreview ? '' : 'h-full'} flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto`}>
+        <div 
+          className={`vehicle-media relative aspect-[16/9] overflow-hidden ${isPreview ? 'cursor-default' : 'cursor-pointer'} bg-gray-900`} 
+          onClick={isPreview ? undefined : openLightbox}
+        >
+          {allImages.length > 0 ? (
+            <img
+              src={resolveMediaUrl(allImages[0])}
+              alt={title}
+              loading="lazy"
+              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground/60 p-6 text-center w-full h-full bg-muted/20">
+              <Bike className="w-12 h-12 stroke-[1.2] text-muted-foreground/30 animate-bounce" />
+              <span className="text-xs font-medium">No Cover Photo Selected</span>
+            </div>
+          )}
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           <div className="absolute top-2 left-2 flex gap-1.5 z-10">
@@ -328,9 +339,15 @@ const VehicleCard = ({ vehicle, horizontal = false }) => {
         </CardContent>
 
         <CardFooter className="p-4 pt-0">
-          <Button asChild className="w-full font-medium shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
-            <Link to={`/vehicle/${id}`}>View Details</Link>
-          </Button>
+          {isPreview ? (
+            <Button disabled className="w-full font-medium shadow-sm rounded-lg opacity-70 cursor-not-allowed" size="lg">
+              View Details
+            </Button>
+          ) : (
+            <Button asChild className="w-full font-medium shadow-sm hover:shadow-md transition-all rounded-lg" size="lg">
+              <Link to={`/vehicle/${id}`}>View Details</Link>
+            </Button>
+          )}
         </CardFooter>
       </Card>
 

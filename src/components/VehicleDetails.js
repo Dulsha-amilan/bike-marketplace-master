@@ -17,6 +17,7 @@ import {
   Mail,
   MapPin,
   MessageCircle,
+  Palette,
   Phone,
   Settings,
   Share2,
@@ -176,7 +177,7 @@ const VehicleDetails = ({ allVehicles = [] }) => {
     { icon: Settings, label: 'Transmission', value: activeVehicle?.transmission },
     { icon: Fuel, label: 'Fuel Type', value: activeVehicle?.fuelType },
     { icon: Layers, label: 'Condition', value: activeVehicle?.condition },
-    { icon: Layers, label: 'Color', value: activeVehicle?.color },
+    { icon: Palette, label: 'Color', value: activeVehicle?.color },
   ];
 
   const highlights = [
@@ -284,6 +285,9 @@ const VehicleDetails = ({ allVehicles = [] }) => {
                 {specItems.map(item => (
                   <SpecItem key={item.label} {...item} />
                 ))}
+                {specItems.length % 2 !== 0 && (
+                  <div className="vd-spec-item vd-spec-item--empty" aria-hidden="true" />
+                )}
               </div>
             </section>
 
@@ -587,10 +591,12 @@ const Gallery = ({ activePhoto, idx, listingTitle, next, photos, prev, setIdx })
 const SpecItem = ({ icon: Icon, label, value }) => (
   <div className="vd-spec-item">
     <span className="vd-spec-item__icon">
-      <Icon size={18} aria-hidden="true" />
+      {Icon && <Icon size={18} aria-hidden="true" />}
     </span>
-    <span className="vd-spec-item__label">{label}</span>
-    <strong>{hasValue(value) ? value : 'Not listed'}</strong>
+    <div className="vd-spec-item__content">
+      <span className="vd-spec-item__label">{label}</span>
+      <strong className="vd-spec-item__value">{hasValue(value) ? value : 'Not listed'}</strong>
+    </div>
   </div>
 );
 

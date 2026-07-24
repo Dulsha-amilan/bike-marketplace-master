@@ -276,53 +276,71 @@
 
 .vd-spec-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
-  border: 1px solid #e5ebf2;
-  border-radius: 8px;
-  background: #e5ebf2;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
 
 .vd-spec-item {
-  display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  grid-template-areas:
-    "icon label"
-    "icon value";
-  column-gap: 10px;
-  row-gap: 3px;
-  min-height: 88px;
-  padding: 16px;
-  background: #fbfcfe;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  padding: 16px 20px;
+  background: #ffffff;
+  transition: background-color 0.18s ease;
+}
+
+.vd-spec-item:hover {
+  background: #f8fafc;
+}
+
+.vd-spec-item--empty {
+  background: #ffffff;
+  pointer-events: none;
 }
 
 .vd-spec-item__icon {
-  grid-area: icon;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: #fff8d1;
   color: #7a5600;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.vd-spec-item:hover .vd-spec-item__icon {
+  transform: scale(1.05);
+  background: #ffea7a;
+}
+
+.vd-spec-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .vd-spec-item__label {
-  grid-area: label;
-  min-width: 0;
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.vd-spec-item strong {
-  grid-area: value;
-  min-width: 0;
-  color: #111827;
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.25;
+.vd-spec-item__value {
+  color: #0f172a;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.3;
   overflow-wrap: anywhere;
 }
 

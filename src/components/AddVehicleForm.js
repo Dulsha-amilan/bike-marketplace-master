@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
 import { useAuth } from './AuthContext';
 import { getStorageUpgradeStatus, requestStorageUpgrade, getMyApprovedMembershipRequest } from '../api/bikeApi';
 import verifiedIcon from '../Images/verififedbutton.png';
+import VehicleCard from './VehicleCard';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import {
@@ -556,6 +557,7 @@ export default function AddVehicleForm() {
 
       const created = await addVehicle(fd);
       setPostedVehicle(created);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error(err);
       setError(err?.message || 'Something went wrong. Please try again.');
@@ -593,6 +595,33 @@ export default function AddVehicleForm() {
   const CurrentStepIcon = currentStep.icon;
   const progressPercent = Math.round((step / steps.length) * 100);
 
+  const previewVehicle = useMemo(() => {
+    const heroUrl = heroPreview || '';
+    const galleryUrls = galleryPreviews || [];
+
+    return {
+      id: 'preview',
+      title: form.title || 'Honda CBR150R 2022 - Perfect Condition',
+      make: form.make || 'Honda',
+      model: form.model || 'CBR150R',
+      year: form.year ? new Date(form.year).getFullYear() : null,
+      registerYear: form.registerYear ? new Date(form.registerYear).getFullYear() : null,
+      price: form.negotiable ? null : (form.price ? Number(form.price) : 0),
+      location: form.location || 'Colombo, Sri Lanka',
+      mileageKm: form.mileageKm ? Number(form.mileageKm) : null,
+      engineCapacityCc: form.engineCapacityCc ? Number(form.engineCapacityCc) : null,
+      fuelType: form.fuelType || '',
+      transmission: form.transmission || '',
+      condition: form.condition || 'New',
+      type: form.type || 'Standard',
+      image: heroUrl,
+      gallery: galleryUrls,
+      postedAt: new Date().toISOString(),
+      user: showroomDetails ? { membershipRequests: [showroomDetails] } : null,
+      source: showroomDetails ? 'showroom' : undefined,
+    };
+  }, [form, heroPreview, galleryPreviews, showroomDetails]);
+
   const stepGuidance = {
     1: 'Start with the exact bike type, brand, model, and a searchable ad title.',
     2: 'Add real specs and condition notes so buyers can compare faster.',
@@ -612,6 +641,7 @@ export default function AddVehicleForm() {
     if (canNavigateToStep(targetStep)) {
       setStep(targetStep);
       setAttemptedNext(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setAttemptedNext(true);
     }
@@ -1491,7 +1521,7 @@ export default function AddVehicleForm() {
                   </div>
 
                   {/* Right side: Real-time Live Preview - visible on desktop OR on mobile if preview tab is active */}
-                  <div className={`lg:col-span-5 space-y-4 ${!showPreviewOnMobile ? 'hidden lg:block' : 'block'}`}>
+                  <div className={`lg:col-span-5 space-y-4 lg:sticky lg:top-24 lg:self-start ${!showPreviewOnMobile ? 'hidden lg:block' : 'block'}`}>
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
                         <Eye className="w-4 h-4 text-amber-500" /> Ad Card Preview
@@ -1499,70 +1529,7 @@ export default function AddVehicleForm() {
                       <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide animate-pulse">Draft Preview</span>
                     </div>
                     
-                    {/* Styled Mock listing card */}
-                    <div className="border border-border/60 rounded-2xl bg-card overflow-hidden shadow-md transition-shadow hover:shadow-lg flex flex-col h-full max-w-sm mx-auto w-full">
-                      <div className="relative aspect-[4/3] overflow-hidden bg-muted/40 flex items-center justify-center">
-                        {heroPreview ? (
-                          <img
-                            src={heroPreview}
-                            alt={form.title || 'Bike Preview'}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center gap-2 text-muted-foreground/60 p-6 text-center">
-                            <Bike className="w-12 h-12 stroke-[1.2] text-muted-foreground/30 animate-bounce" />
-                            <span className="text-xs font-medium">No Cover Photo Selected</span>
-                          </div>
-                        )}
-                        
-                        <div className="absolute top-2 left-2 flex gap-1">
-                          <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-0.7 rounded-md shadow-sm uppercase tracking-wide">
-                            {form.condition}
-                          </span>
-                        </div>
-                        
-                        {galleryPreviews.length > 0 && (
-                          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse"></span>
-                            {galleryPreviews.length + (uploadHero ? 1 : 0)} photos
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="p-5 flex-grow flex flex-col gap-3">
-                        <div className="space-y-1">
-                          <h3 className="text-lg font-bold text-foreground line-clamp-1 leading-tight">
-                            {form.title || 'e.g. Honda CBR150R 2022 - Perfect Condition'}
-                          </h3>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                            <span className="truncate">{form.location || 'Colombo, Sri Lanka'}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="text-xl font-extrabold text-primary mt-1">
-                          {form.negotiable ? 'Negotiable' : `Rs: ${form.price ? Number(form.price).toLocaleString('en-LK') : '0'}`}
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-semibold text-muted-foreground mt-auto pt-4 border-t border-border/40">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
-                            <span>{form.year ? new Date(form.year).getFullYear() : 'Year'}</span>
-                          </div>
-                          {form.mileageKm && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="w-4 h-4 flex items-center justify-center font-bold">K</span>
-                              <span>{Number(form.mileageKm).toLocaleString()} km</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-4 pt-0">
-                        <Button disabled className="w-full font-semibold rounded-xl bg-muted/60 text-muted-foreground border border-border/40 pointer-events-none" size="lg">
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
+                    <VehicleCard vehicle={previewVehicle} isPreview />
                   </div>
 
                 </div>
