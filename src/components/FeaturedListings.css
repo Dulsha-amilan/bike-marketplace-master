@@ -1,3 +1,5 @@
+@import './HeadingStat.css';
+
 .featured-listings {
   padding: 54px 0 72px;
   background:
@@ -49,30 +51,6 @@
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   letter-spacing: 0;
-}
-
-.featured-count {
-  display: grid;
-  justify-items: end;
-  gap: 2px;
-  min-width: 128px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: #ffffff;
-}
-
-.featured-count strong {
-  color: #0f172a;
-  font-size: 1.35rem;
-  line-height: 1;
-  font-weight: 600;
-}
-
-.featured-count span {
-  color: #64748b;
-  font-size: 0.76rem;
-  font-weight: 500;
 }
 
 .featured-grid {
@@ -296,11 +274,14 @@
   }
 
   .featured-header {
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
   }
 
-  .featured-count {
-    display: none;
+  .featured-header .heading-stat {
+    width: 100%;
+    min-width: 0;
   }
 
   .featured-grid {

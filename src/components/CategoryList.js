@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2, Bike } from 'lucide-react';
 import VehicleCard from '../components/VehicleCard';
 import { getVehicles } from '../api/bikeApi';
 import './CategoryList.css';
@@ -1009,9 +1009,41 @@ const CategoryList = ({ allVehicles = [] }) => {
               <strong>{count}</strong> matching {count === 1 ? 'listing' : 'listings'}
             </p>
           </div>
-          <div className="heading-stat">
-            <span>{count}</span>
-            <small>Active results</small>
+          <div
+            className={`heading-stat${count === 0 ? ' heading-stat--empty' : ''}${loading ? ' heading-stat--loading' : ''}`}
+            role="status"
+            aria-live="polite"
+            aria-busy={loading}
+            aria-label={
+              loading
+                ? 'Loading results'
+                : `${count} active ${count === 1 ? 'result' : 'results'}`
+            }
+          >
+            <div className="heading-stat-icon" aria-hidden="true">
+              <Bike />
+              {!loading && count > 0 && <span className="heading-stat-live" />}
+            </div>
+            <div className="heading-stat-body">
+              <div className="heading-stat-row">
+                <span className="heading-stat-value">
+                  {loading ? '—' : count.toLocaleString()}
+                </span>
+                {activeFilterCount > 0 && !loading && (
+                  <span className="heading-stat-pill">
+                    {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
+                  </span>
+                )}
+              </div>
+              <span className="heading-stat-label">Active results</span>
+              <span className="heading-stat-hint">
+                {loading
+                  ? 'Updating listings…'
+                  : activeFilterCount > 0
+                    ? 'Matching your current filters'
+                    : 'All listings in this category'}
+              </span>
+            </div>
           </div>
         </section>
 

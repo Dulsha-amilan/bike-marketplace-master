@@ -1,7 +1,7 @@
 // components/FeaturedListings.js
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CalendarDays, Gauge, MapPin, Home } from 'lucide-react';
+import { ArrowRight, CalendarDays, Gauge, MapPin, Home, Bike } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { useVehicles } from './vehiclesStore';
 import './FeaturedListings.css';
@@ -28,7 +28,9 @@ const FeaturedListings = ({ translations }) => {
       .slice(0, 8);
   }, [allVehicles]);
 
-  if (latestVehicles.length === 0) {
+  const listingCount = latestVehicles.length;
+
+  if (listingCount === 0) {
     return null;
   }
 
@@ -41,9 +43,23 @@ const FeaturedListings = ({ translations }) => {
               <span className="featured-eyebrow">Latest ads</span>
               <h2 id="featured-title">{translations?.featured || 'Featured'}</h2>
             </div>
-            <div className="featured-count" aria-label={`${latestVehicles.length} latest listings`}>
-              <strong>{latestVehicles.length}</strong>
-              <span>Latest listings</span>
+            <div
+              className="heading-stat"
+              role="status"
+              aria-live="polite"
+              aria-label={`${listingCount} latest ${listingCount === 1 ? 'listing' : 'listings'}`}
+            >
+              <div className="heading-stat-icon" aria-hidden="true">
+                <Bike />
+                <span className="heading-stat-live" />
+              </div>
+              <div className="heading-stat-body">
+                <div className="heading-stat-row">
+                  <span className="heading-stat-value">{listingCount.toLocaleString()}</span>
+                </div>
+                <span className="heading-stat-label">Latest listings</span>
+                <span className="heading-stat-hint">Recently posted on BikeEeka</span>
+              </div>
             </div>
           </div>
 

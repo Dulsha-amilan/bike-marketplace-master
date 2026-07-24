@@ -1,0 +1,128 @@
+.heading-stat {
+  --stat-surface: #ffffff;
+  --stat-ink: #0f172a;
+  --stat-muted: #64748b;
+  --stat-brand-dark: #2f2600;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: min(100%, 248px);
+  padding: 14px 16px 14px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 214, 0, 0.14), rgba(255, 255, 255, 0.92) 42%),
+    var(--stat-surface);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.06);
+  text-align: left;
+}
+
+.heading-stat--empty {
+  background:
+    linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(255, 255, 255, 0.95) 48%),
+    var(--stat-surface);
+}
+
+.heading-stat--loading {
+  opacity: 0.92;
+}
+
+.heading-stat-icon {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 214, 0, 0.22);
+  color: var(--stat-brand-dark);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 0, 0.35);
+}
+
+.heading-stat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.1;
+}
+
+.heading-stat-live {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  animation: heading-stat-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes heading-stat-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.88);
+    opacity: 0.75;
+  }
+}
+
+.heading-stat-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.heading-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 10px;
+}
+
+.heading-stat-value {
+  font-size: clamp(1.75rem, 2.2vw, 2.05rem);
+  line-height: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--stat-ink);
+}
+
+.heading-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.heading-stat-label {
+  display: block;
+  margin-top: 6px;
+  color: var(--stat-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.heading-stat-hint {
+  display: block;
+  margin-top: 3px;
+  color: var(--stat-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
