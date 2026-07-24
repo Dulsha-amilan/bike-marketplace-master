@@ -683,9 +683,16 @@ const CategoryList = ({ allVehicles = [] }) => {
     const pMax = searchParams.get('priceMax');
     const sort = searchParams.get('sortBy');
 
-    if (brand) setSelectedMakes([brand]);
-    if (loc) setSelectedLocations([loc]);
-    if (mod || kw) setKeywords(mod || kw || '');
+    if (brand) {
+      const normalizedBrand = brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase();
+      setSelectedMakes([normalizedBrand]);
+    }
+    if (loc) {
+      const normalizedLoc = loc.charAt(0).toUpperCase() + loc.slice(1).toLowerCase();
+      setSelectedLocations([normalizedLoc]);
+    }
+    if (mod) setKeywords(mod);
+    else if (kw) setKeywords(kw || '');
     if (sort) setSortBy(sort);
 
     if (priceR) {
@@ -724,7 +731,7 @@ const CategoryList = ({ allVehicles = [] }) => {
     };
   }, [isMobileFiltersOpen]);
 
-  // Fetch vehicles from backend (Price filtering is handled client-side in real-time without API calls)
+  // Fetch vehicles from backend (price slider refines client-side; presets also sent to API)
   const fetchVehicles = useCallback(async () => {
     setLoading(true);
     try {
@@ -735,6 +742,8 @@ const CategoryList = ({ allVehicles = [] }) => {
         yearMin: yearMin !== '' ? yearMin : undefined,
         yearMax: yearMax !== '' ? yearMax : undefined,
         keywords: keywords.trim() ? keywords.trim() : undefined,
+        priceMin: priceMin !== '' ? priceMin : undefined,
+        priceMax: priceMax !== '' ? priceMax : undefined,
         sortBy,
       };
       const res = await getVehicles(params);
@@ -746,7 +755,7 @@ const CategoryList = ({ allVehicles = [] }) => {
     } finally {
       setLoading(false);
     }
-  }, [type, selectedLocations, selectedMakes, yearMin, yearMax, keywords, sortBy]);
+  }, [type, selectedLocations, selectedMakes, yearMin, yearMax, keywords, priceMin, priceMax, sortBy]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

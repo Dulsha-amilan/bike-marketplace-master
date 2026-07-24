@@ -1,6 +1,6 @@
 // App.js - Frontend-only posting via localStorage (VehiclesProvider) + AddVehicleForm route
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import SellerPathwayModal from './components/SellerPathwayModal';
 
 
@@ -23,7 +23,13 @@ import ScrollToTop from './components/ScrollToTop';
 import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
 import AddVehicleForm from './components/AddVehicleForm';
 import Hero from './components/Hero';
+import GlobalSearchResults from './components/GlobalSearchResults';
 import ShowroomMembershipsPage from './components/ShowroomMembershipsPage';
+import {
+  filtersToQueryString,
+  hasActiveSearchFilters,
+  parseFiltersFromSearchParams,
+} from './utils/vehicleSearchParams';
 
 // Auth
 import { AuthProvider, useAuth } from './components/AuthContext';
@@ -94,16 +100,52 @@ function AdminProtectedRoute({ children }) {
 
 function AppContent() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
   const [showPathwayModal, setShowPathwayModal] = useState(false);
   const [language, setLanguage] = useState('english');
   const [currentPage, setCurrentPage] = useState('home');
-  const [searchFilters, setSearchFilters] = useState({
-    brand: '',
-    model: '',
-    priceRange: '',
-    location: ''
-  });
+  const [searchFilters, setSearchFilters] = useState(() =>
+    parseFiltersFromSearchParams(searchParams)
+  );
+  const [showSearchResults, setShowSearchResults] = useState(() =>
+    hasActiveSearchFilters(parseFiltersFromSearchParams(searchParams))
+  );
+
+  useEffect(() => {
+    const fromUrl = parseFiltersFromSearchParams(searchParams);
+    setSearchFilters(fromUrl);
+    setShowSearchResults(hasActiveSearchFilters(fromUrl));
+  }, [searchParams]);
+
+  const handleGlobalSearch = useCallback(
+    (filters) => {
+      if (!hasActiveSearchFilters(filters)) {
+        return;
+      }
+      const query = filtersToQueryString(filters);
+      setSearchParams(query ? new URLSearchParams(query) : {}, { replace: false });
+      setShowSearchResults(hasActiveSearchFilters(filters));
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById('global-search-results');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    },
+    [setSearchParams]
+  );
+
+  const handleClearGlobalSearch = useCallback(() => {
+    setSearchParams({}, { replace: false });
+    setSearchFilters({
+      brand: '',
+      model: '',
+      priceRange: '',
+      location: '',
+    });
+    setShowSearchResults(false);
+  }, [setSearchParams]);
 
   const handlePostAdClick = () => {
     if (isAuthenticated) {
@@ -271,10 +313,18 @@ function AppContent() {
               searchFilters={searchFilters}
               setSearchFilters={setSearchFilters}
               onPostAdClick={handlePostAdClick}
+              onSearch={handleGlobalSearch}
             />
 
+            {showSearchResults && (
+              <GlobalSearchResults
+                searchFilters={searchFilters}
+                onClearSearch={handleClearGlobalSearch}
+              />
+            )}
+
             <section
-              className="filters-section mt-6 lg:mt-[-52px] relative z-20"
+              className={`filters-section relative z-20 ${showSearchResults ? 'mt-6 pb-6' : 'mt-6 lg:mt-[-52px]'}`}
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
@@ -282,7 +332,9 @@ function AppContent() {
               </div>
             </section>
 
-            <FeaturedListings translations={translations[language]} />
+            {!showSearchResults && (
+              <FeaturedListings translations={translations[language]} />
+            )}
           </>
         );
     }

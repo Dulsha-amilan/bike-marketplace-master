@@ -252,6 +252,7 @@
   padding: 0 0 8px;
   position: relative;
   z-index: 20;
+  background: #f4f6f8;
 }
 
 /* Tablet Layout (769px - 1024px) */

@@ -2,8 +2,7 @@
 
 .featured-listings {
   padding: 54px 0 72px;
-  background:
-    linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
+  background: #f4f6f8;
 }
 
 .featured-listings .container {

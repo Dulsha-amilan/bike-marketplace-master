@@ -6,7 +6,7 @@ import { useAuth } from './AuthContext';
 import desktopVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261152.mp4';
 import mobileVideo from '../herovideos/Motorcycle_montage_scenic_roads_202606261153.mp4';
 
-const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) => {
+const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick, onSearch }) => {
     const { user } = useAuth();
     const [animationState, setAnimationState] = useState('initial'); // 'initial', 'shifting', 'revealed'
     const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) 
     }, []);
 
     return (
-        <div className="hero-container relative min-h-[680px] lg:min-h-[720px] flex items-center justify-center overflow-hidden bg-black text-white pb-12 lg:pb-0">
+        <div className="hero-container relative min-h-[680px] lg:min-h-[720px] flex items-center justify-center bg-black text-white pb-12 lg:pb-0 z-10">
             {/* Background Videos */}
             <div className="absolute inset-0 overflow-hidden">
                 {/* Desktop Video (visible on md screens and larger) */}
@@ -83,19 +83,38 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) 
                         </p>
                     </div>
 
-                    {/* Search Bar (Reveals after text shifts to the left - Hidden on mobile/tablet) */}
+                    {/* Global search — desktop */}
                     <div 
-                        className={`mt-8 transition-all duration-1000 delay-200 ease-out hidden lg:block ${
+                        className={`mt-8 transition-all duration-1000 delay-200 ease-out hidden lg:block relative z-50 ${
                             animationState === 'revealed'
                                 ? 'opacity-100 translate-y-0 scale-100'
                                 : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
                         }`}
                     >
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-2xl">
+                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl shadow-2xl relative z-[2000]">
                             <SearchBar
                                 searchFilters={searchFilters}
                                 setSearchFilters={setSearchFilters}
                                 translations={translations}
+                                onSearch={onSearch}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Global search — mobile / tablet */}
+                    <div
+                        className={`mt-6 transition-all duration-1000 delay-200 ease-out lg:hidden relative z-50 ${
+                            animationState === 'revealed'
+                                ? 'opacity-100 translate-y-0 scale-100'
+                                : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
+                        }`}
+                    >
+                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-2xl relative z-[2000]">
+                            <SearchBar
+                                searchFilters={searchFilters}
+                                setSearchFilters={setSearchFilters}
+                                translations={translations}
+                                onSearch={onSearch}
                             />
                         </div>
                     </div>
@@ -103,7 +122,7 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) 
                     {/* Mobile Post Ad CTA */}
                     {user?.role !== 'admin' && (
                         <div 
-                            className={`flex justify-center pt-6 transition-all duration-1000 delay-500 ease-out lg:hidden ${
+                            className={`flex justify-center pt-6 transition-all duration-1000 delay-500 ease-out lg:hidden relative z-10 ${
                                 animationState === 'revealed'
                                     ? 'opacity-100 translate-y-0'
                                     : 'opacity-0 translate-y-4 pointer-events-none'
