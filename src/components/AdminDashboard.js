@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Users, Bike, Wrench, Trash2, Plus, X, 
-  LayoutDashboard, ShoppingBag, AlertCircle, 
-  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban,
+  Users, Bike, Trash2, Plus, X, 
+  LayoutDashboard, AlertCircle, 
+  CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban, Pencil, Upload,
   CreditCard
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
@@ -11,7 +11,7 @@ import {
   getAdminVehicles, deleteVehicle, getSpareParts, getBikerGear,
   getAdminUsers, updateUserRole, deleteUser,
   createSparePart, deleteSparePart, createBikerGear, deleteBikerGear,
-  updateVehicleStatus, deleteAllVehicles, getAdminStorageUpgrades,
+  updateVehicleStatus, updateAdminVehicle, uploadImage, deleteAllVehicles, getAdminStorageUpgrades,
   updateStorageUpgradeRequest,
   getMemberships, createMembership, updateMembership, deleteMembership,
   getMembershipRequests, updateMembershipRequestStatus
@@ -46,6 +46,28 @@ const AdminDashboard = () => {
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [isEditingMembership, setIsEditingMembership] = useState(false);
   const [currentMembershipId, setCurrentMembershipId] = useState(null);
+
+  // Vehicle Edit Modal State
+  const [showVehicleEditModal, setShowVehicleEditModal] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState(null);
+  const [uploadingMainImage, setUploadingMainImage] = useState(false);
+  const [uploadingGalleryImage, setUploadingGalleryImage] = useState(false);
+  const [vehicleEditForm, setVehicleEditForm] = useState({
+    make: '',
+    model: '',
+    year: '',
+    price: '',
+    condition: 'used',
+    location: '',
+    mileageKm: '',
+    engineCapacityCc: '',
+    fuelType: '',
+    transmission: '',
+    approvalStatus: 'approved',
+    image: '',
+    gallery: [],
+    description: ''
+  });
 
   // Form states
   const [membershipForm, setMembershipForm] = useState({
@@ -214,6 +236,105 @@ const AdminDashboard = () => {
       showToast(`Vehicle listing status updated to ${status}.`);
     } catch (err) {
       showToast(err.message || 'Failed to update vehicle status.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Open Vehicle Edit Modal
+  const handleOpenVehicleEdit = (v) => {
+    let parsedGallery = [];
+    if (Array.isArray(v.gallery)) {
+      parsedGallery = v.gallery;
+    } else if (typeof v.gallery === 'string' && v.gallery.trim()) {
+      try {
+        parsedGallery = JSON.parse(v.gallery);
+      } catch (_) {
+        parsedGallery = [];
+      }
+    }
+
+    setEditingVehicleId(v.id);
+    setVehicleEditForm({
+      make: v.make || '',
+      model: v.model || '',
+      year: v.year || '',
+      price: v.price !== null && v.price !== undefined ? v.price : '',
+      condition: v.condition || 'used',
+      location: v.location || '',
+      mileageKm: v.mileageKm || '',
+      engineCapacityCc: v.engineCapacityCc || v.engineCc || '',
+      fuelType: v.fuelType || '',
+      transmission: v.transmission || '',
+      approvalStatus: v.approvalStatus || 'approved',
+      image: v.image || '',
+      gallery: parsedGallery,
+      description: v.description || ''
+    });
+    setShowVehicleEditModal(true);
+  };
+
+  // Handle Main Image File Upload
+  const handleMainFileChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setUploadingMainImage(true);
+    try {
+      const res = await uploadImage(file);
+      if (res && res.url) {
+        setVehicleEditForm(prev => ({ ...prev, image: res.url }));
+        showToast('Main display image uploaded successfully!');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to upload image.', false);
+    } finally {
+      setUploadingMainImage(false);
+    }
+  };
+
+  // Handle Gallery Image File Upload
+  const handleGalleryFileChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setUploadingGalleryImage(true);
+    try {
+      const res = await uploadImage(file);
+      if (res && res.url) {
+        setVehicleEditForm(prev => ({
+          ...prev,
+          gallery: [...(prev.gallery || []), res.url]
+        }));
+        showToast('Gallery image uploaded successfully!');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to upload gallery photo.', false);
+    } finally {
+      setUploadingGalleryImage(false);
+    }
+  };
+
+  // Remove Gallery Image by index
+  const handleRemoveGalleryImage = (index) => {
+    setVehicleEditForm(prev => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== index)
+    }));
+  };
+
+  // Save Vehicle Edit
+  const handleSaveVehicleEdit = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const res = await updateAdminVehicle(editingVehicleId, vehicleEditForm);
+      const updated = res.vehicle || res;
+      setVehicles(vehicles.map(v => v.id === editingVehicleId ? { ...v, ...updated } : v));
+      showToast('Vehicle post updated successfully!');
+      setShowVehicleEditModal(false);
+    } catch (err) {
+      showToast(err.message || 'Failed to update vehicle post.', false);
     } finally {
       setActionLoading(false);
     }
@@ -555,20 +676,6 @@ const AdminDashboard = () => {
               <span>Manage Vehicles</span>
             </button>
             <button 
-              className={`admin-menu-item ${activeTab === 'spareParts' ? 'active' : ''}`}
-              onClick={() => setActiveTab('spareParts')}
-            >
-              <Wrench size={18} />
-              <span>Manage Spare Parts</span>
-            </button>
-            <button 
-              className={`admin-menu-item ${activeTab === 'bikerGear' ? 'active' : ''}`}
-              onClick={() => setActiveTab('bikerGear')}
-            >
-              <ShoppingBag size={18} />
-              <span>Manage Biker Gear</span>
-            </button>
-            <button 
               className={`admin-menu-item ${activeTab === 'memberships' ? 'active' : ''}`}
               onClick={() => setActiveTab('memberships')}
             >
@@ -628,26 +735,6 @@ const AdminDashboard = () => {
                   <div className="analytics-details">
                     <span className="analytics-value">{vehicles.length}</span>
                     <span className="analytics-label">Active Listings</span>
-                  </div>
-                </div>
-
-                <div className="analytics-card" onClick={() => setActiveTab('spareParts')}>
-                  <div className="analytics-icon-wrapper parts-accent">
-                    <Wrench size={24} />
-                  </div>
-                  <div className="analytics-details">
-                    <span className="analytics-value">{spareParts.length}</span>
-                    <span className="analytics-label">Spare Parts</span>
-                  </div>
-                </div>
-
-                <div className="analytics-card" onClick={() => setActiveTab('bikerGear')}>
-                  <div className="analytics-icon-wrapper gear-accent">
-                    <ShoppingBag size={24} />
-                  </div>
-                  <div className="analytics-details">
-                    <span className="analytics-value">{bikerGear.length}</span>
-                    <span className="analytics-label">Biker Gear Items</span>
                   </div>
                 </div>
               </div>
@@ -916,6 +1003,15 @@ const AdminDashboard = () => {
                           <td>{new Date(v.postedAt).toLocaleDateString()}</td>
                           <td>
                             <div className="admin-actions-cell">
+                              {/* Edit Button */}
+                              <button 
+                                className="action-btn-role"
+                                onClick={() => handleOpenVehicleEdit(v)}
+                                disabled={actionLoading}
+                                title="Edit vehicle post"
+                              >
+                                <Pencil size={16} />
+                              </button>
                               {/* Approve Button */}
                               {(v.approvalStatus === 'pending' || v.approvalStatus === 'rejected') && (
                                 <button 
@@ -1679,6 +1775,252 @@ const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="modal-submit-btn" disabled={actionLoading}>
                   {actionLoading ? 'Saving...' : (isEditingMembership ? 'Save Changes' : 'Create Plan')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Vehicle Listing */}
+      {showVehicleEditModal && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal" style={{ maxWidth: '650px' }}>
+            <div className="modal-header">
+              <h3>Edit Vehicle Post</h3>
+              <button className="modal-close-btn" onClick={() => setShowVehicleEditModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveVehicleEdit} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Make *</label>
+                  <input 
+                    type="text" 
+                    value={vehicleEditForm.make} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, make: e.target.value })} 
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Model *</label>
+                  <input 
+                    type="text" 
+                    value={vehicleEditForm.model} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, model: e.target.value })} 
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Year *</label>
+                  <input 
+                    type="number" 
+                    value={vehicleEditForm.year} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, year: e.target.value })} 
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Price (LKR)</label>
+                  <input 
+                    type="number" 
+                    value={vehicleEditForm.price} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, price: e.target.value })} 
+                    placeholder="Leave empty for Negotiable"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Condition</label>
+                  <select 
+                    value={vehicleEditForm.condition}
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, condition: e.target.value })}
+                  >
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                    <option value="reconditioned">Reconditioned</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Location</label>
+                  <input 
+                    type="text" 
+                    value={vehicleEditForm.location} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, location: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Mileage (km)</label>
+                  <input 
+                    type="number" 
+                    value={vehicleEditForm.mileageKm} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, mileageKm: e.target.value })} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Engine Capacity (CC)</label>
+                  <input 
+                    type="number" 
+                    value={vehicleEditForm.engineCapacityCc} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, engineCapacityCc: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Fuel Type</label>
+                  <input 
+                    type="text" 
+                    value={vehicleEditForm.fuelType} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, fuelType: e.target.value })} 
+                    placeholder="e.g. Petrol, Electric"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Transmission</label>
+                  <input 
+                    type="text" 
+                    value={vehicleEditForm.transmission} 
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, transmission: e.target.value })} 
+                    placeholder="e.g. Manual, Automatic"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Approval Status</label>
+                  <select 
+                    value={vehicleEditForm.approvalStatus}
+                    onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, approvalStatus: e.target.value })}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Main Image Management Section */}
+              <div className="form-group">
+                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <span>Main Display Image</span>
+                  {uploadingMainImage && <span style={{ fontSize: '0.8rem', color: '#ffd600' }}>Uploading to cloud...</span>}
+                </label>
+                
+                {/* Visual Preview Card */}
+                {vehicleEditForm.image ? (
+                  <div style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.15)', background: '#0a0a0c' }}>
+                    <img 
+                      src={vehicleEditForm.image} 
+                      alt="Main Vehicle Preview" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=Invalid+Image'; }}
+                    />
+                    <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '8px' }}>
+                      <label style={{ background: '#ffd600', color: '#000', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Upload size={14} /> Change Photo
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleMainFileChange}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      <button 
+                        type="button" 
+                        onClick={() => setVehicleEditForm(prev => ({ ...prev, image: '' }))}
+                        style={{ background: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        title="Remove main image"
+                      >
+                        <Trash2 size={14} /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ border: '2px dashed rgba(255, 255, 255, 0.2)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', color: '#a1a1aa', fontSize: '0.85rem' }}>No main display image uploaded</p>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ffd600', color: '#000', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+                      <Upload size={16} /> Upload Main Photo
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleMainFileChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Gallery Images Management Section */}
+              <div className="form-group">
+                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <span>Gallery Photos ({vehicleEditForm.gallery?.length || 0})</span>
+                  {uploadingGalleryImage && <span style={{ fontSize: '0.8rem', color: '#ffd600' }}>Uploading...</span>}
+                </label>
+
+                {/* Gallery Thumbnails Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px', marginTop: '6px' }}>
+                  {vehicleEditForm.gallery && vehicleEditForm.gallery.map((imgUrl, idx) => (
+                    <div key={idx} style={{ position: 'relative', width: '90px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', background: '#000' }}>
+                      <img 
+                        src={imgUrl} 
+                        alt={`Gallery item ${idx + 1}`} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/90x70?text=Invalid'; }}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveGalleryImage(idx)}
+                        style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Remove photo"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Add Gallery Image Button */}
+                  <label style={{ width: '90px', height: '70px', borderRadius: '8px', border: '2px dashed rgba(255,255,255,0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', color: '#a1a1aa' }}>
+                    <Plus size={18} />
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Add Photo</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleGalleryFileChange}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  rows="3"
+                  value={vehicleEditForm.description} 
+                  onChange={(e) => setVehicleEditForm({ ...vehicleEditForm, description: e.target.value })} 
+                  placeholder="Vehicle specifications and details..."
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="modal-cancel-btn" onClick={() => setShowVehicleEditModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="modal-submit-btn" disabled={actionLoading}>
+                  {actionLoading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>

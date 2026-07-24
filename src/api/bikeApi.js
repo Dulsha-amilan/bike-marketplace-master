@@ -122,6 +122,22 @@ export function updateVehicleStatus(id, status) {
   });
 }
 
+export function updateAdminVehicle(id, payload) {
+  return request(`/admin/vehicles/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function uploadImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  return request('/upload/image', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
 export function deleteAllVehicles() {
   return request('/admin/vehicles', { method: 'DELETE' });
 }

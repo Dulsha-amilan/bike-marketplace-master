@@ -117,21 +117,6 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
             >
               {translations.home}
             </button>
-            <button
-              className={`nav-link ${currentPage === 'spareParts' ? 'active' : ''}`}
-              aria-current={currentPage === 'spareParts' ? 'page' : undefined}
-              onClick={() => setCurrentPage('spareParts')}
-            >
-              {translations.spareParts}
-            </button>
-            <button
-              className={`nav-link ${currentPage === 'bikerGear' ? 'active' : ''}`}
-              aria-current={currentPage === 'bikerGear' ? 'page' : undefined}
-              onClick={() => setCurrentPage('bikerGear')}
-            >
-              {translations.bikerGear}
-            </button>
-
             <LanguageToggle language={language} setLanguage={setLanguage} />
 
             {isAuthenticated && user?.role !== 'admin' && (
@@ -243,28 +228,6 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                       }}
                     >
                       {translations.home}
-                    </button>
-                  </div>
-                  <div className="dropdown-item">
-                    <button
-                      className="dropdown-link"
-                      onClick={() => {
-                        setCurrentPage('spareParts');
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      {translations.spareParts}
-                    </button>
-                  </div>
-                  <div className="dropdown-item">
-                    <button
-                      className="dropdown-link"
-                      onClick={() => {
-                        setCurrentPage('bikerGear');
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      {translations.bikerGear}
                     </button>
                   </div>
                   <div className="dropdown-item">

@@ -1,7 +1,7 @@
 // components/VehicleCard.jsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCalendar, FiMapPin, FiX, FiHome } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiX, FiHome, FiPhone, FiUser } from 'react-icons/fi';
 import { Activity, Bike, Camera, Cpu, Droplet, Zap } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { Card, CardContent, CardFooter } from './ui/card';
@@ -10,8 +10,10 @@ import './VehicleCard.css';
 import verifiedIcon from '../Images/verififedbutton.png';
 
 const formatPrice = price => {
-  if (price == null) return 'Negotiable';
-  return `Rs: ${price.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`;
+  if (price == null || price === '') return 'Negotiable';
+  const num = Number(price);
+  if (isNaN(num)) return 'Negotiable';
+  return `Rs: ${num.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`;
 };
 
 const toISODate = date => {
@@ -29,6 +31,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
     mileageKm,
     image,
     gallery = [],
+    description,
   } = vehicle;
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -112,6 +115,9 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
   ].filter(Boolean);
 
   if (horizontal) {
+    const displayPhone = vehicle.phone || vehicle.user?.phone;
+    const sellerName = vehicle.user?.name;
+
     return (
       <>
         <Card className="vehicle-card vehicle-card--ad">
@@ -160,21 +166,56 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
                 {vehicle.year ? ` - ${vehicle.year}` : ''}
               </div>
               <h3 className="vehicle-card__title">{title}</h3>
-              <div className="vehicle-card__location">
-                <FiMapPin aria-hidden="true" />
-                <span>{location || 'Sri Lanka'}</span>
-              </div>
-              {vehicle.source === 'showroom' && approvedRequest && (
-                <div className="vehicle-card__shop-info" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px', fontSize: '12px', fontWeight: '900', color: '#0B1530' }}>
-                  <FiHome aria-hidden="true" style={{ color: '#F59E0B', width: '14px', height: '14px' }} />
-                  <span className="truncate">{approvedRequest.shopName}</span>
-                  <img 
-                    src={verifiedIcon} 
-                    alt="Verified Showroom Partner" 
-                    className="w-4 h-4 object-contain flex-shrink-0"
-                    title="Verified Showroom Partner"
-                  />
+              
+              <div className="vehicle-card__meta-list">
+                <div className="vehicle-card__meta-item">
+                  <FiMapPin className="meta-icon" aria-hidden="true" />
+                  <span className="meta-label">Location:</span>
+                  <span className="meta-value">{location || 'Sri Lanka'}</span>
                 </div>
+
+                {sellerName && (
+                  <div className="vehicle-card__meta-item">
+                    <FiUser className="meta-icon" aria-hidden="true" />
+                    <span className="meta-label">Seller:</span>
+                    <span className="meta-value">{sellerName}</span>
+                  </div>
+                )}
+
+                {displayPhone && (
+                  <div className="vehicle-card__meta-item">
+                    <FiPhone className="meta-icon" aria-hidden="true" />
+                    <span className="meta-label">Contact:</span>
+                    <span className="meta-value">{displayPhone}</span>
+                  </div>
+                )}
+
+                {vehicle.source === 'showroom' && approvedRequest && (
+                  <div className="vehicle-card__shop-info">
+                    {approvedRequest.shopImage ? (
+                      <img 
+                        src={resolveMediaUrl(approvedRequest.shopImage)} 
+                        alt={approvedRequest.shopName}
+                        className="vehicle-card__shop-logo"
+                      />
+                    ) : (
+                      <FiHome aria-hidden="true" style={{ color: '#F59E0B', width: '15px', height: '15px' }} />
+                    )}
+                    <span className="truncate">{approvedRequest.shopName}</span>
+                    <img 
+                      src={verifiedIcon} 
+                      alt="Verified Showroom Partner" 
+                      className="w-4 h-4 object-contain flex-shrink-0"
+                      title="Verified Showroom Partner"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {description && (
+                <p className="vehicle-card__description">
+                  {description}
+                </p>
               )}
 
               <div className="vehicle-card__price-row vehicle-card__price-row--mobile">
