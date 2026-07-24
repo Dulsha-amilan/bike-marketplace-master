@@ -1,8 +1,11 @@
 // components/SearchBar.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
 
 const SearchBar = ({ searchFilters, setSearchFilters, translations }) => {
+  const navigate = useNavigate();
+
   const handleInputChange = (field, value) => {
     setSearchFilters(prev => ({
       ...prev,
@@ -11,8 +14,14 @@ const SearchBar = ({ searchFilters, setSearchFilters, translations }) => {
   };
 
   const handleSearch = () => {
-    console.log('Search filters:', searchFilters);
-    // Implement search functionality here
+    const params = new URLSearchParams();
+    if (searchFilters.brand) params.set('brand', searchFilters.brand);
+    if (searchFilters.model) params.set('model', searchFilters.model);
+    if (searchFilters.priceRange) params.set('priceRange', searchFilters.priceRange);
+    if (searchFilters.location) params.set('location', searchFilters.location);
+
+    const queryString = params.toString();
+    navigate(`/browse/all${queryString ? `?${queryString}` : ''}`);
   };
 
   return (

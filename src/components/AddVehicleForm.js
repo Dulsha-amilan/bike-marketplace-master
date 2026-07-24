@@ -41,17 +41,19 @@ const COMMON_BRANDS = [
 
 const MAX_UPLOAD_IMAGES = 5;
 
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+const SRI_LANKA_DISTRICTS = [
+  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
+  'Galle', 'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar',
+  'Mullaitivu', 'Vavuniya', 'Trincomalee', 'Batticaloa', 'Ampara',
+  'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 'Badulla',
+  'Monaragala', 'Ratnapura', 'Kegalle',
 ];
 
-function TailwindDatePicker({ value, onChange, placeholder = "Select date", className = "" }) {
+
+function TailwindDatePicker({ value, onChange, placeholder = "Select Model Year", className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
-  
-  const initialDate = value ? new Date(value) : new Date();
-  const [currentYear, setCurrentYear] = useState(isNaN(initialDate.getTime()) ? new Date().getFullYear() : initialDate.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(isNaN(initialDate.getTime()) ? new Date().getMonth() : initialDate.getMonth());
+  const currentYear = new Date().getFullYear();
+  const [decadeStart, setDecadeStart] = useState(Math.floor(currentYear / 10) * 10 - 10);
   
   const containerRef = useRef(null);
 
@@ -65,72 +67,30 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select date", clas
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (value) {
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) {
-        setCurrentYear(d.getFullYear());
-        setCurrentMonth(d.getMonth());
-      }
+  const yearsInDecade = [];
+  for (let y = decadeStart + 11; y >= decadeStart; y--) {
+    if (y <= currentYear + 1 && y >= 1980) {
+      yearsInDecade.push(y);
     }
-  }, [value]);
-
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const startDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
-
-  const maxYear = new Date().getFullYear() + 1;
-  const years = [];
-  for (let y = maxYear; y >= 1980; y--) {
-    years.push(y);
   }
 
-  const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(prev => prev - 1);
-    } else {
-      setCurrentMonth(prev => prev - 1);
+  const handlePrevPage = () => {
+    if (decadeStart - 12 >= 1970) {
+      setDecadeStart(prev => prev - 12);
     }
   };
 
-  const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(prev => prev + 1);
-    } else {
-      setCurrentMonth(prev => prev + 1);
+  const handleNextPage = () => {
+    if (decadeStart + 12 <= currentYear + 1) {
+      setDecadeStart(prev => prev + 12);
     }
   };
 
-  const handleSelectDay = (day) => {
-    const formattedMonth = String(currentMonth + 1).padStart(2, '0');
-    const formattedDay = String(day).padStart(2, '0');
-    const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
-    onChange(dateStr);
-    setIsOpen(false);
-  };
-
-  const formatSelectedDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  };
-
-  const blanks = Array(startDayOfWeek).fill(null);
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const gridCells = [...blanks, ...days];
-
-  const selectedDay = value ? new Date(value).getDate() : null;
-  const isSameMonthAndYear = value && 
-    new Date(value).getMonth() === currentMonth && 
-    new Date(value).getFullYear() === currentYear;
-
-  const today = new Date();
-  const isToday = (day) => {
-    return today.getDate() === day && 
-      today.getMonth() === currentMonth && 
-      today.getFullYear() === currentYear;
+  const formatDisplay = (val) => {
+    if (!val) return "";
+    const d = new Date(val);
+    if (!isNaN(d.getTime())) return String(d.getFullYear());
+    return String(val);
   };
 
   return (
@@ -138,88 +98,57 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select date", clas
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-11 md:h-12 w-full rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 items-center justify-between hover:bg-muted/10 text-left"
+        className="flex h-11 md:h-12 w-full rounded-xl border border-input bg-card px-3.5 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 items-center justify-between hover:bg-muted/10 text-left"
       >
-        <span className={value ? "text-primary font-medium" : "text-muted-foreground"}>
-          {value ? formatSelectedDate(value) : placeholder}
+        <span className={value ? "text-foreground font-semibold" : "text-muted-foreground"}>
+          {value ? formatDisplay(value) : placeholder}
         </span>
         <Calendar className="w-4 h-4 text-muted-foreground" />
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 z-50 p-4 w-72 bg-card border border-border/80 rounded-2xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="flex items-center justify-between mb-4">
+        <div className="absolute left-0 mt-2 z-[9999] p-4 w-64 bg-card border border-border/80 rounded-2xl shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex items-center justify-between mb-3">
             <button
               type="button"
-              onClick={handlePrevMonth}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary"
+              onClick={handlePrevPage}
+              disabled={decadeStart <= 1970}
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             
-            <div className="flex gap-1.5 items-center">
-              <select
-                value={currentMonth}
-                onChange={(e) => setCurrentMonth(Number(e.target.value))}
-                className="bg-transparent text-base md:text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
-              >
-                {MONTH_NAMES.map((name, i) => (
-                  <option key={i} value={i} className="text-primary bg-card">{name}</option>
-                ))}
-              </select>
-
-              <select
-                value={currentYear}
-                onChange={(e) => setCurrentYear(Number(e.target.value))}
-                className="bg-transparent text-base md:text-xs font-bold focus:outline-none cursor-pointer hover:text-amber-500"
-              >
-                {years.map((y) => (
-                  <option key={y} value={y} className="text-primary bg-card">{y}</option>
-                ))}
-              </select>
-            </div>
+            <span className="text-sm font-bold text-foreground">Select Year</span>
 
             <button
               type="button"
-              onClick={handleNextMonth}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary"
+              onClick={handleNextPage}
+              disabled={decadeStart + 12 > currentYear + 1}
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-border/50 text-muted-foreground hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-y-1 mb-2 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            <span>Su</span>
-            <span>Mo</span>
-            <span>Tu</span>
-            <span>We</span>
-            <span>Th</span>
-            <span>Fr</span>
-            <span>Sa</span>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">
-            {gridCells.map((day, idx) => {
-              if (day === null) {
-                return <div key={`blank-${idx}`} className="w-8 h-8" />;
-              }
-
-              const isSelected = isSameMonthAndYear && selectedDay === day;
-              const currentIsToday = isToday(day);
+          <div className="grid grid-cols-3 gap-2">
+            {yearsInDecade.map((y) => {
+              const selectedYear = value ? (new Date(value).getFullYear() || Number(value)) : null;
+              const isSelected = selectedYear === y || String(value) === String(y);
 
               return (
                 <button
-                  key={`day-${day}`}
+                  key={y}
                   type="button"
-                  onClick={() => handleSelectDay(day)}
+                  onClick={() => {
+                    onChange(String(y));
+                    setIsOpen(false);
+                  }}
                   className={`
-                    w-8 h-8 text-xs font-semibold rounded-full flex items-center justify-center transition-all select-none
-                    ${isSelected ? 'bg-amber-400 text-black shadow-md shadow-amber-400/25 font-extrabold hover:bg-amber-400' : ''}
-                    ${!isSelected && currentIsToday ? 'border border-amber-400 text-amber-500 font-bold' : ''}
-                    ${!isSelected && !currentIsToday ? 'hover:bg-muted/70 text-primary' : ''}
+                    py-2 px-1 text-xs font-bold rounded-xl transition-all select-none text-center
+                    ${isSelected ? 'bg-amber-400 text-black shadow-md shadow-amber-400/25 font-extrabold' : 'bg-muted/40 hover:bg-amber-500/10 hover:text-amber-600 text-foreground'}
                   `}
                 >
-                  {day}
+                  {y}
                 </button>
               );
             })}
@@ -235,7 +164,7 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select date", clas
                 }}
                 className="text-[10px] text-destructive hover:underline font-bold tracking-wide uppercase"
               >
-                Clear Date
+                Clear Year
               </button>
             </div>
           )}
@@ -657,7 +586,7 @@ export default function AddVehicleForm() {
             <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
               <div className="max-w-2xl space-y-3">
                 <div className="inline-flex items-center gap-2 rounded-md bg-amber-500/10 px-3 py-1.5 text-xs font-bold uppercase text-amber-700">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Marketplace Seller
+                 Marketplace Seller
                 </div>
                 <div className="space-y-2">
                   <h1 className="text-3xl font-extrabold leading-tight text-foreground md:text-4xl lg:text-[46px]">
@@ -854,8 +783,8 @@ export default function AddVehicleForm() {
             
             {/* Step 1: General Details */}
             {step === 1 && (
-              <Card className="overflow-hidden rounded-lg border-border/70 shadow-sm">
-                <CardHeader className="border-b border-border/60 bg-card pb-4 md:pb-5">
+              <Card className="overflow-visible rounded-lg border-border/70 shadow-sm relative z-10">
+                <CardHeader className="border-b border-border/60 bg-card pb-4 md:pb-5 rounded-t-lg">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
@@ -911,7 +840,7 @@ export default function AddVehicleForm() {
                       </div>
 
                       {/* Make input */}
-                      <div className="space-y-2 relative" ref={brandRef}>
+                      <div className="space-y-2 relative z-30" ref={brandRef}>
                         <Label htmlFor="make" className="text-sm font-semibold flex items-center gap-1.5">
                           Make (Brand) <span className="text-destructive">*</span>
                         </Label>
@@ -927,7 +856,7 @@ export default function AddVehicleForm() {
                         />
 
                         {showBrandSuggestions && brandSuggestions.length > 0 && (
-                          <div className="absolute left-0 right-0 mt-1 z-50 max-h-56 overflow-y-auto rounded-lg border border-border bg-card shadow-lg animate-in fade-in duration-100">
+                          <div className="absolute left-0 right-0 mt-1 z-[9999] max-h-56 overflow-y-auto rounded-lg border border-border bg-card shadow-xl animate-in fade-in duration-100">
                             {brandSuggestions.map((brand) => (
                               <button
                                 key={brand}
@@ -1244,17 +1173,24 @@ export default function AddVehicleForm() {
                   {/* Location */}
                   <div className="space-y-2">
                     <Label htmlFor="location" className="text-sm font-semibold flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-muted-foreground" /> Location (City) <span className="text-destructive">*</span>
+                      <MapPin className="w-4 h-4 text-muted-foreground" /> Location (District) <span className="text-destructive">*</span>
                     </Label>
-                    <Input 
-                      id="location" 
-                      name="location" 
-                      value={form.location} 
-                      onChange={handleChange} 
-                      placeholder="e.g. Colombo, Kandy, Gampaha" 
-                      required 
-                      className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.location.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
-                    />
+                    <Select
+                      value={form.location}
+                      onValueChange={(val) => handleSelectChange('location', val)}
+                    >
+                      <SelectTrigger 
+                        id="location"
+                        className={`h-11 md:h-12 rounded-xl focus:ring-amber-500/20 focus:border-amber-400 text-sm ${attemptedNext && form.location.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
+                      >
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SRI_LANKA_DISTRICTS.map((district) => (
+                          <SelectItem key={district} value={district}>{district}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {attemptedNext && form.location.trim() === '' && (
                       <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
                         <AlertCircle className="w-3.5 h-3.5" /> Location is required

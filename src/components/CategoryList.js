@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft, Search, SlidersHorizontal, X } from 'lucide-react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { Link, useParams, useLocation } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
 import VehicleCard from '../components/VehicleCard';
+import { getVehicles } from '../api/bikeApi';
 import './CategoryList.css';
 
 const LABELS = {
+  all: 'All Bikes',
   scooters: 'Scooters',
   trail: 'Trail',
   sport: 'Sport',
@@ -12,6 +14,478 @@ const LABELS = {
   electric: 'Electric',
   'high-capacity': 'High Capacity',
   'atv-adv': 'ATV / ADV',
+};
+
+// Sri Lanka districts (same order as AddVehicleForm)
+const SRI_LANKA_DISTRICTS = [
+  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
+  'Galle', 'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar',
+  'Mullaitivu', 'Vavuniya', 'Trincomalee', 'Batticaloa', 'Ampara',
+  'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 'Badulla',
+  'Monaragala', 'Ratnapura', 'Kegalle',
+];
+
+// Common bike brands (same as AddVehicleForm)
+const COMMON_BRANDS = [
+  'Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVS', 'Hero', 'KTM', 'Kawasaki',
+  'BMW', 'Ducati', 'Triumph', 'Vespa', 'Aprilia', 'Royal Enfield',
+  'Harley-Davidson', 'Demak', 'Daelim', 'Loncin', 'Lifan',
+];
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'mileage-asc', label: 'Mileage: Low to High' },
+];
+
+const PRICE_PRESET_OPTIONS = [
+  { value: 'custom', label: 'Custom Price Range' },
+  { value: '', label: 'Any Price Range' },
+  { value: '0-100000', label: 'Under Rs. 100,000' },
+  { value: '100000-300000', label: 'Rs. 100,000 - 300,000' },
+  { value: '300000-500000', label: 'Rs. 300,000 - 500,000' },
+  { value: '500000-1000000', label: 'Rs. 500,000 - 1,000,000' },
+  { value: '1000000+', label: 'Above Rs. 1,000,000' },
+];
+
+// Custom Single-Select Popover Dropdown (replacing native HTML select)
+const CustomSelectDropdown = ({
+  options = [],
+  value,
+  onChange,
+  placeholder = "Select option",
+  alignRight = false,
+  className = ""
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => String(opt.value) === String(value));
+  const displayLabel = selectedOption ? selectedOption.label : placeholder;
+
+  return (
+    <div className={`filter-dropdown-wrap ${className}`} ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        className="select filter-select"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          textAlign: 'left',
+          width: '100%',
+          cursor: 'pointer'
+        }}
+      >
+        <span style={{ color: '#0f172a', fontWeight: 600, fontSize: '0.88rem' }}>
+          {displayLabel}
+        </span>
+        <ChevronDown className="filter-select-icon" aria-hidden="true" style={{ pointerEvents: 'none' }} />
+      </button>
+
+      {isOpen && (
+        <div
+          className="custom-dropdown-popover animate-in fade-in slide-in-from-top-2 duration-150"
+          style={{
+            position: 'absolute',
+            left: alignRight ? 'auto' : 0,
+            right: alignRight ? 0 : 'auto',
+            top: 'calc(100% + 4px)',
+            zIndex: 9999,
+            width: '100%',
+            minWidth: '180px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '14px',
+            boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+            padding: '6px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px'
+          }}
+        >
+          {options.map(opt => {
+            const isSelected = String(opt.value) === String(value);
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '9px 12px',
+                  fontSize: '0.85rem',
+                  fontWeight: isSelected ? 700 : 500,
+                  color: isSelected ? '#0f172a' : '#334155',
+                  background: isSelected ? '#ffd600' : 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'space-between',
+                  transition: 'background 0.12s ease'
+                }}
+                onMouseEnter={e => {
+                  if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                }}
+                onMouseLeave={e => {
+                  if (!isSelected) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <span>{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Custom Searchable Dropdown Popover (replacing native HTML select)
+const CustomSearchDropdown = ({
+  options = [],
+  selectedValues = [],
+  onSelect,
+  placeholder = "Select option",
+  searchPlaceholder = "Search..."
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = useMemo(() => {
+    if (!search.trim()) return options;
+    return options.filter(opt => opt.toLowerCase().includes(search.trim().toLowerCase()));
+  }, [options, search]);
+
+  return (
+    <div className="filter-dropdown-wrap" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        className="select filter-select"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          textAlign: 'left',
+          width: '100%',
+          cursor: 'pointer'
+        }}
+      >
+        <span style={{ color: '#94a3b8', fontWeight: 400 }}>
+          {placeholder}
+        </span>
+        <ChevronDown className="filter-select-icon" aria-hidden="true" style={{ pointerEvents: 'none' }} />
+      </button>
+
+      {isOpen && (
+        <div
+          className="custom-dropdown-popover animate-in fade-in slide-in-from-top-2 duration-150"
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 'calc(100% + 4px)',
+            zIndex: 9999,
+            width: '100%',
+            minWidth: '220px',
+            maxHeight: '260px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '14px',
+            boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+            padding: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px'
+          }}
+        >
+          {/* Search box inside dropdown */}
+          <div style={{ position: 'relative', width: '100%' }}>
+            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#94a3b8' }} />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '7px 10px 7px 30px',
+                fontSize: '0.82rem',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                outline: 'none',
+                background: '#f8fafc'
+              }}
+              autoFocus
+            />
+          </div>
+
+          {/* Options list */}
+          <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map(opt => {
+                const isSelected = selectedValues.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    disabled={isSelected}
+                    onClick={() => {
+                      if (!isSelected) {
+                        onSelect(opt);
+                        setSearch('');
+                        setIsOpen(false);
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '8px 10px',
+                      fontSize: '0.84rem',
+                      fontWeight: isSelected ? 700 : 500,
+                      color: isSelected ? '#94a3b8' : '#0f172a',
+                      background: isSelected ? '#f1f5f9' : 'transparent',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: isSelected ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justify: 'space-between',
+                      transition: 'background 0.1s ease'
+                    }}
+                    onMouseEnter={e => {
+                      if (!isSelected) e.currentTarget.style.background = '#fef3c7';
+                    }}
+                    onMouseLeave={e => {
+                      if (!isSelected) e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>{opt}</span>
+                    {isSelected && <X style={{ width: '12px', height: '12px', color: '#94a3b8' }} />}
+                  </button>
+                );
+              })
+            ) : (
+              <div style={{ padding: '12px', textAlign: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
+                No options found
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Year-Only Calendar Popover (styled like calendar popover, strictly for year selection)
+const YearPickerPopover = ({ value, onChange, placeholder = "Select Year", minAllowed = '', maxAllowed = '', alignRight = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const [decadeStart, setDecadeStart] = useState(Math.floor(currentYear / 10) * 10 - 10);
+  
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const yearsInDecade = [];
+  for (let y = decadeStart + 11; y >= decadeStart; y--) {
+    if (y <= currentYear + 1 && y >= 1980) {
+      yearsInDecade.push(y);
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (decadeStart - 12 >= 1970) {
+      setDecadeStart(prev => prev - 12);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (decadeStart + 12 <= currentYear + 1) {
+      setDecadeStart(prev => prev + 12);
+    }
+  };
+
+  return (
+    <div className="filter-dropdown-wrap" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="select filter-select filter-datepicker-btn"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          textAlign: 'left',
+          width: '100%',
+          cursor: 'pointer'
+        }}
+      >
+        <span style={{ color: value ? '#0f172a' : '#94a3b8', fontWeight: value ? 600 : 400 }}>
+          {value || placeholder}
+        </span>
+        <Calendar className="filter-select-icon" aria-hidden="true" style={{ pointerEvents: 'none' }} />
+      </button>
+
+      {isOpen && (
+        <div
+          className="calendar-popover-card animate-in fade-in slide-in-from-top-2 duration-150"
+          style={{
+            position: 'absolute',
+            left: alignRight ? 'auto' : 0,
+            right: alignRight ? 0 : 'auto',
+            top: 'calc(100% + 4px)',
+            zIndex: 9999,
+            width: '210px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+            padding: '12px'
+          }}
+        >
+          {/* Header with Navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <button
+              type="button"
+              onClick={handlePrevPage}
+              disabled={decadeStart <= 1970}
+              style={{
+                padding: '5px 8px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                cursor: decadeStart <= 1970 ? 'not-allowed' : 'pointer',
+                opacity: decadeStart <= 1970 ? 0.4 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'center'
+              }}
+            >
+              <ChevronLeft style={{ width: '14px', height: '14px', color: '#475569' }} />
+            </button>
+
+            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+              Select Year
+            </span>
+
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={decadeStart + 12 > currentYear + 1}
+              style={{
+                padding: '5px 8px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                cursor: decadeStart + 12 > currentYear + 1 ? 'not-allowed' : 'pointer',
+                opacity: decadeStart + 12 > currentYear + 1 ? 0.4 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'center'
+              }}
+            >
+              <ChevronRight style={{ width: '14px', height: '14px', color: '#475569' }} />
+            </button>
+          </div>
+
+          {/* Grid of Year Buttons (No months, No days) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+            {yearsInDecade.map(y => {
+              const isDisabled = (minAllowed !== '' && y < Number(minAllowed)) || (maxAllowed !== '' && y > Number(maxAllowed));
+              const isSelected = String(y) === String(value);
+              return (
+                <button
+                  key={y}
+                  type="button"
+                  disabled={isDisabled}
+                  style={{
+                    padding: '8px 4px',
+                    fontSize: '0.82rem',
+                    fontWeight: isSelected ? 800 : 600,
+                    borderRadius: '10px',
+                    border: isSelected ? '1.5px solid #d97706' : '1px solid #f1f5f9',
+                    background: isSelected ? '#ffd600' : '#f8fafc',
+                    color: isSelected ? '#0f172a' : isDisabled ? '#cbd5e1' : '#334155',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    textAlign: 'center',
+                    transition: 'all 0.12s ease'
+                  }}
+                  onClick={() => {
+                    if (!isDisabled) {
+                      onChange(String(y));
+                      setIsOpen(false);
+                    }
+                  }}
+                >
+                  {y}
+                </button>
+              );
+            })}
+          </div>
+
+          {value && (
+            <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setIsOpen(false);
+                }}
+                style={{
+                  fontSize: '0.72rem',
+                  color: '#ef4444',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 700
+                }}
+              >
+                Clear Selection
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const formatNumber = value => {
@@ -27,24 +501,152 @@ const formatRange = (min, max, prefix = '') => {
   return '';
 };
 
-const filterOptions = (items, query) => {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return items;
-  return items.filter(item => item.toLowerCase().includes(normalized));
-};
+const MAX_SLIDER_LIMIT = 15000000;
 
-const CategoryList = ({ allVehicles }) => {
-  const { type } = useParams();
-  const label = LABELS[type] || 'Bikes';
-  const vehicles = useMemo(
-    () => (Array.isArray(allVehicles) ? allVehicles : []),
-    [allVehicles]
+// Zero-lag Dual Range Slider — uses direct DOM manipulation during drag,
+// NEVER calls React setState while dragging, so the parent never re-renders.
+// Commits final values on pointer release only.
+const SmoothPriceSlider = React.memo(({ min = 0, max = MAX_SLIDER_LIMIT, step = 50000, valueMin, valueMax, onChange }) => {
+  const trackRef = useRef(null);
+  const fillRef = useRef(null);
+  const thumbMinRef = useRef(null);
+  const thumbMaxRef = useRef(null);
+  const labelMinRef = useRef(null);
+  const labelMaxRef = useRef(null);
+
+  // Mutable drag values — never trigger React re-renders
+  const dragRef = useRef({ min: valueMin, max: valueMax, dragging: false });
+
+  // Sync ref when props change (e.g. from preset dropdown)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!dragRef.current.dragging) {
+      dragRef.current.min = valueMin;
+      dragRef.current.max = valueMax;
+      paintSlider(valueMin, valueMax);
+    }
+  }, [valueMin, valueMax]);
+
+  const toPercent = val => Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
+
+  const formatLabel = val => val >= max ? 'Rs 15M+' : `Rs ${val.toLocaleString('en-LK')}`;
+
+  // Pure DOM update — zero React overhead
+  const paintSlider = (curMin, curMax) => {
+    const pMin = toPercent(curMin);
+    const pMax = toPercent(curMax);
+    if (thumbMinRef.current) thumbMinRef.current.style.left = pMin + '%';
+    if (thumbMaxRef.current) thumbMaxRef.current.style.left = pMax + '%';
+    if (fillRef.current) {
+      fillRef.current.style.left = pMin + '%';
+      fillRef.current.style.width = Math.max(0, pMax - pMin) + '%';
+    }
+    if (labelMinRef.current) labelMinRef.current.textContent = formatLabel(curMin);
+    if (labelMaxRef.current) labelMaxRef.current.textContent = formatLabel(curMax);
+  };
+
+  const getValueFromX = clientX => {
+    if (!trackRef.current) return min;
+    const rect = trackRef.current.getBoundingClientRect();
+    const rawPercent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const rawVal = min + rawPercent * (max - min);
+    const stepped = Math.round(rawVal / step) * step;
+    return Math.max(min, Math.min(max, stepped));
+  };
+
+  const startDrag = (thumbType, startEvent) => {
+    startEvent.preventDefault();
+    startEvent.stopPropagation();
+    dragRef.current.dragging = true;
+
+    const onPointerMove = moveEvent => {
+      const val = getValueFromX(moveEvent.clientX);
+      if (thumbType === 'min') {
+        dragRef.current.min = Math.min(val, dragRef.current.max - step);
+      } else {
+        dragRef.current.max = Math.max(val, dragRef.current.min + step);
+      }
+      paintSlider(dragRef.current.min, dragRef.current.max);
+    };
+
+    const onPointerUp = () => {
+      dragRef.current.dragging = false;
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+      // Single React state commit on release
+      onChange(dragRef.current.min, dragRef.current.max);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+  };
+
+  const handleTrackClick = e => {
+    if (!trackRef.current) return;
+    const clickVal = getValueFromX(e.clientX);
+    const distMin = Math.abs(clickVal - dragRef.current.min);
+    const distMax = Math.abs(clickVal - dragRef.current.max);
+
+    if (distMin < distMax) {
+      dragRef.current.min = Math.min(clickVal, dragRef.current.max - step);
+    } else {
+      dragRef.current.max = Math.max(clickVal, dragRef.current.min + step);
+    }
+    paintSlider(dragRef.current.min, dragRef.current.max);
+    onChange(dragRef.current.min, dragRef.current.max);
+  };
+
+  const minPct = toPercent(valueMin);
+  const maxPct = toPercent(valueMax);
+
+  return (
+    <div className="custom-slider-container">
+      <div className="custom-slider-track" ref={trackRef} onClick={handleTrackClick}>
+        <div
+          ref={fillRef}
+          className="custom-slider-fill"
+          style={{ left: `${minPct}%`, width: `${Math.max(0, maxPct - minPct)}%` }}
+        />
+        <div
+          ref={thumbMinRef}
+          className="custom-slider-thumb thumb-min"
+          style={{ left: `${minPct}%` }}
+          onPointerDown={e => startDrag('min', e)}
+          role="slider"
+          aria-valuemin={min}
+          aria-valuemax={valueMax}
+          aria-valuenow={valueMin}
+          tabIndex={0}
+        />
+        <div
+          ref={thumbMaxRef}
+          className="custom-slider-thumb thumb-max"
+          style={{ left: `${maxPct}%` }}
+          onPointerDown={e => startDrag('max', e)}
+          role="slider"
+          aria-valuemin={valueMin}
+          aria-valuemax={max}
+          aria-valuenow={valueMax}
+          tabIndex={0}
+        />
+      </div>
+      <div className="custom-slider-labels">
+        <span ref={labelMinRef}>Rs {valueMin.toLocaleString('en-LK')}</span>
+        <span ref={labelMaxRef}>{valueMax >= max ? 'Rs 15M+' : `Rs ${valueMax.toLocaleString('en-LK')}`}</span>
+      </div>
+    </div>
   );
+});
+
+const CategoryList = ({ allVehicles = [] }) => {
+  const { type = 'all' } = useParams();
+  const routeLocation = useLocation();
+  const label = LABELS[type] || 'Bikes';
 
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedMakes, setSelectedMakes] = useState([]);
-  const [locationSearch, setLocationSearch] = useState('');
-  const [makeSearch, setMakeSearch] = useState('');
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const [yearMin, setYearMin] = useState('');
@@ -52,6 +654,55 @@ const CategoryList = ({ allVehicles }) => {
   const [keywords, setKeywords] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [isMobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const [vehiclesFromApi, setVehiclesFromApi] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [apiFetched, setApiFetched] = useState(false);
+
+  // Real-time client-side price range state (0ms latency, zero API calls on slider movement)
+  const [localMin, setLocalMin] = useState(0);
+  const [localMax, setLocalMax] = useState(MAX_SLIDER_LIMIT);
+
+  // Synchronize local slider values when priceMin / priceMax change externally (e.g., presets)
+  useEffect(() => {
+    setLocalMin(priceMin !== '' ? Math.max(0, Math.min(Number(priceMin), MAX_SLIDER_LIMIT)) : 0);
+  }, [priceMin]);
+
+  useEffect(() => {
+    setLocalMax(priceMax !== '' ? Math.max(0, Math.min(Number(priceMax), MAX_SLIDER_LIMIT)) : MAX_SLIDER_LIMIT);
+  }, [priceMax]);
+
+  // Read URL search parameters on mount or navigation change
+  useEffect(() => {
+    const searchParams = new URLSearchParams(routeLocation.search);
+    const brand = searchParams.get('brand') || searchParams.get('make');
+    const loc = searchParams.get('location');
+    const priceR = searchParams.get('priceRange');
+    const mod = searchParams.get('model');
+    const kw = searchParams.get('keywords') || searchParams.get('search');
+    const pMin = searchParams.get('priceMin');
+    const pMax = searchParams.get('priceMax');
+    const sort = searchParams.get('sortBy');
+
+    if (brand) setSelectedMakes([brand]);
+    if (loc) setSelectedLocations([loc]);
+    if (mod || kw) setKeywords(mod || kw || '');
+    if (sort) setSortBy(sort);
+
+    if (priceR) {
+      if (priceR.includes('-')) {
+        const [minVal, maxVal] = priceR.split('-');
+        setPriceMin(minVal || '');
+        setPriceMax(maxVal || '');
+      } else if (priceR.endsWith('+')) {
+        setPriceMin(priceR.replace('+', '') || '');
+        setPriceMax('');
+      }
+    } else {
+      if (pMin !== null && pMin !== undefined) setPriceMin(pMin);
+      if (pMax !== null && pMax !== undefined) setPriceMax(pMax);
+    }
+  }, [routeLocation.search]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -74,75 +725,63 @@ const CategoryList = ({ allVehicles }) => {
     };
   }, [isMobileFiltersOpen]);
 
-  const vehiclesOfType = useMemo(() => {
-    const isAtvAdv = vehicle => {
-      const toStr = value => (value == null ? '' : String(value).toLowerCase());
-      const arrToStr = value => (Array.isArray(value) ? value.map(toStr).join(' ') : '');
-      const haystack = [
-        toStr(vehicle.type),
-        toStr(vehicle.subtype),
-        toStr(vehicle.category),
-        toStr(vehicle.bodyType),
-        toStr(vehicle.segment),
-        toStr(vehicle.title),
-        toStr(vehicle.name),
-        toStr(vehicle.model),
-        toStr(vehicle.modelName),
-        arrToStr(vehicle.categories),
-        arrToStr(vehicle.tags),
-      ].join(' ');
+  // Fetch vehicles from backend (Price filtering is handled client-side in real-time without API calls)
+  const fetchVehicles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = {
+        type: type !== 'all' ? type : undefined,
+        locations: selectedLocations.length ? selectedLocations.join(',') : undefined,
+        makes: selectedMakes.length ? selectedMakes.join(',') : undefined,
+        yearMin: yearMin !== '' ? yearMin : undefined,
+        yearMax: yearMax !== '' ? yearMax : undefined,
+        keywords: keywords.trim() ? keywords.trim() : undefined,
+        sortBy,
+      };
+      const res = await getVehicles(params);
+      setVehiclesFromApi(Array.isArray(res) ? res : []);
+      setApiFetched(true);
+    } catch (error) {
+      console.error('Error fetching filtered vehicles from backend:', error);
+      setVehiclesFromApi([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [type, selectedLocations, selectedMakes, yearMin, yearMax, keywords, sortBy]);
 
-      return /\batv\b|\bquad\b|four[-\s]?wheeler|\badv\b|\badventure\b|dual[-\s]?sport/.test(haystack);
-    };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchVehicles();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [fetchVehicles]);
 
-    if (type === 'atv-adv') {
-      return vehicles.filter(
-        vehicle =>
-          vehicle.type === 'atv-adv' ||
-          vehicle.type === 'atv' ||
-          vehicle.type === 'adv' ||
-          vehicle.type === 'adventure' ||
-          vehicle.type === 'dual-sport' ||
-          isAtvAdv(vehicle)
-      );
+  // REAL-TIME payload filtering on client side (0ms response, NO API CALL when price slider moves)
+  const displayVehicles = useMemo(() => {
+    const rawList = apiFetched ? vehiclesFromApi : allVehicles;
+    let list = Array.isArray(rawList) ? [...rawList] : [];
+
+    const minP = localMin > 0 ? localMin : (priceMin !== '' ? Number(priceMin) : null);
+    const maxP = localMax < MAX_SLIDER_LIMIT ? localMax : (priceMax !== '' ? Number(priceMax) : null);
+
+    if (minP !== null && !isNaN(minP)) {
+      list = list.filter(v => v.price == null || Number(v.price) >= minP);
+    }
+    if (maxP !== null && !isNaN(maxP)) {
+      list = list.filter(v => v.price == null || Number(v.price) <= maxP);
     }
 
-    return vehicles.filter(vehicle => vehicle.type === type);
-  }, [vehicles, type]);
+    return list;
+  }, [apiFetched, vehiclesFromApi, allVehicles, localMin, localMax, priceMin, priceMax]);
 
-  const locations = useMemo(
-    () => Array.from(new Set(vehiclesOfType.map(vehicle => vehicle.location).filter(Boolean))).sort(),
-    [vehiclesOfType]
-  );
-
-  const makes = useMemo(
-    () => Array.from(new Set(vehiclesOfType.map(vehicle => vehicle.make).filter(Boolean))).sort(),
-    [vehiclesOfType]
-  );
-
-  const filteredLocations = useMemo(
-    () => filterOptions(locations, locationSearch),
-    [locations, locationSearch]
-  );
-
-  const filteredMakes = useMemo(
-    () => filterOptions(makes, makeSearch),
-    [makes, makeSearch]
-  );
-
-  const handleCheck = (value, listSetter) => {
-    listSetter(prev =>
-      prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]
-    );
-  };
 
   const resetFilters = () => {
     setSelectedLocations([]);
     setSelectedMakes([]);
-    setLocationSearch('');
-    setMakeSearch('');
     setPriceMin('');
     setPriceMax('');
+    setLocalMin(0);
+    setLocalMax(MAX_SLIDER_LIMIT);
     setYearMin('');
     setYearMax('');
     setKeywords('');
@@ -160,6 +799,8 @@ const CategoryList = ({ allVehicles }) => {
       case 'price':
         setPriceMin('');
         setPriceMax('');
+        setLocalMin(0);
+        setLocalMax(MAX_SLIDER_LIMIT);
         break;
       case 'year':
         setYearMin('');
@@ -172,68 +813,6 @@ const CategoryList = ({ allVehicles }) => {
         break;
     }
   };
-
-  const filteredVehicles = useMemo(() => {
-    let list = [...vehiclesOfType];
-
-    if (selectedLocations.length) {
-      list = list.filter(vehicle => selectedLocations.includes(vehicle.location));
-    }
-
-    if (selectedMakes.length) {
-      list = list.filter(vehicle => selectedMakes.includes(vehicle.make));
-    }
-
-    const minP = priceMin !== '' ? Number(priceMin) : null;
-    const maxP = priceMax !== '' ? Number(priceMax) : null;
-    if (Number.isFinite(minP)) list = list.filter(vehicle => vehicle.price == null || vehicle.price >= minP);
-    if (Number.isFinite(maxP)) list = list.filter(vehicle => vehicle.price == null || vehicle.price <= maxP);
-
-    const minY = yearMin !== '' ? Number(yearMin) : null;
-    const maxY = yearMax !== '' ? Number(yearMax) : null;
-    if (Number.isFinite(minY)) list = list.filter(vehicle => vehicle.year >= minY);
-    if (Number.isFinite(maxY)) list = list.filter(vehicle => vehicle.year <= maxY);
-
-    if (keywords.trim()) {
-      const query = keywords.toLowerCase();
-      list = list.filter(vehicle =>
-        [vehicle.title, vehicle.make, vehicle.model, vehicle.location]
-          .filter(Boolean)
-          .some(value => String(value).toLowerCase().includes(query))
-      );
-    }
-
-    const priceOrInfinity = (price, dir = 'asc') => {
-      if (price == null) return dir === 'asc' ? Infinity : -Infinity;
-      return price;
-    };
-
-    list.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-asc':
-          return priceOrInfinity(a.price, 'asc') - priceOrInfinity(b.price, 'asc');
-        case 'price-desc':
-          return priceOrInfinity(b.price, 'desc') - priceOrInfinity(a.price, 'desc');
-        case 'mileage-asc':
-          return (a.mileageKm || Infinity) - (b.mileageKm || Infinity);
-        case 'newest':
-        default:
-          return new Date(b.postedAt) - new Date(a.postedAt);
-      }
-    });
-
-    return list;
-  }, [
-    vehiclesOfType,
-    selectedLocations,
-    selectedMakes,
-    priceMin,
-    priceMax,
-    yearMin,
-    yearMax,
-    keywords,
-    sortBy,
-  ]);
 
   const activeFilters = [
     ...selectedLocations.map(value => ({
@@ -250,8 +829,8 @@ const CategoryList = ({ allVehicles }) => {
       value,
       label: value,
     })),
-    ...(priceMin || priceMax
-      ? [{ key: 'price', type: 'price', group: 'Price', label: formatRange(priceMin, priceMax, 'Rs ') }]
+    ...(priceMin || priceMax || localMin > 0 || localMax < MAX_SLIDER_LIMIT
+      ? [{ key: 'price', type: 'price', group: 'Price', label: formatRange(localMin > 0 ? localMin : priceMin, localMax < MAX_SLIDER_LIMIT ? localMax : priceMax, 'Rs ') }]
       : []),
     ...(yearMin || yearMax
       ? [{ key: 'year', type: 'year', group: 'Year', label: formatRange(yearMin, yearMax) }]
@@ -261,23 +840,18 @@ const CategoryList = ({ allVehicles }) => {
       : []),
   ];
 
-  const count = filteredVehicles.length;
+  const count = displayVehicles.length;
   const activeFilterCount = activeFilters.length;
 
   const sortControl = (
     <div className="sort-controls">
       <label htmlFor="category-sort" className="sort-label">Sort</label>
-      <select
-        id="category-sort"
-        className="select"
+      <CustomSelectDropdown
+        options={SORT_OPTIONS}
         value={sortBy}
-        onChange={event => setSortBy(event.target.value)}
-      >
-        <option value="newest">Newest</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="mileage-asc">Mileage: Low to High</option>
-      </select>
+        onChange={val => setSortBy(val)}
+        alignRight={true}
+      />
     </div>
   );
 
@@ -297,66 +871,48 @@ const CategoryList = ({ allVehicles }) => {
 
       <div className="sidebar-section">
         <div className="section-heading">
-          <h4 className="sidebar-title">Location</h4>
-          <span>{selectedLocations.length || locations.length}</span>
+          <h4 className="sidebar-title">Location (District)</h4>
+          {selectedLocations.length > 0 && <span>{selectedLocations.length}</span>}
         </div>
-        <label className="input-with-icon">
-          <Search aria-hidden="true" />
-          <input
-            className="input"
-            placeholder="Search location"
-            value={locationSearch}
-            onChange={event => setLocationSearch(event.target.value)}
-          />
-        </label>
-        <div className="checkbox-list">
-          {filteredLocations.length ? (
-            filteredLocations.map(location => (
-              <label key={location} className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={selectedLocations.includes(location)}
-                  onChange={() => handleCheck(location, setSelectedLocations)}
-                />
-                <span>{location}</span>
-              </label>
-            ))
-          ) : (
-            <div className="option-empty">No locations found</div>
-          )}
-        </div>
+        <CustomSearchDropdown
+          options={SRI_LANKA_DISTRICTS}
+          selectedValues={selectedLocations}
+          onSelect={val => setSelectedLocations(prev => [...prev, val])}
+          placeholder="Select district"
+          searchPlaceholder="Search district..."
+        />
+        {selectedLocations.length > 0 && (
+          <div className="selected-tags">
+            {selectedLocations.map(loc => (
+              <button key={loc} type="button" className="selected-tag" onClick={() => setSelectedLocations(prev => prev.filter(l => l !== loc))}>
+                {loc} <X className="tag-x" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="sidebar-section">
         <div className="section-heading">
           <h4 className="sidebar-title">Manufacturer</h4>
-          <span>{selectedMakes.length || makes.length}</span>
+          {selectedMakes.length > 0 && <span>{selectedMakes.length}</span>}
         </div>
-        <label className="input-with-icon">
-          <Search aria-hidden="true" />
-          <input
-            className="input"
-            placeholder="Search manufacturer"
-            value={makeSearch}
-            onChange={event => setMakeSearch(event.target.value)}
-          />
-        </label>
-        <div className="checkbox-list">
-          {filteredMakes.length ? (
-            filteredMakes.map(make => (
-              <label key={make} className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={selectedMakes.includes(make)}
-                  onChange={() => handleCheck(make, setSelectedMakes)}
-                />
-                <span>{make}</span>
-              </label>
-            ))
-          ) : (
-            <div className="option-empty">No manufacturers found</div>
-          )}
-        </div>
+        <CustomSearchDropdown
+          options={COMMON_BRANDS}
+          selectedValues={selectedMakes}
+          onSelect={val => setSelectedMakes(prev => [...prev, val])}
+          placeholder="Select brand"
+          searchPlaceholder="Search brand..."
+        />
+        {selectedMakes.length > 0 && (
+          <div className="selected-tags">
+            {selectedMakes.map(mk => (
+              <button key={mk} type="button" className="selected-tag" onClick={() => setSelectedMakes(prev => prev.filter(m => m !== mk))}>
+                {mk} <X className="tag-x" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="sidebar-section">
@@ -364,23 +920,64 @@ const CategoryList = ({ allVehicles }) => {
           <h4 className="sidebar-title">Year Manufactured</h4>
         </div>
         <div className="dual-input">
-          <input className="input" type="number" inputMode="numeric" placeholder="Min" value={yearMin} onChange={event => setYearMin(event.target.value)} />
-          <input className="input" type="number" inputMode="numeric" placeholder="Max" value={yearMax} onChange={event => setYearMax(event.target.value)} />
+          <YearPickerPopover
+            value={yearMin}
+            onChange={setYearMin}
+            placeholder="Min Year"
+            maxAllowed={yearMax}
+          />
+          <YearPickerPopover
+            value={yearMax}
+            onChange={setYearMax}
+            placeholder="Max Year"
+            minAllowed={yearMin}
+            alignRight={true}
+          />
         </div>
       </div>
 
       <div className="sidebar-section">
         <div className="section-heading">
-          <h4 className="sidebar-title">Price</h4>
+          <h4 className="sidebar-title">Price Rate Selection</h4>
         </div>
-        <div className="dual-input">
-          <input className="input" type="number" inputMode="numeric" placeholder="Min" value={priceMin} onChange={event => setPriceMin(event.target.value)} />
-          <input className="input" type="number" inputMode="numeric" placeholder="Max" value={priceMax} onChange={event => setPriceMax(event.target.value)} />
+        <div style={{ marginBottom: '12px' }}>
+          <CustomSelectDropdown
+            options={PRICE_PRESET_OPTIONS}
+            value={
+              localMin === 0 && localMax === 100000 ? '0-100000' :
+              localMin === 100000 && localMax === 300000 ? '100000-300000' :
+              localMin === 300000 && localMax === 500000 ? '300000-500000' :
+              localMin === 500000 && localMax === 1000000 ? '500000-1000000' :
+              localMin === 1000000 && localMax === MAX_SLIDER_LIMIT ? '1000000+' :
+              'custom'
+            }
+            onChange={val => {
+              if (val === '0-100000') { setLocalMin(0); setLocalMax(100000); setPriceMin(''); setPriceMax('100000'); }
+              else if (val === '100000-300000') { setLocalMin(100000); setLocalMax(300000); setPriceMin('100000'); setPriceMax('300000'); }
+              else if (val === '300000-500000') { setLocalMin(300000); setLocalMax(500000); setPriceMin('300000'); setPriceMax('500000'); }
+              else if (val === '500000-1000000') { setLocalMin(500000); setLocalMax(1000000); setPriceMin('500000'); setPriceMax('1000000'); }
+              else if (val === '1000000+') { setLocalMin(1000000); setLocalMax(MAX_SLIDER_LIMIT); setPriceMin('1000000'); setPriceMax(''); }
+              else if (val === '') { setLocalMin(0); setLocalMax(MAX_SLIDER_LIMIT); setPriceMin(''); setPriceMax(''); }
+            }}
+          />
         </div>
+
+        {/* Real-time zero-latency smooth dual price slider (NO API CALL) */}
+        <SmoothPriceSlider
+          min={0}
+          max={MAX_SLIDER_LIMIT}
+          step={50000}
+          valueMin={localMin}
+          valueMax={localMax}
+          onChange={(newMin, newMax) => {
+            setLocalMin(newMin);
+            setLocalMax(newMax);
+          }}
+        />
       </div>
 
       <div className={isMobile ? 'drawer-actions' : 'filter-actions'}>
-        <button className="btn btn-primary" onClick={() => setMobileFiltersOpen(false)} type="button">
+        <button className="btn btn-primary" onClick={() => { setMobileFiltersOpen(false); fetchVehicles(); }} type="button">
           Apply filters
         </button>
         <button className="btn btn-reset" type="button" onClick={resetFilters}>
@@ -411,12 +1008,11 @@ const CategoryList = ({ allVehicles }) => {
             <h1>{label} for sale in Sri Lanka</h1>
             <p>
               <strong>{count}</strong> matching {count === 1 ? 'listing' : 'listings'}
-              {vehiclesOfType.length !== count ? ` from ${vehiclesOfType.length} total` : ''}
             </p>
           </div>
           <div className="heading-stat">
-            <span>{vehiclesOfType.length}</span>
-            <small>Total listings</small>
+            <span>{count}</span>
+            <small>Active results</small>
           </div>
         </section>
 
@@ -471,20 +1067,27 @@ const CategoryList = ({ allVehicles }) => {
           </aside>
 
           <section className="list-area" aria-live="polite">
-            <div className="cards">
-              {filteredVehicles.map(vehicle => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} horizontal />
-              ))}
-              {!filteredVehicles.length && (
-                <div className="empty">
-                  <h3>No {label.toLowerCase()} found</h3>
-                  <p>Try removing a filter or searching a different model.</p>
-                  <button className="btn btn-primary" type="button" onClick={resetFilters}>
-                    Reset filters
-                  </button>
-                </div>
-              )}
-            </div>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
+                <Loader2 className="animate-spin" style={{ width: '36px', height: '36px', color: '#ffd600' }} />
+                <span style={{ color: '#64748b', fontWeight: 500 }}>Fetching listings from server...</span>
+              </div>
+            ) : (
+              <div className="cards">
+                {displayVehicles.map(vehicle => (
+                  <VehicleCard key={vehicle.id} vehicle={vehicle} horizontal />
+                ))}
+                {!displayVehicles.length && (
+                  <div className="empty">
+                    <h3>No {label.toLowerCase()} found</h3>
+                    <p>Try removing a filter or searching a different model.</p>
+                    <button className="btn btn-primary" type="button" onClick={resetFilters}>
+                      Reset filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         </div>
       </div>

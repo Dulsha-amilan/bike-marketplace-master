@@ -35,8 +35,22 @@ async function request(path, options) {
   return res.json();
 }
 
-export function getVehicles() {
-  return request('/vehicles', { method: 'GET' });
+export function getVehicles(params = {}) {
+  const query = new URLSearchParams();
+  Object.keys(params).forEach(key => {
+    const val = params[key];
+    if (val !== undefined && val !== null && val !== '') {
+      if (Array.isArray(val)) {
+        if (val.length > 0) {
+          query.append(key, val.join(','));
+        }
+      } else {
+        query.append(key, val);
+      }
+    }
+  });
+  const queryString = query.toString();
+  return request(`/vehicles${queryString ? `?${queryString}` : ''}`, { method: 'GET' });
 }
 
 export function getVehicleById(id) {

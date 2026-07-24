@@ -29,7 +29,7 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) 
     }, []);
 
     return (
-        <div className="relative min-h-[650px] flex items-center justify-center overflow-hidden bg-black text-white pb-12 lg:pb-0">
+        <div className="hero-container relative min-h-[680px] lg:min-h-[720px] flex items-center justify-center overflow-hidden bg-black text-white pb-12 lg:pb-0">
             {/* Background Videos */}
             <div className="absolute inset-0 overflow-hidden">
                 {/* Desktop Video (visible on md screens and larger) */}
@@ -118,11 +118,10 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick }) 
                                         navigate('/post-ad');
                                     }
                                 }}
-                                className="group relative inline-flex min-h-[48px] items-center justify-center gap-2 overflow-hidden rounded-full border border-white/35 bg-white/15 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 active:scale-[0.98]"
+                                className="mobile-post-ad-btn group"
                             >
-                                <span className="absolute inset-0 bg-gradient-to-br from-white/35 via-white/10 to-yellow-400/20 opacity-90" />
-                                <span className="absolute -left-8 top-0 h-full w-14 rotate-12 bg-white/35 blur-md transition-transform duration-500 group-hover:translate-x-44" />
-                                <PlusCircle className="relative z-10 h-5 w-5 text-yellow-300" />
+                                <span className="shimmer-ray" />
+                                <PlusCircle className="btn-icon-yellow relative z-10 h-5 w-5" />
                                 <span className="relative z-10">{translations.postAd}</span>
                             </button>
                         </div>

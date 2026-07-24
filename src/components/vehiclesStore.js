@@ -14,11 +14,11 @@ export function VehiclesProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const refreshVehicles = useCallback(async () => {
+  const refreshVehicles = useCallback(async (params = {}) => {
     setLoading(true);
     setError('');
     try {
-      const list = await getVehicles();
+      const list = await getVehicles(params);
       setVehicles(Array.isArray(list) ? list : []);
     } catch (e) {
       console.error(e);
