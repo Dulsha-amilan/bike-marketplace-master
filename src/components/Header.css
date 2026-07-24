@@ -41,7 +41,8 @@
 /* Authentic Frosted Glass Capsule with Soft Golden Reflective Tint */
 .header-content {
   pointer-events: auto;
-  max-width: 1280px;
+  width: calc(100% - 2rem);
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -664,6 +665,40 @@
 }
 
 /* Responsiveness */
+@media (min-width: 1536px) {
+  .header-content {
+    max-width: 1720px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .header-content {
+    width: calc(100% - 1.5rem);
+    max-width: 1220px;
+    padding: 0.4rem 1rem;
+  }
+
+  .desktop-nav {
+    gap: 0.45rem;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.84rem;
+  }
+
+  .header-login-btn,
+  .header-register-btn {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .cta-button {
+    padding: 0.48rem 1.1rem;
+    font-size: 0.82rem;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     padding: 0.5rem 0.75rem;

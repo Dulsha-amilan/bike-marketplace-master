@@ -5,7 +5,13 @@
 }
 
 .featured-listings .container {
-  max-width: 1320px;
+  max-width: 1200px;
+}
+
+@media (min-width: 1536px) {
+  .featured-listings .container {
+    max-width: 1720px;
+  }
 }
 
 .featured-shell {

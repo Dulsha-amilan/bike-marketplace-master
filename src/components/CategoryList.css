@@ -16,7 +16,13 @@
 }
 
 .category-page .container {
-  max-width: 1280px;
+  max-width: 1200px;
+}
+
+@media (min-width: 1536px) {
+  .category-page .container {
+    max-width: 1720px;
+  }
 }
 
 .category-page .desktop-only {
