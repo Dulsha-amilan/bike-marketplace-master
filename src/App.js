@@ -274,13 +274,11 @@ function AppContent() {
             />
 
             <section
-              className="filters-section mt-6 lg:mt-[-40px] relative z-20"
+              className="filters-section mt-6 lg:mt-[-52px] relative z-20"
               aria-label={`${translations[language].categories} filters`}
             >
               <div className="container">
-                <div className="glass-filters glass-panel shadow-xl border-t border-white/20">
-                  <QuickFilters translations={translations[language]} />
-                </div>
+                <QuickFilters translations={translations[language]} />
               </div>
             </section>
 
