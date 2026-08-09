@@ -40,7 +40,7 @@ const VehicleLightbox = ({ allImages, title, currentImageIndex, closeLightbox, p
     <div className="relative max-w-5xl max-h-[85vh] w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
       <img
         src={allImages[currentImageIndex]}
-        alt={`${title} photo ${currentImageIndex + 1}`}
+        alt={`${title} ${currentImageIndex + 1}`}
         className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
       />
 

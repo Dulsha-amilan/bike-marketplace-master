@@ -21,7 +21,7 @@ import {
   Upload, CheckCircle, Image as ImageIcon, MapPin, Phone, 
   Bike, DollarSign, Calendar, Gauge, Fuel, Settings, Layers,
   ChevronLeft, ChevronRight, Check, Trash2, Eye, AlertCircle,
-  Camera, ClipboardCheck, ShieldCheck, Users, Timer, Sparkles
+  Camera, ClipboardCheck, ShieldCheck, Users, Timer
 } from 'lucide-react';
 import BoostPostModal from './BoostPostModal';
 

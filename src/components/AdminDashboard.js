@@ -584,7 +584,7 @@ const AdminDashboard = () => {
   const handleUpdateBoostRequest = async (requestId, newStatus) => {
     setActionLoading(true);
     try {
-      const res = await updateBoostRequestStatus(requestId, newStatus);
+      await updateBoostRequestStatus(requestId, newStatus);
       setBoostRequests(boostRequests.map(r => r.id === requestId ? { ...r, status: newStatus } : r));
       showToast(`Boost request ${newStatus} successfully!`);
       // Reload vehicles data so any updated boost properties are reflected
