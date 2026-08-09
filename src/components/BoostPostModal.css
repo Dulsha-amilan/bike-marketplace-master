@@ -1,0 +1,203 @@
+/* BoostPostModal.css */
+.boost-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background-color: rgba(11, 21, 48, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+  animation: boostFadeIn 0.25s ease-out forwards;
+}
+
+@keyframes boostFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.boost-modal-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100vh - 3rem);
+  margin: auto;
+  overflow-y: auto;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  position: relative;
+  animation: boostScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes boostScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.boost-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.boost-modal-close-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.boost-modal-close-btn:hover {
+  background: #0b1530;
+  color: #ffffff;
+  border-color: #0b1530;
+}
+
+/* Steps Indicator */
+.boost-steps-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.75rem 1.75rem;
+  background: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.boost-step-pill {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.boost-step-pill.active {
+  background: #0b1530;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(11, 21, 48, 0.15);
+}
+
+.boost-step-pill.inactive {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+/* Package Cards */
+.boost-package-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.boost-package-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.boost-package-card.selected {
+  border-color: #0b1530;
+  background: #f8fafc;
+  box-shadow: 0 12px 30px -8px rgba(11, 21, 48, 0.12);
+}
+
+.boost-package-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.boost-package-badge.bump {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.boost-package-badge.pinned {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+.boost-package-badge.urgent {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Bank Box */
+.bank-account-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bank-copy-btn {
+  padding: 6px 12px;
+  background: #fef08a;
+  color: #0f172a;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bank-copy-btn:hover {
+  background: #fde047;
+}
+
+/* Custom Scrollbar for modal */
+.boost-modal-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.boost-modal-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.boost-modal-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}

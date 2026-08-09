@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Bike,
@@ -17,14 +17,19 @@ import {
   MapPin,
   MessageCircle,
   Palette,
+  Pencil,
   Phone,
   Settings,
   Share2,
   ShieldCheck,
   Wrench,
+  Sparkles,
+  Clock,
 } from 'lucide-react';
+import BoostPostModal from './BoostPostModal';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { getVehicleById } from '../api/bikeApi';
+import { useAuth } from './AuthContext';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import './VehicleDetails.css';
 import verifiedIcon from '../Images/verififedbutton.png';
@@ -79,12 +84,14 @@ const buildDescription = vehicle => {
 const VehicleDetails = ({ allVehicles = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [idx, setIdx] = useState(0);
   const [remoteVehicle, setRemoteVehicle] = useState(null);
   const [remoteError, setRemoteError] = useState('');
   const [saved, setSaved] = useState(false);
   const [shareMessage, setShareMessage] = useState('');
+  const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -255,6 +262,64 @@ const VehicleDetails = ({ allVehicles = [] }) => {
             <ArrowLeft size={18} aria-hidden="true" />
             Back to listings
           </button>
+          {user && activeVehicle?.userId && String(user.id) === String(activeVehicle.userId) && (
+            <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              {activeVehicle.boostRequests?.some(r => r.status === 'pending') ? (
+                <button
+                  type="button"
+                  onClick={() => setIsBoostModalOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    color: '#D97706',
+                    border: '1px solid rgba(245, 158, 11, 0.6)',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Clock size={15} className="animate-pulse" />
+                  Boost Pending Review
+                </button>
+              ) : (!activeVehicle.approvalStatus || activeVehicle.approvalStatus === 'approved') ? (
+                <button
+                  type="button"
+                  onClick={() => setIsBoostModalOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: '#0B1530',
+                    color: '#F59E0B',
+                    border: '1px solid rgba(245, 158, 11, 0.5)',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(11,21,48,0.2)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Sparkles size={15} />
+                  Boost Listing
+                </button>
+              ) : null}
+              <Link
+                to={`/edit-vehicle/${id}`}
+                className="vd-back-link"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#0ea5e9', color: '#fff', padding: '8px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '13px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(14,165,233,0.2)' }}
+              >
+                <Pencil size={15} />
+                Edit Listing
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="vd-layout">
@@ -335,9 +400,144 @@ const VehicleDetails = ({ allVehicles = [] }) => {
               </div>
 
               <div className="vd-price-box">
-                <span>Price</span>
-                <strong>{formatPrice(activeVehicle.price)}</strong>
+                <span className="vd-price">{formatPrice(activeVehicle.price)}</span>
+                {activeVehicle.negotiable && (
+                  <span className="vd-price-badge">Negotiable</span>
+                )}
               </div>
+
+              {/* Boost Post Banner for Owner */}
+              {user && activeVehicle?.userId && String(user.id) === String(activeVehicle.userId) && (
+                activeVehicle.boostRequests?.some(r => r.status === 'pending') ? (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.15) 100%)',
+                    border: '1.5px solid rgba(245, 158, 11, 0.4)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    margin: '16px 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '10px',
+                        background: '#FEF3C7',
+                        color: '#D97706',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '900',
+                        fontSize: '16px',
+                        flexShrink: 0
+                      }}>
+                        ⏳
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '900', color: '#0F172A' }}>
+                          Boost Pending Review
+                        </h4>
+                        <p style={{ margin: '2px 0 0', fontSize: '11px', fontWeight: '600', color: '#475569' }}>
+                          Bank slip submitted. Awaiting admin audit.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsBoostModalOpen(true)}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: '#0B1530',
+                        color: '#FFC700',
+                        border: '1px solid rgba(255, 199, 0, 0.4)',
+                        borderRadius: '12px',
+                        fontWeight: '800',
+                        fontSize: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(11, 21, 48, 0.15)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <Clock size={15} color="#FFC700" />
+                      View Pending Audit Status
+                    </button>
+                  </div>
+                ) : (!activeVehicle.approvalStatus || activeVehicle.approvalStatus === 'approved') ? (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.25) 100%)',
+                    border: '1.5px solid rgba(245, 158, 11, 0.5)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    margin: '16px 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '10px',
+                        background: '#0B1530',
+                        color: '#FFC700',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '900',
+                        fontSize: '16px',
+                        flexShrink: 0
+                      }}>
+                        💥
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '900', color: '#0F172A' }}>
+                          Promote & Boost Ad
+                        </h4>
+                        <p style={{ margin: '2px 0 0', fontSize: '11px', fontWeight: '600', color: '#475569' }}>
+                          Page 1 bump, Top Pinning, or Urgent Tag.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsBoostModalOpen(true)}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: '#0B1530',
+                        color: '#FFC700',
+                        border: '1px solid rgba(255, 199, 0, 0.4)',
+                        borderRadius: '12px',
+                        fontWeight: '800',
+                        fontSize: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(11, 21, 48, 0.15)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <Sparkles size={15} color="#FFC700" />
+                      Boost Listing Now (From Rs. 300)
+                    </button>
+                  </div>
+                ) : null
+              )}
 
               <div className="vd-hero-facts" aria-label="Quick vehicle facts">
                 {heroFacts.map(fact => (
@@ -493,6 +693,13 @@ const VehicleDetails = ({ allVehicles = [] }) => {
           </aside>
         </div>
       </div>
+
+      {/* Boost Post Modal Component */}
+      <BoostPostModal
+        isOpen={isBoostModalOpen}
+        onClose={() => setIsBoostModalOpen(false)}
+        vehicle={activeVehicle}
+      />
 
       {(phoneDigits || whatsappNumber) && (
         <div className="vd-mobile-contact-bar" aria-label="Quick contact actions">

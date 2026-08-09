@@ -72,6 +72,13 @@ export function patchVehicle(id, payload) {
   });
 }
 
+export function updateVehicleWithFormData(id, formData) {
+  return request(`/vehicles/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: formData,
+  });
+}
+
 export function deleteVehicle(id) {
   return request(`/vehicles/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
@@ -231,3 +238,44 @@ export function updateMyApprovedMembershipRequest(formData) {
     body: formData,
   });
 }
+
+/* Boost Post Request API endpoints */
+export function submitBoostPostRequest(formData) {
+  return request('/boost-requests', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export function getMyBoostRequests() {
+  return request('/boost-requests/my', { method: 'GET' });
+}
+
+export function getAdminBoostRequests() {
+  return request('/boost-requests', { method: 'GET' });
+}
+
+export function updateBoostRequestStatus(id, status) {
+  return request(`/boost-requests/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+/* Ad Banner Manager API endpoints */
+export function getAdBanners() {
+  return request('/ads', { method: 'GET' });
+}
+
+export function getAdminAdBanners() {
+  return request('/admin/ads', { method: 'GET' });
+}
+
+export function updateAdBanner(slotId, payload) {
+  return request(`/admin/ads/${encodeURIComponent(slotId)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+

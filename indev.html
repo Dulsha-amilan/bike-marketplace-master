@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Eka - Classifieds Marketplace</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Open Sans', sans-serif; background-color: #f4f5f7; }
+        .brand-yellow { background-color: #ffcc00; }
+        .text-price { color: #00847d; }
+        .bg-member { background-color: #f7ca18; }
+        .bg-verified { background-color: #2bbbad; }
+        
+        .featured-card {
+            border: 2px solid #eab308 !important;
+            background-color: #fefce8;
+        }
+        .promoted-border {
+            border: 1px solid #fde047;
+            background-color: #fffdf0;
+        }
+        
+        .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .feed-scroll-container {
+            max-height: 82vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Standard Ad Banner Custom Styles */
+        .ad-banner-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+        .ad-tag {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #94a3b8;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 text-slate-800">
+
+    <!-- ====================================================
+         1. SYSTEM TICKER HEADER
+         ==================================================== -->
+    <div class="bg-slate-900 text-white text-[11px] py-1.5 px-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center gap-3 overflow-x-auto">
+            <span class="flex items-center gap-1.5 font-bold text-green-400 whitespace-nowrap">
+                <span class="live-dot animate-pulse"></span> SYSTEM LIVE
+            </span>
+            <span class="text-slate-700">|</span>
+            <span class="text-slate-300 font-mono whitespace-nowrap">Active Buyers: <strong id="sys-searches" class="text-white">1,429</strong></span>
+            <span class="text-slate-700">|</span>
+            <span class="text-slate-300 font-mono whitespace-nowrap">Loaded Listings: <strong id="sys-listings-total" class="text-yellow-400 font-bold">50</strong></span>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-slate-400 text-[10px]">
+            <span>🏦 Bank Direct Deposit Portal (Perera G.C.B.U.)</span>
+            <span class="bg-slate-800 text-green-400 px-2 py-0.5 rounded font-mono">Status: Active</span>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         2. NAVIGATION HEADER
+         ==================================================== -->
+    <div class="brand-yellow w-full shadow-sm border-b border-yellow-500 sticky top-[30px] z-30">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex justify-between items-center">
+            <div onclick="resetView()" class="flex items-center gap-2 cursor-pointer">
+                <div class="bg-black text-white font-black text-base px-3 py-1 rounded-md tracking-tighter flex items-center gap-1.5 shadow-sm">
+                    <span class="text-red-500">🏍️</span>BIKE EKA<span class="text-[10px] text-yellow-400 font-bold">.COM</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAdminDrawer()" class="text-xs font-bold text-slate-900 bg-black/10 hover:bg-black/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                    👤 My Account (<span id="user-ads-count">50</span>)
+                </button>
+                <button onclick="openPostAdModal()" class="bg-slate-900 hover:bg-black text-yellow-400 text-xs font-black px-4 py-1.5 rounded-lg transition-all shadow-md uppercase tracking-wider">
+                    + Post Your Ad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         TOP LEADERBOARD BANNER AD PLACEMENT
+         ==================================================== -->
+    <div class="max-w-6xl mx-auto my-3 px-4 flex justify-center">
+        <!-- Desktop Leaderboard (970x90) -->
+        <div class="hidden sm:flex ad-banner-box w-[970px] h-[90px] rounded-lg items-center justify-between p-4 shadow-sm border border-slate-300 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white cursor-pointer hover:opacity-95 transition-all">
+            <span class="ad-tag">Ad • Leaderboard (970x90)</span>
+            <div class="flex items-center gap-4">
+                <div class="bg-yellow-400 text-slate-950 p-2 rounded-lg font-black text-xl">
+                    🔥 MEGA SALE
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-sm text-yellow-400 uppercase tracking-wide">Upgrade Your Ride Today!</h4>
+                    <p class="text-xs text-slate-300">Get up to 30% off genuine motorcycle parts & riding gear.</p>
+                </div>
+            </div>
+            <button class="brand-yellow text-slate-950 font-black text-xs px-4 py-2 rounded-lg shadow hover:bg-yellow-400 transition-all">
+                Shop Now ➔
+            </button>
+        </div>
+
+        <!-- Mobile Leaderboard (320x50) -->
+        <div class="sm:hidden flex ad-banner-box w-[320px] h-[50px] rounded-lg items-center justify-between px-3 shadow-sm border border-slate-300 bg-slate-900 text-white cursor-pointer">
+            <span class="ad-tag">Ad (320x50)</span>
+            <div class="text-left">
+                <h4 class="font-bold text-xs text-yellow-400">Helmet Special Offer</h4>
+                <p class="text-[10px] text-slate-300">Flat 20% OFF on Certified Helmets</p>
+            </div>
+            <span class="bg-yellow-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded">GO</span>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         3. CLASSIFIEDS FILTER CONTROL BAR
+         ==================================================== -->
+    <div class="bg-white border-y border-slate-200 py-3 px-4 shadow-xs">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+            
+            <!-- Category Filter Pills -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="bg-emerald-50 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                    <span>Motorbikes & Scooters</span>
+                    <button class="hover:text-red-500 font-bold ml-1">✕</button>
+                </div>
+
+                <select id="filter-poster" onchange="applyFilters()" class="border border-slate-300 rounded-full px-3 py-1 bg-white font-semibold text-slate-700 hover:border-slate-400 focus:outline-none">
+                    <option value="all">Type of poster</option>
+                    <option value="private">Member / Private</option>
+                    <option value="dealer">Verified Seller / Dealer</option>
+                </select>
+
+                <select id="filter-promoted" onchange="applyFilters()" class="border border-slate-300 rounded-full px-3 py-1 bg-white font-semibold text-slate-700 hover:border-slate-400 focus:outline-none">
+                    <option value="all">Promoted Listings</option>
+                    <option value="topad">Top Ads Only</option>
+                    <option value="urgent">Urgent Ads Only</option>
+                </select>
+
+                <select id="filter-sort" onchange="applyFilters()" class="border border-slate-300 rounded-full px-3 py-1 bg-white font-semibold text-slate-700 hover:border-slate-400 focus:outline-none">
+                    <option value="newest">Sort by: Date (Newest)</option>
+                    <option value="price-low">Sort by: Price (Low to High)</option>
+                    <option value="price-high">Sort by: Price (High to Low)</option>
+                </select>
+            </div>
+
+            <!-- Dashboard Button -->
+            <button onclick="openRotationDiagnostics()" class="text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1 text-[11px]">
+                ⚙️ Rotation Matrix
+            </button>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         4. MAIN CONTENT AREA (CLASSIFIEDS + SKYSCRAPER SIDEBAR)
+         ==================================================== -->
+    <main class="max-w-6xl mx-auto px-4 pt-4">
+
+        <!-- Search Results Count Banner -->
+        <div class="flex justify-between items-center mb-3 text-xs font-semibold text-slate-600">
+            <span id="results-summary">Showing 1-50 of 50 ads</span>
+            <button class="text-sky-700 font-bold hover:underline flex items-center gap-1">
+                🔖 Save search
+            </button>
+        </div>
+
+        <!-- MAIN LAYOUT: LISTINGS (LEFT) + SKYSCRAPER AD (RIGHT) -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+            
+            <!-- SCROLLABLE LIST CONTAINER (3/4 WIDTH) -->
+            <div class="lg:col-span-3 feed-scroll-container pr-1">
+                <div id="main-list-feed" class="flex flex-col gap-3">
+                    <!-- Dynamic Content Injected via JS -->
+                </div>
+
+                <!-- IN-FEED LARGE MOBILE BANNER AD (320x100) -->
+                <div class="my-4 p-3 bg-white border border-slate-200 rounded-xl shadow-xs flex justify-center">
+                    <div class="ad-banner-box w-full max-w-[320px] h-[100px] rounded-lg p-3 flex flex-col justify-between text-white bg-gradient-to-br from-emerald-900 to-slate-900 cursor-pointer">
+                        <span class="ad-tag">Ad • Large Mobile Banner (320x100)</span>
+                        <div>
+                            <h4 class="font-extrabold text-xs text-emerald-400">Motor Insurance Quick Quote</h4>
+                            <p class="text-[10px] text-slate-300 mt-0.5">Instant coverage & lowest premiums for 2-wheelers.</p>
+                        </div>
+                        <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-[10px] py-1 px-3 rounded self-end uppercase">
+                            Get Quote ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDEBAR: SKYSCRAPER & SQUARE ADS (1/4 WIDTH) -->
+            <aside class="hidden lg:flex flex-col gap-4 sticky top-[100px]">
+                
+                <!-- Skyscraper Ad Banner (160x600) -->
+                <div class="ad-banner-box w-[160px] h-[600px] mx-auto rounded-xl flex flex-col justify-between p-4 text-center text-white bg-gradient-to-b from-slate-900 via-sky-950 to-slate-900 border border-slate-700 shadow-md">
+                    <span class="ad-tag">Ad • Skyscraper (160x600)</span>
+                    
+                    <div class="mt-6 space-y-3">
+                        <div class="text-3xl">🛡️</div>
+                        <h4 class="font-black text-sm text-sky-400 uppercase leading-tight">Bike Leasing & Finance</h4>
+                        <p class="text-[11px] text-slate-300 leading-snug">Same day approval with minimum documentation.</p>
+                    </div>
+
+                    <div class="my-auto bg-slate-800/80 p-2 rounded-lg border border-slate-700">
+                        <span class="text-[10px] text-slate-400 block uppercase">Rates from</span>
+                        <span class="text-lg font-black text-yellow-400">11.5%</span>
+                    </div>
+
+                    <div class="mb-4 space-y-2">
+                        <button class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs py-2 rounded-lg uppercase transition-all shadow">
+                            Apply Now
+                        </button>
+                        <span class="text-[9px] text-slate-400 block">Terms & conditions apply</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Square Banner Ad (250x250) -->
+                <div class="ad-banner-box w-[250px] h-[250px] mx-auto rounded-xl p-4 flex flex-col justify-between text-white bg-gradient-to-br from-amber-950 via-slate-900 to-slate-950 border border-slate-700 shadow-sm">
+                    <span class="ad-tag">Ad • Square (250x250)</span>
+                    <div>
+                        <span class="text-[10px] bg-amber-500 text-slate-950 font-black px-1.5 py-0.5 rounded">NEW</span>
+                        <h4 class="font-extrabold text-sm text-yellow-400 mt-2">Certified Pre-Owned Guarantee</h4>
+                        <p class="text-xs text-slate-300 mt-1">Multi-point inspection on all verified dealer bikes.</p>
+                    </div>
+                    <button class="w-full brand-yellow hover:bg-yellow-400 text-slate-950 font-black text-xs py-2 rounded-lg shadow uppercase">
+                        Browse Verified
+                    </button>
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+    <!-- ====================================================
+         5. VIEWER AD DETAILS MODAL (BUYER'S PERSPECTIVE)
+         ==================================================== -->
+    <div id="ad-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl relative border border-slate-100 max-h-[92vh] overflow-y-auto">
+            <button onclick="closeModal('ad-viewer-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-black text-2xl z-10">✕</button>
+
+            <!-- Location & Category Breadcrumb -->
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span id="view-loc-cat">Colombo, Motorbikes</span>
+                <span>•</span>
+                <span id="view-posted-time" class="text-amber-600">2 hours ago</span>
+            </div>
+
+            <!-- Title -->
+            <h2 id="view-title" class="text-xl sm:text-2xl font-black text-slate-900 leading-snug mb-3">Vehicle Listing Title</h2>
+
+            <!-- Media Gallery View -->
+            <div class="rounded-xl overflow-hidden bg-slate-100 mb-4 border border-slate-200">
+                <div class="h-64 sm:h-80 w-full relative">
+                    <img id="view-main-image" src="" alt="Vehicle Preview" class="w-full h-full object-cover">
+                    <div id="view-badges-bar" class="absolute top-3 left-3 flex gap-2">
+                        <!-- Dynamic Member / Verified / Urgent Badges -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price and Call-To-Action Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Asking Price</span>
+                    <div id="view-price" class="text-2xl font-black text-emerald-700 font-mono">Rs 0</div>
+                </div>
+
+                <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                    <!-- Phone Reveal Button -->
+                    <button id="view-phone-btn" onclick="revealPhoneNumberInViewer()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-5 py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 uppercase tracking-wide">
+                        <span>📞</span>
+                        <span id="view-phone-txt">Click to Show Phone Number</span>
+                    </button>
+                    <!-- Chat Button -->
+                    <button onclick="showToast('💬 WhatsApp Inquiry Opened!', 'success')" class="bg-slate-900 hover:bg-black text-white font-bold text-xs px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <span>💬 Chat</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vehicle Specs Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs mb-4">
+                <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold block">Condition / Specs</span>
+                    <strong id="view-spec-km" class="text-slate-800 font-bold">Brand New</strong>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold block">Seller Type</span>
+                    <strong id="view-spec-seller" class="text-slate-800 font-bold">Private Member</strong>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold block">Ad ID</span>
+                    <strong id="view-spec-id" class="text-slate-800 font-mono">#AD-9921</strong>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-5">
+                <h4 class="font-extrabold text-slate-900 text-xs uppercase tracking-wider mb-2">Item Overview & Features</h4>
+                <p id="view-description" class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    Excellent condition, well maintained vehicle. All regular service records available. Engine, gearbox, and body are in top-notch shape. Ideal for daily commuting or enthusiast riding. Serious buyers only. Price negotiable after inspection.
+                </p>
+            </div>
+
+            <!-- Safety Banner -->
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] p-3 rounded-xl flex items-start gap-2 mb-4">
+                <span class="text-base">🛡️</span>
+                <div>
+                    <strong>Safety Reminder for Buyers:</strong> Always inspect the vehicle in person and verify document ownership before transferring any advance payments.
+                </div>
+            </div>
+
+            <!-- Modal Footer Controls -->
+            <div class="border-t border-slate-100 pt-3 flex justify-between items-center text-xs">
+                <button onclick="openStatsInspector(activeViewerBikeId)" class="text-slate-500 hover:text-slate-900 font-bold underline text-[11px] flex items-center gap-1">
+                    📊 View Performance & Boost (Seller View)
+                </button>
+                <button onclick="closeModal('ad-viewer-modal')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-lg">
+                    Close Preview
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================
+         6. REAL-TIME STATS & BOOST INSPECTOR MODAL
+         ==================================================== -->
+    <div id="stats-inspector-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('stats-inspector-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-black text-xl">✕</button>
+
+            <div class="flex items-center gap-2 mb-1">
+                <span class="live-dot animate-pulse"></span>
+                <span class="text-[10px] font-black text-green-600 uppercase">Live Analytics Stream</span>
+            </div>
+            <h3 id="modal-bike-title" class="text-xl font-black text-slate-900">Bike Title</h3>
+            <p id="modal-bike-sub" class="text-xs text-slate-500 mb-4">Marketplace Performance Metrics</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Impressions</span>
+                    <strong id="modal-impressions" class="text-lg font-black text-slate-900 font-mono">0</strong>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Views</span>
+                    <strong id="modal-views" class="text-lg font-black text-slate-900 font-mono">0</strong>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Leads</span>
+                    <strong id="modal-phone" class="text-lg font-black text-amber-600 font-mono">0</strong>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block">CTR</span>
+                    <strong id="modal-ctr" class="text-lg font-black text-blue-600 font-mono">0%</strong>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 text-white rounded-xl p-3 mb-4 text-xs">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
+                    <span class="font-bold text-yellow-400">🎯 Feed Rank</span>
+                    <span id="modal-rank-badge" class="bg-yellow-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded">Rank</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Traffic Lift:</span>
+                    <strong id="modal-lift" class="text-yellow-400">1.0x</strong>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3">
+                <span class="text-xs font-black text-slate-800 uppercase block mb-2">🏦 Boost Promotion (Opens Bank Portal)</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="initiateBoostPayment(inspectedBikeId, 'bump')" class="bg-slate-100 hover:bg-yellow-100 border border-slate-300 text-slate-900 font-bold text-xs py-2 rounded-xl transition-all flex flex-col items-center">
+                        <span>💥 Apply Bump</span>
+                        <span class="text-[10px] text-amber-700 font-black">LKR 450</span>
+                    </button>
+                    <button onclick="initiateBoostPayment(inspectedBikeId, 'urgent')" class="bg-slate-100 hover:bg-red-100 border border-slate-300 text-slate-900 font-bold text-xs py-2 rounded-xl transition-all flex flex-col items-center">
+                        <span>🚨 Apply Urgent</span>
+                        <span class="text-[10px] text-red-700 font-black">LKR 1,200</span>
+                    </button>
+                    <button onclick="initiateBoostPayment(inspectedBikeId, 'topad')" class="brand-yellow hover:bg-yellow-400 text-slate-950 font-black text-xs py-2 rounded-xl transition-all flex flex-col items-center">
+                        <span>⭐ Pin Top Ad</span>
+                        <span class="text-[10px] text-slate-900 font-black">LKR 2,800</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         7. BANK DETAILS PORTAL & CHECKOUT MODAL
+         ==================================================== -->
+    <div id="payment-gateway-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('payment-gateway-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-black text-xl">✕</button>
+
+            <div class="flex items-center gap-1.5 mb-1 text-teal-700 font-black text-xs">
+                <span>🏦 OFFICIAL BANK TRANSFER & DEPOSIT PORTAL</span>
+            </div>
+            <h3 class="text-xl font-black text-slate-900">Boost Payment Verification</h3>
+            <p class="text-xs text-slate-500 mb-4">Transfer funds to the receiving account below and enter your payment details.</p>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-xs space-y-1.5">
+                <div class="flex justify-between text-slate-700">
+                    <span>Listing Title:</span>
+                    <strong id="pay-bike-title" class="text-slate-900 truncate max-w-[200px]">---</strong>
+                </div>
+                <div class="flex justify-between text-slate-700">
+                    <span>Selected Package:</span>
+                    <strong id="pay-boost-name" class="text-slate-900 font-bold">---</strong>
+                </div>
+                <div class="border-t border-amber-200/80 pt-1.5 flex justify-between items-center font-black text-slate-900">
+                    <span>Deposit Amount:</span>
+                    <span id="pay-amount" class="text-base text-amber-700 font-mono">LKR 0</span>
+                </div>
+            </div>
+
+            <!-- OFFICIAL BANK DETAILS DISPLAY CARD -->
+            <div class="bg-slate-900 text-white rounded-xl p-4 mb-4 border border-slate-800 space-y-2.5 relative">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span class="text-[10px] font-black text-yellow-400 uppercase tracking-widest">Receiving Bank Account</span>
+                    <span class="bg-green-500/20 text-green-400 text-[9px] px-2 py-0.5 rounded font-mono font-bold">Active</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase">Bank Name</span>
+                        <strong class="text-white">Commercial Bank</strong>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase">Branch</span>
+                        <strong class="text-white">Wattala Branch</strong>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase">Account Name</span>
+                        <strong class="text-yellow-400 font-mono">Perera G.C.B.U.</strong>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase">Account Number</span>
+                        <div class="flex items-center gap-1">
+                            <strong class="text-white font-mono" id="bank-acc-num">800120045678</strong>
+                            <button onclick="copyToClipboard('800120045678', 'Account Number')" class="text-[9px] bg-slate-800 hover:bg-slate-700 text-yellow-400 px-1 py-0.5 rounded">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 border border-yellow-500/30 rounded-lg p-2 flex justify-between items-center mt-2">
+                    <div>
+                        <span class="text-[9px] text-slate-400 block uppercase font-bold">Mandatory Ref Code</span>
+                        <strong id="pay-ref-code" class="text-yellow-400 font-mono text-xs">REF-89421</strong>
+                    </div>
+                    <button onclick="copyToClipboard(document.getElementById('pay-ref-code').innerText, 'Reference Code')" class="brand-yellow text-slate-950 font-black text-[10px] px-2 py-1 rounded hover:bg-yellow-400 transition-all">
+                        📋 Copy Ref
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submission Form -->
+            <form onsubmit="processPaymentSubmit(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Your Name on Account / Slip</label>
+                    <input type="text" id="pay-depositor-name" required value="Clem Perera" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Bank / Slip Ref No.</label>
+                        <input type="text" id="pay-slip-ref" required value="TXN-998234" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Slip Attachment</label>
+                        <input type="file" id="pay-slip-file" class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[10px] bg-slate-50 focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" id="pay-submit-btn" class="w-full brand-yellow hover:bg-yellow-400 text-slate-950 font-black py-2.5 rounded-xl uppercase text-xs shadow-md transition-all mt-2">
+                    <span id="pay-btn-text">Submit Deposit Details & Activate Boost</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         8. ACCOUNT & SELLER DRAWER
+         ==================================================== -->
+    <div id="admin-drawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-slate-900 text-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+        <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+            <div>
+                <span class="text-[10px] font-black text-yellow-400 uppercase">Seller Dashboard</span>
+                <h3 class="text-base font-black text-white">Your Listed Vehicles (<span id="drawer-count">50</span>)</h3>
+            </div>
+            <button onclick="toggleAdminDrawer()" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+        </div>
+
+        <div id="drawer-listings-list" class="p-4 overflow-y-auto space-y-3 flex-1">
+            <!-- Dynamic listing rows injected here -->
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-slate-950">
+            <button onclick="openPostAdModal(); toggleAdminDrawer();" class="w-full brand-yellow hover:bg-yellow-400 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase transition-all">
+                + Post New Listing
+            </button>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         9. POST NEW AD MODAL
+         ==================================================== -->
+    <div id="post-ad-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('post-ad-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-black text-xl">✕</button>
+
+            <h3 class="text-xl font-black text-slate-900 mb-1">Post Your Vehicle Ad</h3>
+            <p class="text-xs text-slate-500 mb-4">Publish standard listing or select initial boosts.</p>
+
+            <form onsubmit="handleAdSubmission(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Vehicle Title</label>
+                    <input type="text" id="post-title" required placeholder="e.g. TVS Raider 125 2026" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Price (LKR)</label>
+                        <input type="text" id="post-price" required placeholder="189,000" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Location & Category</label>
+                        <input type="text" id="post-location" required placeholder="Colombo, Motorbikes" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Seller Type</label>
+                        <select id="post-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                            <option value="private">Member (Private)</option>
+                            <option value="dealer">Verified Seller (Dealer)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Phone Number</label>
+                        <input type="text" id="post-phone" required placeholder="0771234567" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1 text-[10px]">Image URL</label>
+                    <input type="url" id="post-image" placeholder="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                </div>
+
+                <div class="pt-1">
+                    <label class="block font-bold text-slate-700 uppercase mb-1.5 text-[10px]">Optional Launch Boosts</label>
+                    <div class="space-y-1.5 text-xs">
+                        <label class="flex items-center justify-between cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="post-is-topad" class="rounded text-amber-500">
+                                <span class="font-bold text-slate-800">Pin as Top Ad</span>
+                            </div>
+                            <span class="text-amber-700 font-bold">+ LKR 2,800</span>
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="post-is-urgent" class="rounded text-red-500">
+                                <span class="font-bold text-slate-800">Add Urgent Sale Tag</span>
+                            </div>
+                            <span class="text-red-700 font-bold">+ LKR 1,200</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full brand-yellow hover:bg-yellow-400 text-slate-950 font-black py-2.5 rounded-xl uppercase text-xs transition-all shadow-md mt-3">
+                    🚀 Publish Ad
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         10. ROTATION MATRIX DIAGNOSTICS MODAL
+         ==================================================== -->
+    <div id="rotation-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('rotation-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-black text-xl">✕</button>
+
+            <div class="flex items-center gap-2 mb-1">
+                <span class="live-dot animate-pulse"></span>
+                <span class="text-[10px] font-black text-slate-500 uppercase">Algorithm Status</span>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 mb-3">Rotation Matrix Active</h3>
+
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                The listing feed utilizes a dynamic score priority algorithm. Top Ads are pinned to high-visibility positions, Urgent items receive visual priority, and organic listings rotate based on engagement and recency.
+            </p>
+
+            <button onclick="closeModal('rotation-modal')" class="w-full bg-slate-900 text-white font-bold py-2 rounded-xl text-xs">
+                Close Diagnostics
+            </button>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         11. JAVASCRIPT LOGIC & 50 MOTORCYCLE MOCK DATA
+         ==================================================== -->
+    <script>
+        // 50 Full Mockup Motorcycle Listings
+        const allBikes = [
+            { id: 1, title: "TVS Apache RTR 160 4V", price: 685000, location: "Colombo", category: "Motorbikes", sellerType: "dealer", isTopAd: true, isUrgent: false, image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600", phone: "0771234567", views: 420, impressions: 3100, clicks: 125, date: "2026-07-29", description: "Brand new condition, dual disc ABS model, full service history available at TVS agency.", specKm: "1,200 km", specId: "#BK-5001" },
+            { id: 2, title: "Yamaha FZ-S Version 3", price: 545000, location: "Gampaha", category: "Motorbikes", sellerType: "private", isTopAd: true, isUrgent: true, image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600", phone: "0719876543", views: 610, impressions: 4500, clicks: 190, date: "2026-07-28", description: "Urgent sale due to migration. Mint condition, license & insurance valid till 2027.", specKm: "14,500 km", specId: "#BK-5002" },
+            { id: 3, title: "Honda Hornet 160R", price: 720000, location: "Kandy", category: "Motorbikes", sellerType: "dealer", isTopAd: false, isUrgent: true, image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600", phone: "0751122334", views: 350, impressions: 2100, clicks: 95, date: "2026-07-27", description: "Smooth engine, new tires installed last week. Price negotiable upon inspection.", specKm: "22,000 km", specId: "#BK-5003" },
+            { id: 4, title: "Bajaj Pulsar NS 200", price: 890000, location: "Negombo", category: "Motorbikes", sellerType: "private", isTopAd: false, isUrgent: false, image: "https://images.unsplash.com/photo-1609630875172-2305d2633055?w=600", phone: "0785544332", views: 280, impressions: 1800, clicks: 70, date: "2026-07-26", description: "Well maintained liquid-cooled engine. Carefully ridden by enthusiast.", specKm: "18,900 km", specId: "#BK-5004" },
+            { id: 5, title: "TVS Ronin 225", price: 950000, location: "Colombo", category: "Motorbikes", sellerType: "dealer", isTopAd: true, isUrgent: false, image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600", phone: "0774433221", views: 512, impressions: 3800, clicks: 160, date: "2026-07-25", description: "Modern retro scrambler style. Connected cluster, ABS, USD forks.", specKm: "850 km", specId: "#BK-5005" },
+            { id: 6, title: "Suzuki Gixxer SF 250", price: 1250000, location: "Dehiwala", category: "Motorbikes", sellerType: "private", isTopAd: false, isUrgent: true, image: "https://images.unsplash.com/photo-1558980664-3a031cf67ea8?w=600", phone: "0703322119", views: 490, impressions: 2900, clicks: 135, date: "2026-07-24", description: "SOCS oil-cooled engine, sporty riding posture, immaculate condition.", specKm: "9,400 km", specId: "#BK-5006" },
+            { id: 7, title: "Hero Destini 125 Scooter", price: 345000, location: "Kurunegala", category: "Scooters", sellerType: "dealer", isTopAd: false, isUrgent: false, image: "https://images.unsplash.com/photo-1502745338662-7e04f08e1d2c?w=600", phone: "0721112233", views: 190, impressions: 1100, clicks: 45, date: "2026-07-23", description: "Great fuel economy, ideal daily commuter scooter with ample boot storage.", specKm: "6,000 km", specId: "#BK-5007" },
+            { id: 8, title: "Yamaha Ray ZR Street Rally", price: 410000, location: "Gampaha", category: "Scooters", sellerType: "private", isTopAd: false, isUrgent: false, image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600", phone: "0768899001", views: 230, impressions: 1400, clicks: 60, date: "2026-07-22", description: "Hybrid variant, digital dash, stylish rugged graphics.", specKm: "4,500 km", specId: "#BK-5008" },
+            { id: 9, title: "KTM Duke 250", price: 1450000, location: "Colombo", category: "Motorbikes", sellerType: "dealer", isTopAd: true, isUrgent: false, image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600", phone: "0779988776", views: 820, impressions: 5900, clicks: 240, date: "2026-07-21", description: "Aggressive streetfighter design, WP suspension, slipper clutch.", specKm: "7,200 km", specId: "#BK-5009" },
+            { id: 10, title: "Honda Dio Repsol Edition", price: 380000, location: "Kalutara", category: "Scooters", sellerType: "private", isTopAd: false, isUrgent: false, image: "https://images.unsplash.com/photo-1502745338662-7e04f08e1d2c?w=600", phone: "0714455667", views: 310, impressions: 1900, clicks: 88, date: "2026-07-20", description: "Limited Repsol graphics, CBS braking system, excellent mileage.", specKm: "11,000 km", specId: "#BK-5010" }
+        ];
+
+        // Automatically populate up to 50 items for complete demonstration
+        const baseBrands = [
+            { name: "Bajaj Pulsar 150", price: 490000, cat: "Motorbikes" },
+            { name: "TVS Star City Plus", price: 295000, cat: "Motorbikes" },
+            { name: "Honda CB Shine 125", price: 420000, cat: "Motorbikes" },
+            { name: "Yamaha FZ Version 2", price: 460000, cat: "Motorbikes" },
+            { name: "Suzuki Access 125", price: 390000, cat: "Scooters" },
+            { name: "Honda Grazia 125", price: 415000, cat: "Scooters" },
+            { name: "Royal Enfield Classic 350", price: 1650000, cat: "Motorbikes" },
+            { name: "CFMOTO 250NK", price: 1100000, cat: "Motorbikes" },
+            { name: "Hero Xpulse 200 4V", price: 920000, cat: "Motorbikes" },
+            { name: "Kawasaki W175", price: 850000, cat: "Motorbikes" }
+        ];
+
+        const locationsList = ["Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Negombo", "Ratnapura", "Anuradhapura", "Jaffna", "Kurunegala"];
+
+        for (let i = 11; i <= 50; i++) {
+            const template = baseBrands[(i - 11) % baseBrands.length];
+            allBikes.push({
+                id: i,
+                title: `${template.name} Model ${2020 + (i % 6)}`,
+                price: template.price + (i * 3500),
+                location: locationsList[i % locationsList.length],
+                category: template.cat,
+                sellerType: i % 3 === 0 ? "dealer" : "private",
+                isTopAd: i === 15 || i === 28 || i === 42,
+                isUrgent: i === 12 || i === 33,
+                image: i % 2 === 0 ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600" : "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600",
+                phone: `07${(Math.floor(Math.random() * 89999999) + 10000000)}`,
+                views: Math.floor(Math.random() * 400) + 80,
+                impressions: Math.floor(Math.random() * 2500) + 500,
+                clicks: Math.floor(Math.random() * 90) + 20,
+                date: `2026-07-${Math.max(1, 20 - (i % 20)) < 10 ? '0' + Math.max(1, 20 - (i % 20)) : Math.max(1, 20 - (i % 20))}`,
+                description: `Well maintained ${template.name}. Clear documents, smooth engine performance, recently serviced. Call for more info.`,
+                specKm: `${(i * 450) + 1200} km`,
+                specId: `#BK-${5000 + i}`
+            });
+        }
+
+        let activeViewerBikeId = null;
+        let inspectedBikeId = null;
+        let selectedBoostType = null;
+        let selectedBoostPrice = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderListings(allBikes);
+            updateStatsCounters();
+        });
+
+        function renderListings(bikesToRender) {
+            const container = document.getElementById("main-list-feed");
+            container.innerHTML = "";
+
+            if (bikesToRender.length === 0) {
+                container.innerHTML = `<div class="bg-white p-8 text-center rounded-xl text-slate-500 text-xs">No listings match your selected filter criteria.</div>`;
+                document.getElementById("results-summary").innerText = `Showing 0 of ${allBikes.length} ads`;
+                return;
+            }
+
+            document.getElementById("results-summary").innerText = `Showing 1-${bikesToRender.length} of ${allBikes.length} ads`;
+
+            bikesToRender.forEach(bike => {
+                const card = document.createElement("div");
+                card.className = `bg-white border rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row gap-4 items-center justify-between hover:shadow-md transition-all cursor-pointer relative ${bike.isTopAd ? 'featured-card' : bike.isUrgent ? 'promoted-border' : 'border-slate-200'}`;
+                
+                card.onclick = () => openAdViewer(bike.id);
+
+                let badgesHtml = '';
+                if (bike.isTopAd) badgesHtml += `<span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Top Ad</span>`;
+                if (bike.isUrgent) badgesHtml += `<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Urgent</span>`;
+                if (bike.sellerType === 'dealer') {
+                    badgesHtml += `<span class="bg-[#2bbbad] text-white text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-0.5">✓ Verified Dealer</span>`;
+                } else {
+                    badgesHtml += `<span class="bg-[#f7ca18] text-slate-900 text-[9px] font-bold px-2 py-0.5 rounded">Member</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="relative w-full sm:w-48 h-36 sm:h-28 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
+                        <img src="${bike.image}" alt="${bike.title}" class="w-full h-full object-cover">
+                        <div class="absolute top-2 left-2 flex flex-col gap-1">
+                            ${badgesHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 w-full text-left">
+                        <div class="text-[11px] text-slate-400 font-semibold mb-1 uppercase">${bike.location}, ${bike.category} • ${bike.date}</div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-slate-900 hover:text-sky-700 transition-colors mb-1">${bike.title}</h3>
+                        <div class="text-emerald-700 font-black text-lg font-mono mb-2">Rs ${bike.price.toLocaleString()}</div>
+                        <p class="text-xs text-slate-500 line-clamp-1">${bike.description}</p>
+                    </div>
+
+                    <div class="w-full sm:w-auto flex sm:flex-col justify-end items-center sm:items-end gap-2 mt-2 sm:mt-0">
+                        <button onclick="event.stopPropagation(); openStatsInspector(${bike.id})" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1.5 rounded-lg border border-slate-300">
+                            📊 Stats & Boost
+                        </button>
+                        <span class="text-[10px] text-slate-400 font-mono">ID: ${bike.specId}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function applyFilters() {
+            const posterVal = document.getElementById("filter-poster").value;
+            const promotedVal = document.getElementById("filter-promoted").value;
+            const sortVal = document.getElementById("filter-sort").value;
+
+            let filtered = [...allBikes];
+
+            if (posterVal !== "all") {
+                filtered = filtered.filter(b => b.sellerType === posterVal);
+            }
+
+            if (promotedVal === "topad") {
+                filtered = filtered.filter(b => b.isTopAd);
+            } else if (promotedVal === "urgent") {
+                filtered = filtered.filter(b => b.isUrgent);
+            }
+
+            if (sortVal === "price-low") {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortVal === "price-high") {
+                filtered.sort((a, b) => b.price - b.price).reverse();
+            } else {
+                filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            renderListings(filtered);
+        }
+
+        function openAdViewer(id) {
+            activeViewerBikeId = id;
+            const bike = allBikes.find(b => b.id === id);
+            if (!bike) return;
+
+            document.getElementById("view-title").innerText = bike.title;
+            document.getElementById("view-price").innerText = `Rs ${bike.price.toLocaleString()}`;
+            document.getElementById("view-loc-cat").innerText = `${bike.location}, ${bike.category}`;
+            document.getElementById("view-posted-time").innerText = `Posted on ${bike.date}`;
+            document.getElementById("view-main-image").src = bike.image;
+            document.getElementById("view-spec-km").innerText = bike.specKm;
+            document.getElementById("view-spec-seller").innerText = bike.sellerType === 'dealer' ? 'Verified Dealer' : 'Private Member';
+            document.getElementById("view-spec-id").innerText = bike.specId;
+            document.getElementById("view-description").innerText = bike.description;
+
+            // Reset phone reveal button state
+            document.getElementById("view-phone-txt").innerText = "Click to Show Phone Number";
+
+            const badgeContainer = document.getElementById("view-badges-bar");
+            badgeContainer.innerHTML = '';
+            if (bike.isTopAd) badgeContainer.innerHTML += `<span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Top Ad</span>`;
+            if (bike.isUrgent) badgeContainer.innerHTML += `<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Urgent</span>`;
+
+            bike.views += 1;
+            document.getElementById("ad-viewer-modal").classList.remove("hidden");
+            document.getElementById("ad-viewer-modal").classList.add("flex");
+        }
+
+        function revealPhoneNumberInViewer() {
+            const bike = allBikes.find(b => b.id === activeViewerBikeId);
+            if (bike) {
+                document.getElementById("view-phone-txt").innerText = bike.phone;
+                bike.clicks += 1;
+            }
+        }
+
+        function openStatsInspector(id) {
+            inspectedBikeId = id;
+            const bike = allBikes.find(b => b.id === id);
+            if (!bike) return;
+
+            document.getElementById("modal-bike-title").innerText = bike.title;
+            document.getElementById("modal-bike-sub").innerText = `Listing ID: ${bike.specId} • ${bike.location}`;
+            document.getElementById("modal-impressions").innerText = bike.impressions.toLocaleString();
+            document.getElementById("modal-views").innerText = bike.views.toLocaleString();
+            document.getElementById("modal-phone").innerText = bike.clicks;
+            
+            const ctr = ((bike.clicks / Math.max(1, bike.views)) * 100).toFixed(1);
+            document.getElementById("modal-ctr").innerText = `${ctr}%`;
+
+            let rank = "Organic Standard";
+            let lift = "1.0x";
+            if (bike.isTopAd) {
+                rank = "⭐ Top Ad (Pinned #1)";
+                lift = "4.2x";
+            } else if (bike.isUrgent) {
+                rank = "🚨 Urgent Priority";
+                lift = "2.8x";
+            }
+            document.getElementById("modal-rank-badge").innerText = rank;
+            document.getElementById("modal-lift").innerText = lift;
+
+            closeModal('ad-viewer-modal');
+            document.getElementById("stats-inspector-modal").classList.remove("hidden");
+            document.getElementById("stats-inspector-modal").classList.add("flex");
+        }
+
+        function initiateBoostPayment(bikeId, boostType) {
+            inspectedBikeId = bikeId;
+            selectedBoostType = boostType;
+            const bike = allBikes.find(b => b.id === bikeId);
+            if (!bike) return;
+
+            let price = 450;
+            let name = "Bump Up Package";
+            if (boostType === 'urgent') {
+                price = 1200;
+                name = "Urgent Sale Tag (7 Days)";
+            } else if (boostType === 'topad') {
+                price = 2800;
+                name = "Top Ad Featured Pin (7 Days)";
+            }
+
+            selectedBoostPrice = price;
+
+            document.getElementById("pay-bike-title").innerText = bike.title;
+            document.getElementById("pay-boost-name").innerText = name;
+            document.getElementById("pay-amount").innerText = `LKR ${price.toLocaleString()}`;
+            document.getElementById("pay-ref-code").innerText = `REF-${Math.floor(10000 + Math.random() * 90000)}`;
+
+            closeModal('stats-inspector-modal');
+            document.getElementById("payment-gateway-modal").classList.remove("hidden");
+            document.getElementById("payment-gateway-modal").classList.add("flex");
+        }
+
+        function processPaymentSubmit(event) {
+            event.preventDefault();
+            const bike = allBikes.find(b => b.id === inspectedBikeId);
+            if (bike) {
+                if (selectedBoostType === 'topad') bike.isTopAd = true;
+                if (selectedBoostType === 'urgent') bike.isUrgent = true;
+            }
+
+            closeModal('payment-gateway-modal');
+            renderListings(allBikes);
+            alert("✅ Bank deposit submission successful! Your boost package has been activated.");
+        }
+
+        function handleAdSubmission(event) {
+            event.preventDefault();
+            const title = document.getElementById("post-title").value;
+            const price = parseInt(document.getElementById("post-price").value.replace(/,/g, '')) || 250000;
+            const location = document.getElementById("post-location").value;
+            const type = document.getElementById("post-type").value;
+            const phone = document.getElementById("post-phone").value;
+            const image = document.getElementById("post-image").value || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600";
+            const isTop = document.getElementById("post-is-topad").checked;
+            const isUrg = document.getElementById("post-is-urgent").checked;
+
+            const newBike = {
+                id: allBikes.length + 1,
+                title: title,
+                price: price,
+                location: location.split(',')[0].trim(),
+                category: "Motorbikes",
+                sellerType: type,
+                isTopAd: isTop,
+                isUrgent: isUrg,
+                image: image,
+                phone: phone,
+                views: 12,
+                impressions: 45,
+                clicks: 2,
+                date: "2026-07-30",
+                description: "Newly posted classified listing on BikeEka. Clean vehicle, genuine inquiries welcome.",
+                specKm: "Brand New",
+                specId: `#BK-${5000 + allBikes.length + 1}`
+            };
+
+            allBikes.unshift(newBike);
+            renderListings(allBikes);
+            updateStatsCounters();
+            closeModal('post-ad-modal');
+            alert("🚀 Your vehicle ad has been successfully published!");
+        }
+
+        function updateStatsCounters() {
+            document.getElementById("sys-listings-total").innerText = allBikes.length;
+            document.getElementById("user-ads-count").innerText = allBikes.length;
+            document.getElementById("drawer-count").innerText = allBikes.length;
+
+            const drawerList = document.getElementById("drawer-listings-list");
+            drawerList.innerHTML = "";
+            allBikes.slice(0, 15).forEach(b => {
+                drawerList.innerHTML += `
+                    <div class="bg-slate-800 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                        <div class="truncate max-w-[200px]">
+                            <strong class="text-white block truncate">${b.title}</strong>
+                            <span class="text-slate-400 text-[10px]">Rs ${b.price.toLocaleString()}</span>
+                        </div>
+                        <button onclick="toggleAdminDrawer(); openStatsInspector(${b.id})" class="brand-yellow text-slate-950 font-bold px-2 py-1 rounded text-[10px]">
+                            Manage
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text);
+            alert(`📋 Copied ${label} to clipboard!`);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function openPostAdModal() {
+            document.getElementById('post-ad-modal').classList.remove('hidden');
+            document.getElementById('post-ad-modal').classList.add('flex');
+        }
+
+        function toggleAdminDrawer() {
+            const drawer = document.getElementById('admin-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function openRotationDiagnostics() {
+            document.getElementById('rotation-modal').classList.remove('hidden');
+            document.getElementById('rotation-modal').classList.add('flex');
+        }
+
+        function resetView() {
+            document.getElementById("filter-poster").value = "all";
+            document.getElementById("filter-promoted").value = "all";
+            document.getElementById("filter-sort").value = "newest";
+            renderListings(allBikes);
+        }
+
+        function showToast(msg) {
+            alert(msg);
+        }
+    </script>
+</body>
+</html>

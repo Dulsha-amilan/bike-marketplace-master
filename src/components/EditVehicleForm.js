@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
 import { useAuth } from './AuthContext';
-import { getStorageUpgradeStatus, requestStorageUpgrade, getMyApprovedMembershipRequest } from '../api/bikeApi';
+import { getVehicleById, getMyApprovedMembershipRequest } from '../api/bikeApi';
 import verifiedIcon from '../Images/verififedbutton.png';
 import VehicleCard from './VehicleCard';
 import { Input } from './ui/input';
@@ -21,9 +21,8 @@ import {
   Upload, CheckCircle, Image as ImageIcon, MapPin, Phone, 
   Bike, DollarSign, Calendar, Gauge, Fuel, Settings, Layers,
   ChevronLeft, ChevronRight, Check, Trash2, Eye, AlertCircle,
-  Camera, ClipboardCheck, ShieldCheck, Users, Timer, Sparkles
+  Camera, ClipboardCheck, ShieldCheck, Pencil
 } from 'lucide-react';
-import BoostPostModal from './BoostPostModal';
 
 const TYPES = [
   { value: 'scooters', label: 'Scooters' },
@@ -176,9 +175,16 @@ function TailwindDatePicker({ value, onChange, placeholder = "Select Model Year"
   );
 }
 
-export default function AddVehicleForm() {
+export default function EditVehicleForm() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { addVehicle } = useVehicles();
+  const { updateVehicle } = useVehicles();
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [vehicleData, setVehicleData] = useState(null);
+  const [notFound, setNotFound] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   const initialForm = {
     type: 'scooters',
@@ -207,18 +213,18 @@ export default function AddVehicleForm() {
   const [galleryPreviews, setGalleryPreviews] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [postedVehicle, setPostedVehicle] = useState(null);
-  const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
+  const [updatedVehicle, setUpdatedVehicle] = useState(null);
+
+  // Existing images from the server
+  const [existingHeroUrl, setExistingHeroUrl] = useState(null);
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState([]);
 
   // Suggestions state
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const [brandSuggestions, setBrandSuggestions] = useState([]);
   const brandRef = useRef(null);
 
-  const { user } = useAuth();
   const [maxUploadImages, setMaxUploadImages] = useState(user?.storageLimit || MAX_UPLOAD_IMAGES);
-  const [upgradeStatus, setUpgradeStatus] = useState('none');
-  const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [showroomDetails, setShowroomDetails] = useState(null);
 
   // Wizard state
@@ -232,6 +238,74 @@ export default function AddVehicleForm() {
   // Toggle for card preview on mobile step 4
   const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
 
+  // Fetch the vehicle data on mount and populate form
+  useEffect(() => {
+    let alive = true;
+    async function fetchVehicle() {
+      try {
+        const data = await getVehicleById(id);
+        if (!alive) return;
+        
+        if (!data) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
+
+        // Check ownership
+        if (data.userId !== user?.id && user?.role !== 'admin') {
+          setUnauthorized(true);
+          setLoading(false);
+          return;
+        }
+
+        setVehicleData(data);
+
+        // Populate form fields
+        setForm({
+          type: data.type || 'scooters',
+          title: data.title || '',
+          make: data.make || '',
+          model: data.model || '',
+          condition: data.condition || 'Used',
+          year: data.year ? String(data.year) : '',
+          registerYear: data.registerYear ? String(data.registerYear) : '',
+          price: data.price != null ? String(data.price) : '',
+          negotiable: data.price == null || data.price === '',
+          mileageKm: data.mileageKm != null ? String(data.mileageKm) : '',
+          engineCapacityCc: data.engineCapacityCc != null ? String(data.engineCapacityCc) : '',
+          transmission: data.transmission || '',
+          fuelType: data.fuelType || '',
+          color: data.color || '',
+          description: data.description || '',
+          location: data.location || '',
+          phone: data.phone || '',
+        });
+
+        // Set existing images
+        if (data.image) {
+          setExistingHeroUrl(resolveMediaUrl(data.image));
+        }
+        if (data.gallery && data.gallery.length > 0) {
+          setExistingGalleryUrls(data.gallery.map(resolveMediaUrl));
+        }
+
+        setLoading(false);
+      } catch (err) {
+        if (!alive) return;
+        console.error('Error loading vehicle for edit:', err);
+        setNotFound(true);
+        setLoading(false);
+      }
+    }
+
+    if (user && id) {
+      fetchVehicle();
+    }
+
+    return () => { alive = false; };
+  }, [id, user]);
+
   // Clean up object URLs when component unmounts or files change
   useEffect(() => {
     return () => {
@@ -244,13 +318,6 @@ export default function AddVehicleForm() {
   useEffect(() => {
     if (user) {
       setMaxUploadImages(user.storageLimit || MAX_UPLOAD_IMAGES);
-      getStorageUpgradeStatus()
-        .then((data) => {
-          if (data && data.status) {
-            setUpgradeStatus(data.status);
-          }
-        })
-        .catch((err) => console.error("Error fetching upgrade status:", err));
     }
   }, [user]);
 
@@ -261,11 +328,6 @@ export default function AddVehicleForm() {
         .then((data) => {
           if (data) {
             setShowroomDetails(data);
-            setForm(prev => ({
-              ...prev,
-              location: prev.location || data.shopName || '',
-              phone: prev.phone || data.phone || ''
-            }));
           }
         })
         .catch((err) => console.error("Error fetching showroom details:", err));
@@ -338,6 +400,7 @@ export default function AddVehicleForm() {
     if (file) {
       setUploadHero(file);
       setHeroPreview(URL.createObjectURL(file));
+      setExistingHeroUrl(null); // replacing existing hero
     } else {
       setUploadHero(null);
       setHeroPreview(null);
@@ -351,8 +414,10 @@ export default function AddVehicleForm() {
   };
 
   const handleGalleryChange = (files) => {
-    const allowed = maxUploadImages - (uploadHero ? 1 : 0);
-    const newFiles = [...uploadGallery, ...files].slice(0, allowed);
+    const totalExisting = existingGalleryUrls.length;
+    const hasHero = uploadHero || existingHeroUrl;
+    const allowed = maxUploadImages - (hasHero ? 1 : 0) - totalExisting;
+    const newFiles = [...uploadGallery, ...files].slice(0, Math.max(0, allowed));
     
     // Revoke old previews
     galleryPreviews.forEach((url) => URL.revokeObjectURL(url));
@@ -366,6 +431,11 @@ export default function AddVehicleForm() {
     if (heroPreview) URL.revokeObjectURL(heroPreview);
     setUploadHero(null);
     setHeroPreview(null);
+    setExistingHeroUrl(null);
+  };
+
+  const removeExistingGalleryImage = (index) => {
+    setExistingGalleryUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const removeGalleryImage = (index) => {
@@ -415,7 +485,7 @@ export default function AddVehicleForm() {
 
   const isStep2Valid = () => {
     if (form.year === '') return false;
-    const yearVal = new Date(form.year).getFullYear();
+    const yearVal = Number(form.year);
     const yearValid = !isNaN(yearVal) && yearVal > 1900 && yearVal <= new Date().getFullYear() + 1;
     const descValid = form.description.trim() !== '';
     return yearValid && descValid;
@@ -429,7 +499,8 @@ export default function AddVehicleForm() {
   };
 
   const isStep4Valid = () => {
-    const totalSelected = (uploadHero ? 1 : 0) + uploadGallery.length;
+    const hasHero = uploadHero || existingHeroUrl;
+    const totalSelected = (hasHero ? 1 : 0) + uploadGallery.length + existingGalleryUrls.length;
     return totalSelected >= 1 && totalSelected <= maxUploadImages;
   };
 
@@ -476,8 +547,8 @@ export default function AddVehicleForm() {
       fd.append('make', form.make);
       fd.append('model', form.model);
       fd.append('condition', form.condition);
-      if (form.year) fd.append('year', String(new Date(form.year).getFullYear()));
-      if (form.registerYear) fd.append('registerYear', String(new Date(form.registerYear).getFullYear()));
+      if (form.year) fd.append('year', String(form.year));
+      if (form.registerYear) fd.append('registerYear', String(form.registerYear));
       if (!form.negotiable && form.price) fd.append('price', String(form.price));
       if (form.mileageKm) fd.append('mileageKm', String(form.mileageKm));
       if (form.engineCapacityCc) fd.append('engineCapacityCc', String(form.engineCapacityCc));
@@ -488,11 +559,19 @@ export default function AddVehicleForm() {
       fd.append('location', form.location);
       fd.append('phone', form.phone);
 
-      if (uploadHero) fd.append('hero', uploadHero);
+      // Handle hero image
+      if (uploadHero) {
+        fd.append('hero', uploadHero);
+      }
+      // If user kept existing hero (no new upload), no hero field is sent — backend retains existing
+
+      // Handle gallery: send kept existing URLs + new files
+      // keepGallery contains existing URLs the user chose to retain
+      fd.append('keepGallery', JSON.stringify(existingGalleryUrls));
       uploadGallery.forEach((f) => fd.append('gallery', f));
 
-      const created = await addVehicle(fd);
-      setPostedVehicle(created);
+      const updated = await updateVehicle(id, fd);
+      setUpdatedVehicle(updated);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error(err);
@@ -502,22 +581,8 @@ export default function AddVehicleForm() {
     }
   };
 
-  const resetForAnother = () => {
-    setForm(initialForm);
-    setUploadHero(null);
-    setUploadGallery([]);
-    setHeroPreview(null);
-    setGalleryPreviews([]);
-    setError('');
-    setBusy(false);
-    setPostedVehicle(null);
-    setStep(1);
-    setAttemptedNext(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const viewPostedAd = () => {
-    if (postedVehicle?.id) navigate(`/vehicle/${encodeURIComponent(postedVehicle.id)}`);
+  const viewUpdatedAd = () => {
+    if (id) navigate(`/vehicle/${encodeURIComponent(id)}`);
   };
 
   const steps = [
@@ -532,16 +597,16 @@ export default function AddVehicleForm() {
   const progressPercent = Math.round((step / steps.length) * 100);
 
   const previewVehicle = useMemo(() => {
-    const heroUrl = heroPreview || '';
-    const galleryUrls = galleryPreviews || [];
+    const displayHero = heroPreview || existingHeroUrl || '';
+    const displayGallery = [...existingGalleryUrls, ...galleryPreviews];
 
     return {
       id: 'preview',
       title: form.title || 'Honda CBR150R 2022 - Perfect Condition',
       make: form.make || 'Honda',
       model: form.model || 'CBR150R',
-      year: form.year ? new Date(form.year).getFullYear() : null,
-      registerYear: form.registerYear ? new Date(form.registerYear).getFullYear() : null,
+      year: form.year ? Number(form.year) : null,
+      registerYear: form.registerYear ? Number(form.registerYear) : null,
       price: form.negotiable ? null : (form.price ? Number(form.price) : 0),
       location: form.location || 'Colombo, Sri Lanka',
       mileageKm: form.mileageKm ? Number(form.mileageKm) : null,
@@ -550,19 +615,19 @@ export default function AddVehicleForm() {
       transmission: form.transmission || '',
       condition: form.condition || 'New',
       type: form.type || 'Standard',
-      image: heroUrl,
-      gallery: galleryUrls,
-      postedAt: new Date().toISOString(),
+      image: displayHero,
+      gallery: displayGallery,
+      postedAt: vehicleData?.postedAt || new Date().toISOString(),
       user: showroomDetails ? { membershipRequests: [showroomDetails] } : null,
       source: showroomDetails ? 'showroom' : undefined,
     };
-  }, [form, heroPreview, galleryPreviews, showroomDetails]);
+  }, [form, heroPreview, existingHeroUrl, existingGalleryUrls, galleryPreviews, showroomDetails, vehicleData]);
 
   const stepGuidance = {
-    1: 'Start with the exact bike type, brand, model, and a searchable ad title.',
-    2: 'Add real specs and condition notes so buyers can compare faster.',
-    3: 'Set the price, location, and phone number buyers should use.',
-    4: 'Upload a clean cover photo, review the preview, and publish.'
+    1: 'Update the bike type, brand, model, and ad title.',
+    2: 'Review or change specs and condition notes.',
+    3: 'Update the price, location, and phone number.',
+    4: 'Update photos, review the preview, and save changes.'
   };
 
   const canNavigateToStep = (targetStep) => {
@@ -583,45 +648,94 @@ export default function AddVehicleForm() {
     }
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
+        <div className="mx-auto max-w-6xl flex items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin" />
+            <p className="text-sm font-semibold text-muted-foreground">Loading listing...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Not found
+  if (notFound) {
+    return (
+      <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
+        <div className="mx-auto max-w-2xl">
+          <Card className="text-center py-12 px-6">
+            <CardContent className="space-y-4">
+              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+              <h2 className="text-xl font-bold">Listing Not Found</h2>
+              <p className="text-muted-foreground">The vehicle listing you're trying to edit does not exist.</p>
+              <Button onClick={() => navigate('/')} className="mt-4">Go Home</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
+
+  // Unauthorized
+  if (unauthorized) {
+    return (
+      <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
+        <div className="mx-auto max-w-2xl">
+          <Card className="text-center py-12 px-6">
+            <CardContent className="space-y-4">
+              <ShieldCheck className="mx-auto h-12 w-12 text-amber-500" />
+              <h2 className="text-xl font-bold">Access Denied</h2>
+              <p className="text-muted-foreground">You can only edit your own listings.</p>
+              <Button onClick={() => navigate('/')} className="mt-4">Go Home</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
       <div className="mx-auto max-w-6xl pb-12">
-        {!postedVehicle ? (
+        {!updatedVehicle ? (
           <>
-            {/* Seller hero and guidance */}
+            {/* Edit hero and guidance */}
             <div className="mb-5 md:mb-7 grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
               <section className="rounded-lg border border-border/70 bg-card p-5 shadow-sm md:p-7">
                 <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                   <div className="max-w-2xl space-y-3">
-                    <div className="inline-flex items-center gap-2 rounded-md bg-amber-500/10 px-3 py-1.5 text-xs font-bold uppercase text-amber-700">
-                     Marketplace Seller
+                    <div className="inline-flex items-center gap-2 rounded-md bg-sky-500/10 px-3 py-1.5 text-xs font-bold uppercase text-sky-700">
+                      <Pencil className="w-3.5 h-3.5" /> Edit Mode
                     </div>
                     <div className="space-y-2">
                       <h1 className="text-3xl font-extrabold leading-tight text-foreground md:text-4xl lg:text-[46px]">
-                        Sell Your Bike
+                        Edit Your Bike
                       </h1>
                       <p className="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-                        Post an ad in minutes and connect with thousands of local buyers. This guided form helps you create a clear, buyer-ready listing before it goes live.
+                        Update your listing details, photos, and pricing. Your changes will be saved immediately.
                       </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 rounded-lg border border-border/70 bg-slate-50 p-2 text-center md:min-w-[310px]">
                     <div className="rounded-md bg-card px-2 py-3">
-                      <Timer className="mx-auto mb-1.5 h-4 w-4 text-amber-600" />
-                      <p className="text-[11px] font-bold text-foreground">Fast post</p>
-                      <p className="text-[10px] text-muted-foreground">4 steps</p>
+                      <Pencil className="mx-auto mb-1.5 h-4 w-4 text-sky-600" />
+                      <p className="text-[11px] font-bold text-foreground">Edit fields</p>
+                      <p className="text-[10px] text-muted-foreground">Update info</p>
                     </div>
                     <div className="rounded-md bg-card px-2 py-3">
-                      <Users className="mx-auto mb-1.5 h-4 w-4 text-emerald-600" />
-                      <p className="text-[11px] font-bold text-foreground">Local reach</p>
-                      <p className="text-[10px] text-muted-foreground">Buyer ready</p>
+                      <Camera className="mx-auto mb-1.5 h-4 w-4 text-emerald-600" />
+                      <p className="text-[11px] font-bold text-foreground">New photos</p>
+                      <p className="text-[10px] text-muted-foreground">Replace images</p>
                     </div>
                     <div className="rounded-md bg-card px-2 py-3">
-                      <ShieldCheck className="mx-auto mb-1.5 h-4 w-4 text-sky-600" />
-                      <p className="text-[11px] font-bold text-foreground">Clear info</p>
-                      <p className="text-[10px] text-muted-foreground">Fewer repeats</p>
+                      <ShieldCheck className="mx-auto mb-1.5 h-4 w-4 text-amber-600" />
+                      <p className="text-[11px] font-bold text-foreground">Instant save</p>
+                      <p className="text-[10px] text-muted-foreground">Live update</p>
                     </div>
                   </div>
                 </div>
@@ -630,7 +744,7 @@ export default function AddVehicleForm() {
               <aside className="rounded-lg border border-slate-900 bg-slate-950 p-5 text-white shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase text-amber-300">Draft Progress</p>
+                    <p className="text-xs font-bold uppercase text-sky-300">Edit Progress</p>
                     <h2 className="mt-1 text-xl font-extrabold">{currentStep.label}</h2>
                   </div>
                   <div className="rounded-md bg-white/10 px-3 py-2 text-sm font-extrabold">
@@ -640,19 +754,19 @@ export default function AddVehicleForm() {
 
                 <div className="mt-5 h-2 rounded-full bg-white/20">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-all duration-300"
+                    className="h-full rounded-full bg-sky-400 transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
 
                 <div className="mt-5 space-y-3 text-sm text-slate-200">
                   <div className="flex gap-2">
-                    <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                    <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
                     <p>{stepGuidance[step]}</p>
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                    <p>Required fields are marked, and each step checks your ad before moving forward.</p>
+                    <p>All existing data is pre-filled. Just update what you need to change.</p>
                   </div>
                 </div>
               </aside>
@@ -664,11 +778,11 @@ export default function AddVehicleForm() {
             <div className="overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
               <div className="flex flex-col gap-3 border-b border-border/60 bg-slate-50/80 px-4 py-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white">
                     <CurrentStepIcon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase text-muted-foreground">Create listing</p>
+                    <p className="text-xs font-bold uppercase text-muted-foreground">Edit listing</p>
                     <h2 className="text-base font-extrabold text-foreground md:text-lg">
                       Step {step} of {steps.length}: {currentStep.label}
                     </h2>
@@ -677,7 +791,7 @@ export default function AddVehicleForm() {
 
                 <div className="flex items-center justify-between gap-3 md:justify-end">
                   <p className="text-xs font-semibold text-muted-foreground md:text-right">{currentStep.desc}</p>
-                  <span className="shrink-0 rounded-md bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-800">
+                  <span className="shrink-0 rounded-md bg-sky-100 px-3 py-1.5 text-xs font-extrabold text-sky-800">
                     {progressPercent}% complete
                   </span>
                 </div>
@@ -685,7 +799,7 @@ export default function AddVehicleForm() {
 
               <div className="h-1.5 bg-muted">
                 <div
-                  className="h-full bg-amber-400 transition-all duration-300"
+                  className="h-full bg-sky-400 transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -706,7 +820,7 @@ export default function AddVehicleForm() {
                           ? 'border-slate-950 bg-slate-950 text-white shadow-md'
                           : isCompleted
                             ? 'border-emerald-200 bg-emerald-50/70 hover:border-emerald-300'
-                            : 'border-border bg-card hover:border-amber-300 hover:bg-amber-50/50'
+                            : 'border-border bg-card hover:border-sky-300 hover:bg-sky-50/50'
                       }`}
                       onClick={() => handleStepSelect(s.number)}
                       aria-current={isActive ? 'step' : undefined}
@@ -716,8 +830,8 @@ export default function AddVehicleForm() {
                           isCompleted
                             ? 'border-emerald-500 bg-emerald-500 text-white'
                             : isActive
-                              ? 'border-amber-400 bg-amber-400 text-slate-950'
-                              : 'border-border bg-muted text-muted-foreground group-hover:border-amber-300 group-hover:bg-amber-50 group-hover:text-amber-700'
+                              ? 'border-sky-400 bg-sky-400 text-slate-950'
+                              : 'border-border bg-muted text-muted-foreground group-hover:border-sky-300 group-hover:bg-sky-50 group-hover:text-sky-700'
                         }`}
                       >
                         {isCompleted ? <Check className="h-5 w-5 stroke-[3]" /> : <StepIcon className="h-5 w-5" />}
@@ -728,7 +842,7 @@ export default function AddVehicleForm() {
                           <span
                             className={`rounded px-2 py-0.5 text-[10px] font-extrabold uppercase ${
                               isActive
-                                ? 'bg-white/10 text-amber-200'
+                                ? 'bg-white/10 text-sky-200'
                                 : isCompleted
                                   ? 'bg-emerald-100 text-emerald-700'
                                   : 'bg-muted text-muted-foreground'
@@ -751,7 +865,7 @@ export default function AddVehicleForm() {
             </div>
 
           {/* Form Content area */}
-          <form onSubmit={onSubmit} id="vehicle-form" className="space-y-6">
+          <form onSubmit={onSubmit} id="edit-vehicle-form" className="space-y-6">
             
             {/* Showroom Dealer Banner */}
             {user?.role === 'dealer' && showroomDetails && (
@@ -800,12 +914,12 @@ export default function AddVehicleForm() {
                       </div>
                       <div>
                         <CardTitle className="text-xl">Bike Identity</CardTitle>
-                        <CardDescription className="text-sm">Start with the details buyers search for first.</CardDescription>
+                        <CardDescription className="text-sm">Update the details buyers search for first.</CardDescription>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
-                      <ClipboardCheck className="h-4 w-4" />
-                      Required first step
+                    <div className="flex items-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-bold text-sky-800">
+                      <Pencil className="h-4 w-4" />
+                      Editing step
                     </div>
                   </div>
                 </CardHeader>
@@ -938,13 +1052,13 @@ export default function AddVehicleForm() {
 
                     <aside className="rounded-lg border border-border/70 bg-slate-50 p-4">
                       <div className="flex items-center gap-2 text-sm font-extrabold text-foreground">
-                        <Eye className="h-4 w-4 text-amber-600" />
-                        Buyers notice first
+                        <Eye className="h-4 w-4 text-sky-600" />
+                        Editing tips
                       </div>
                       <div className="mt-4 space-y-3 text-sm text-muted-foreground">
                         <div className="flex gap-2">
                           <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                          <span>Exact brand and model help your ad appear in relevant searches.</span>
+                          <span>Keep the brand and model accurate for search visibility.</span>
                         </div>
                         <div className="flex gap-2">
                           <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -971,7 +1085,7 @@ export default function AddVehicleForm() {
                     </div>
                     <div>
                       <CardTitle className="text-lg md:text-xl">Specifications</CardTitle>
-                      <CardDescription className="text-xs md:text-sm">Enter technical specification parameters of the bike.</CardDescription>
+                      <CardDescription className="text-xs md:text-sm">Update technical specification parameters of the bike.</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -1129,7 +1243,7 @@ export default function AddVehicleForm() {
                     </div>
                     <div>
                       <CardTitle className="text-lg md:text-xl">Pricing & Location</CardTitle>
-                      <CardDescription className="text-xs md:text-sm">Configure listing price and local contact preferences.</CardDescription>
+                      <CardDescription className="text-xs md:text-sm">Update listing price and local contact preferences.</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -1154,7 +1268,6 @@ export default function AddVehicleForm() {
                         />
                       </div>
                       
-                      {/* Custom styled negotiable checkbox/toggle */}
                       <div className="flex items-center h-11 md:h-12 pt-0 sm:pt-1">
                         <label className={`
                           flex items-center justify-center space-x-3 cursor-pointer p-3 rounded-xl border border-border bg-muted/10 hover:bg-muted/40 transition-all select-none w-full sm:w-auto h-full
@@ -1232,11 +1345,11 @@ export default function AddVehicleForm() {
               </Card>
             )}
 
-            {/* Step 4: Photos & Submit (Mobile Friendly Segmented View) */}
+            {/* Step 4: Photos & Submit */}
             {step === 4 && (
               <div className="space-y-6">
                 
-                {/* Mobile View Toggle Segment (Tab style) */}
+                {/* Mobile View Toggle */}
                 <div className="flex lg:hidden bg-muted/65 p-1 rounded-xl border border-border/40 max-w-md mx-auto">
                   <button
                     type="button"
@@ -1256,7 +1369,7 @@ export default function AddVehicleForm() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   
-                  {/* Upload Card - visible on desktop OR on mobile if preview is off */}
+                  {/* Upload Card */}
                   <div className={`lg:col-span-7 space-y-6 ${showPreviewOnMobile ? 'hidden lg:block' : 'block'}`}>
                     <Card className="border-border/60 shadow-md rounded-2xl">
                       <CardHeader className="border-b border-border/40 pb-4 md:pb-5">
@@ -1265,8 +1378,8 @@ export default function AddVehicleForm() {
                             <ImageIcon className="w-5 h-5" />
                           </div>
                           <div>
-                            <CardTitle className="text-lg md:text-xl">Upload Photos</CardTitle>
-                            <CardDescription className="text-xs md:text-sm">Tap below to choose files from your device.</CardDescription>
+                            <CardTitle className="text-lg md:text-xl">Update Photos</CardTitle>
+                            <CardDescription className="text-xs md:text-sm">Replace or add new photos to your listing.</CardDescription>
                           </div>
                         </div>
                       </CardHeader>
@@ -1278,10 +1391,10 @@ export default function AddVehicleForm() {
                             Cover Photo <span className="text-destructive">*</span>
                           </Label>
                           
-                          {heroPreview ? (
+                          {(heroPreview || existingHeroUrl) ? (
                             <div className="relative group border border-border/60 rounded-2xl overflow-hidden h-44 md:h-48 bg-muted/20 shadow-inner">
                               <img 
-                                src={heroPreview} 
+                                src={heroPreview || existingHeroUrl} 
                                 alt="Cover Preview" 
                                 className="w-full h-full object-cover" 
                               />
@@ -1296,7 +1409,7 @@ export default function AddVehicleForm() {
                                 </button>
                               </div>
                               <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
-                                Cover Photo Selected
+                                {heroPreview ? 'New Cover Photo' : 'Current Cover Photo'}
                               </div>
                             </div>
                           ) : (
@@ -1304,7 +1417,7 @@ export default function AddVehicleForm() {
                               className={`
                                 relative border-2 border-dashed rounded-2xl p-6 md:p-8 text-center transition-all cursor-pointer select-none active:scale-[0.98]
                                 ${dragActiveHero ? 'border-amber-400 bg-amber-500/5 scale-[0.99]' : 'border-muted-foreground/30 hover:bg-muted/30 hover:border-amber-400/50'}
-                                ${attemptedNext && !uploadHero ? 'border-destructive bg-destructive/5' : ''}
+                                ${attemptedNext && !uploadHero && !existingHeroUrl ? 'border-destructive bg-destructive/5' : ''}
                               `}
                               onDragEnter={(e) => handleDrag(e, 'hero')}
                               onDragOver={(e) => handleDrag(e, 'hero')}
@@ -1328,7 +1441,7 @@ export default function AddVehicleForm() {
                               </div>
                             </div>
                           )}
-                          {attemptedNext && !uploadHero && (
+                          {attemptedNext && !uploadHero && !existingHeroUrl && (
                             <p className="text-xs text-destructive flex items-center gap-1 mt-1 font-medium">
                               <AlertCircle className="w-3.5 h-3.5" /> Cover photo is required.
                             </p>
@@ -1340,16 +1453,40 @@ export default function AddVehicleForm() {
                           <div className="flex justify-between items-center px-1">
                             <Label className="text-sm font-semibold text-primary">Gallery Images</Label>
                             <span className="text-xs text-muted-foreground font-semibold">
-                              {uploadGallery.length}/{maxUploadImages - (uploadHero ? 1 : 0)} files
+                              {existingGalleryUrls.length + uploadGallery.length}/{maxUploadImages - ((uploadHero || existingHeroUrl) ? 1 : 0)} files
                             </span>
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-                            {galleryPreviews.map((url, idx) => (
-                              <div key={idx} className="relative group border border-border/50 rounded-xl overflow-hidden aspect-[4/3] bg-muted/20 shadow-sm">
+                            {/* Existing gallery images */}
+                            {existingGalleryUrls.map((url, idx) => (
+                              <div key={`existing-${idx}`} className="relative group border border-border/50 rounded-xl overflow-hidden aspect-[4/3] bg-muted/20 shadow-sm">
                                 <img 
                                   src={url} 
                                   alt={`Gallery item ${idx}`} 
+                                  className="w-full h-full object-cover" 
+                                />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeExistingGalleryImage(idx)}
+                                    className="p-2.5 bg-destructive rounded-full text-white hover:bg-destructive/90 hover:scale-110 transition-all shadow"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                                <div className="absolute bottom-1 left-1 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-[9px] font-semibold">
+                                  Existing
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* New gallery uploads */}
+                            {galleryPreviews.map((url, idx) => (
+                              <div key={`new-${idx}`} className="relative group border border-sky-300/50 rounded-xl overflow-hidden aspect-[4/3] bg-muted/20 shadow-sm">
+                                <img 
+                                  src={url} 
+                                  alt={`New gallery item ${idx}`} 
                                   className="w-full h-full object-cover" 
                                 />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -1361,10 +1498,13 @@ export default function AddVehicleForm() {
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
+                                <div className="absolute bottom-1 left-1 bg-sky-500/80 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-[9px] font-semibold">
+                                  New
+                                </div>
                               </div>
                             ))}
 
-                            {uploadGallery.length < (maxUploadImages - (uploadHero ? 1 : 0)) && (
+                            {(existingGalleryUrls.length + uploadGallery.length) < (maxUploadImages - ((uploadHero || existingHeroUrl) ? 1 : 0)) && (
                               <div 
                                 className={`
                                   relative border-2 border-dashed rounded-xl aspect-[4/3] flex flex-col items-center justify-center p-3 text-center cursor-pointer select-none transition-all active:scale-[0.97]
@@ -1390,70 +1530,6 @@ export default function AddVehicleForm() {
                           </div>
                         </div>
 
-                        {/* Upgrade Request Banner */}
-                        {maxUploadImages < 10 && (
-                          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div>
-                              <h4 className="font-bold text-sm text-foreground">Need to upload more photos?</h4>
-                              <p className="text-xs text-muted-foreground">Request a free upgrade to upload up to 10 images for your listing.</p>
-                            </div>
-                            
-                            {upgradeStatus === 'none' && (
-                              <Button
-                                type="button"
-                                size="sm"
-                                disabled={upgradeLoading}
-                                onClick={async () => {
-                                  setUpgradeLoading(true);
-                                  try {
-                                    await requestStorageUpgrade();
-                                    setUpgradeStatus('pending');
-                                  } catch (err) {
-                                    console.error(err);
-                                  } finally {
-                                    setUpgradeLoading(false);
-                                  }
-                                }}
-                                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg shrink-0"
-                              >
-                                {upgradeLoading ? 'Requesting...' : 'Request 10 Images'}
-                              </Button>
-                            )}
-                            
-                            {upgradeStatus === 'pending' && (
-                              <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
-                                Pending Admin Approval
-                              </span>
-                            )}
-                            
-                            {upgradeStatus === 'rejected' && (
-                              <div className="flex flex-col items-end gap-1 shrink-0">
-                                <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
-                                  Upgrade Rejected
-                                </span>
-                                <button
-                                  type="button"
-                                  disabled={upgradeLoading}
-                                  onClick={async () => {
-                                    setUpgradeLoading(true);
-                                    try {
-                                      await requestStorageUpgrade();
-                                      setUpgradeStatus('pending');
-                                    } catch (err) {
-                                      console.error(err);
-                                    } finally {
-                                      setUpgradeLoading(false);
-                                    }
-                                  }}
-                                  className="text-[10px] text-amber-500 hover:underline font-bold"
-                                >
-                                  Request Again
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
                         {error && (
                           <div className="p-3.5 rounded-xl bg-destructive/10 text-destructive text-sm font-medium flex items-start gap-2 border border-destructive/20 animate-pulse">
                             <AlertCircle className="w-5 h-5 shrink-0" />
@@ -1464,13 +1540,13 @@ export default function AddVehicleForm() {
                     </Card>
                   </div>
 
-                  {/* Right side: Real-time Live Preview - visible on desktop OR on mobile if preview tab is active */}
+                  {/* Right side: Real-time Live Preview */}
                   <div className={`lg:col-span-5 space-y-4 lg:sticky lg:top-24 lg:self-start ${!showPreviewOnMobile ? 'hidden lg:block' : 'block'}`}>
                     <div className="flex items-center justify-between px-1">
                       <Label className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
-                        <Eye className="w-4 h-4 text-amber-500" /> Ad Card Preview
+                        <Eye className="w-4 h-4 text-sky-500" /> Ad Card Preview
                       </Label>
-                      <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide animate-pulse">Draft Preview</span>
+                      <span className="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide animate-pulse">Edit Preview</span>
                     </div>
                     
                     <VehicleCard vehicle={previewVehicle} isPreview />
@@ -1508,16 +1584,16 @@ export default function AddVehicleForm() {
                   type="button"
                   onClick={onSubmit}
                   disabled={busy}
-                  className="h-11 md:h-12 px-6 rounded-xl gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-black active:scale-98 shadow-md shadow-amber-500/10 hover:shadow-amber-500/20 transition-all text-sm ml-auto"
+                  className="h-11 md:h-12 px-6 rounded-xl gap-1.5 font-bold bg-sky-500 hover:bg-sky-600 text-white active:scale-98 shadow-md shadow-sky-500/10 hover:shadow-sky-500/20 transition-all text-sm ml-auto"
                 >
                   {busy ? (
                     <div className="flex items-center gap-1.5">
-                      <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                      Publishing...
+                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      Updating...
                     </div>
                   ) : (
                     <>
-                      Publish Ad Now <CheckCircle className="w-4.5 h-4.5 text-black" />
+                      Update Ad <CheckCircle className="w-4.5 h-4.5 text-white" />
                     </>
                   )}
                 </Button>
@@ -1541,21 +1617,21 @@ export default function AddVehicleForm() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                Ad Live & Active
+                Ad Updated & Live
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                Listing Published Successfully
+                Listing Updated Successfully
               </h2>
               <p className="text-sm md:text-base text-slate-500 max-w-md mx-auto leading-relaxed">
-                Your vehicle ad has been created and is now live for buyers across Sri Lanka.
+                Your vehicle listing changes have been saved and are now live for buyers across Sri Lanka.
               </p>
             </div>
 
             {/* Listing Preview Snapshot Box */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-left flex flex-col sm:flex-row items-center gap-4">
-              {(postedVehicle?.image || heroPreview) ? (
+              {(updatedVehicle?.image || existingHeroUrl || heroPreview) ? (
                 <img
-                  src={resolveMediaUrl(postedVehicle?.image || heroPreview)}
+                  src={resolveMediaUrl(updatedVehicle?.image || existingHeroUrl || heroPreview)}
                   alt={form.title || 'Vehicle'}
                   className="w-full sm:w-32 h-24 object-cover rounded-lg border border-slate-200/80 shadow-sm shrink-0 bg-white"
                 />
@@ -1576,7 +1652,7 @@ export default function AddVehicleForm() {
                 </div>
 
                 <h4 className="text-base font-extrabold text-slate-900 truncate">
-                  {postedVehicle?.title || form.title || 'Vehicle Listing'}
+                  {form.title || 'Vehicle Listing'}
                 </h4>
 
                 <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
@@ -1611,7 +1687,7 @@ export default function AddVehicleForm() {
             {/* Primary Action Buttons styled in BikeEka theme */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto pt-1">
               <Button
-                onClick={viewPostedAd}
+                onClick={viewUpdatedAd}
                 className="flex-1 h-12 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm border border-amber-500/30"
               >
                 <Eye className="w-4 h-4 text-slate-950" />
@@ -1620,11 +1696,11 @@ export default function AddVehicleForm() {
 
               <Button
                 variant="outline"
-                onClick={resetForAnother}
+                onClick={() => setUpdatedVehicle(null)}
                 className="flex-1 h-12 border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm bg-white"
               >
-                <Bike className="w-4 h-4 text-amber-500" />
-                Post Another Bike
+                <Pencil className="w-4 h-4 text-slate-500" />
+                Keep Editing
               </Button>
             </div>
 
@@ -1642,19 +1718,6 @@ export default function AddVehicleForm() {
           </div>
         </div>
       )}
-
-      {/* Boost Post Modal Component */}
-      <BoostPostModal
-        isOpen={isBoostModalOpen}
-        onClose={() => setIsBoostModalOpen(false)}
-        vehicle={postedVehicle || {
-          id: 'temp',
-          title: form.title || 'Vehicle Listing',
-          image: heroPreview,
-          price: form.price,
-          location: form.location
-        }}
-      />
       </div>
     </main>
   );

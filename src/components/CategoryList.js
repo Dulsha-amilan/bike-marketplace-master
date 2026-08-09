@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2, Bike } from 'lucide-react';
 import VehicleCard from '../components/VehicleCard';
-import { getVehicles } from '../api/bikeApi';
+import { getVehicles, getAdBanners } from '../api/bikeApi';
+import { LeaderboardAdBanner, SkyscraperAdBanner, SquareBoxAdBanner } from './AdBannerComponents';
 import './CategoryList.css';
 
 const LABELS = {
@@ -657,6 +658,25 @@ const CategoryList = ({ allVehicles = [] }) => {
   const [vehiclesFromApi, setVehiclesFromApi] = useState([]);
   const [loading, setLoading] = useState(false);
   const [apiFetched, setApiFetched] = useState(false);
+  const [adBanners, setAdBanners] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+    getAdBanners()
+      .then(ads => {
+        if (isMounted && Array.isArray(ads)) {
+          const map = {};
+          ads.forEach(ad => {
+            map[ad.slotId] = ad;
+          });
+          setAdBanners(map);
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to fetch ad banners:', err.message);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   // Real-time client-side price range state (0ms latency, zero API calls on slider movement)
   const [localMin, setLocalMin] = useState(0);
@@ -1056,6 +1076,11 @@ const CategoryList = ({ allVehicles = [] }) => {
           </div>
         </section>
 
+        {/* Top Leaderboard Header Ad Banner (970x90) */}
+        <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+          <LeaderboardAdBanner ad={adBanners['header_leaderboard']} />
+        </div>
+
         <div className="results-toolbar">
           <button
             className="btn btn-primary mobile-filter-btn"
@@ -1101,35 +1126,77 @@ const CategoryList = ({ allVehicles = [] }) => {
           </div>
         )}
 
-        <div className="category-grid">
-          <aside className="sidebar desktop-only">
-            <FilterForm />
-          </aside>
+        {(() => {
+          const hasSideSkyscraper = adBanners['side_skyscraper'] && 
+            adBanners['side_skyscraper'].isEnabled !== false && 
+            adBanners['side_skyscraper'].isEnabled !== 0 && 
+            adBanners['side_skyscraper'].isEnabled !== 'false' && 
+            adBanners['side_skyscraper'].isEnabled !== '0';
 
-          <section className="list-area" aria-live="polite">
-            {loading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
-                <Loader2 className="animate-spin" style={{ width: '36px', height: '36px', color: '#ffd600' }} />
-                <span style={{ color: '#64748b', fontWeight: 500 }}>Fetching listings from server...</span>
-              </div>
-            ) : (
-              <div className="cards">
-                {displayVehicles.map(vehicle => (
-                  <VehicleCard key={vehicle.id} vehicle={vehicle} horizontal />
-                ))}
-                {!displayVehicles.length && (
-                  <div className="empty">
-                    <h3>No {label.toLowerCase()} found</h3>
-                    <p>Try removing a filter or searching a different model.</p>
-                    <button className="btn btn-primary" type="button" onClick={resetFilters}>
-                      Reset filters
-                    </button>
+          const hasSquareBox = adBanners['square_box'] && 
+            adBanners['square_box'].isEnabled !== false && 
+            adBanners['square_box'].isEnabled !== 0 && 
+            adBanners['square_box'].isEnabled !== 'false' && 
+            adBanners['square_box'].isEnabled !== '0';
+
+          return (
+            <div className={`category-grid${hasSideSkyscraper ? ' has-ads-sidebar' : ''}`}>
+              <aside className="sidebar desktop-only">
+                <FilterForm />
+                {hasSquareBox && (
+                  <div style={{ borderTop: '1px solid #e2e8f0', padding: '16px 12px', display: 'flex', justifyContent: 'center', background: '#ffffff' }}>
+                    <SquareBoxAdBanner ad={adBanners['square_box']} />
                   </div>
                 )}
-              </div>
-            )}
-          </section>
-        </div>
+              </aside>
+
+              <section className="list-area" aria-live="polite">
+                {loading ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
+                    <Loader2 className="animate-spin" style={{ width: '36px', height: '36px', color: '#ffd600' }} />
+                    <span style={{ color: '#64748b', fontWeight: 500 }}>Fetching listings from server...</span>
+                  </div>
+                ) : (
+                  <div className="cards">
+                    {displayVehicles.map((vehicle, index) => {
+                      const isSecond = index === 1;
+                      const isEverySix = index > 1 && (index + 1) % 6 === 0;
+                      const showMobileSquareAd = (isSecond || isEverySix) && hasSquareBox;
+
+                      return (
+                        <React.Fragment key={vehicle.id}>
+                          <VehicleCard vehicle={vehicle} horizontal />
+                          {showMobileSquareAd && (
+                            <div className="mobile-infeed-ad-wrapper">
+                              <SquareBoxAdBanner ad={adBanners['square_box']} />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                    {!displayVehicles.length && (
+                      <div className="empty">
+                        <h3>No {label.toLowerCase()} found</h3>
+                        <p>Try removing a filter or searching a different model.</p>
+                        <button className="btn btn-primary" type="button" onClick={resetFilters}>
+                          Reset filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
+
+              {hasSideSkyscraper && (
+                <aside className="ads-sidebar desktop-only">
+                  <div className="side-ad-widget">
+                    <SkyscraperAdBanner ad={adBanners['side_skyscraper']} />
+                  </div>
+                </aside>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       <div

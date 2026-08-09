@@ -2,7 +2,7 @@
 
 .vehicle-card--ad {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 0;
   overflow: hidden;
   width: 100%;
@@ -17,6 +17,16 @@
   border-color: rgba(15, 23, 42, 0.2) !important;
   box-shadow: 0 20px 44px rgba(15, 23, 42, 0.14) !important;
   transform: translateY(-1px);
+}
+
+.vehicle-card--urgent {
+  border: 2.5px solid #ef4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 14px 34px rgba(15, 23, 42, 0.1) !important;
+}
+
+.vehicle-card--pinned {
+  border: 2.5px solid #6366f1 !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 14px 34px rgba(15, 23, 42, 0.1) !important;
 }
 
 .vehicle-card__media {
@@ -113,7 +123,7 @@
 
 .vehicle-card__main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 198px;
+  grid-template-columns: minmax(0, 1fr) 205px;
   min-width: 0;
 }
 
@@ -243,10 +253,12 @@
 }
 
 .vehicle-card__specs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(88px, auto));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-top: auto;
+  padding-top: 4px;
 }
 
 .vehicle-card__spec {
@@ -254,10 +266,10 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
-  min-height: 34px;
+  min-height: 32px;
   border: 1px solid #e7edf4;
   border-radius: 7px;
-  padding: 7px 9px;
+  padding: 6px 10px;
   background: #fbfcfe;
   color: #45566d;
   font-size: 0.76rem;
@@ -454,7 +466,9 @@
   }
 
   .vehicle-card__specs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     margin-top: 8px;
     gap: 8px;
   }

@@ -4,7 +4,7 @@ import {
   Users, Bike, Trash2, Plus, X, 
   LayoutDashboard, AlertCircle, 
   CheckCircle, ArrowLeft, RefreshCw, UserCheck, Check, Ban, Pencil, Upload,
-  CreditCard
+  CreditCard, Sparkles, Presentation, Eye
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { 
@@ -14,8 +14,11 @@ import {
   updateVehicleStatus, updateAdminVehicle, uploadImage, deleteAllVehicles, getAdminStorageUpgrades,
   updateStorageUpgradeRequest,
   getMemberships, createMembership, updateMembership, deleteMembership,
-  getMembershipRequests, updateMembershipRequestStatus
+  getMembershipRequests, updateMembershipRequestStatus,
+  getAdminBoostRequests, updateBoostRequestStatus,
+  getAdminAdBanners, updateAdBanner
 } from '../api/bikeApi';
+import { LeaderboardAdBanner, SkyscraperAdBanner, SquareBoxAdBanner } from './AdBannerComponents';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -33,6 +36,48 @@ const AdminDashboard = () => {
   const [upgrades, setUpgrades] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [membershipRequests, setMembershipRequests] = useState([]);
+  const [boostRequests, setBoostRequests] = useState([]);
+  const [adBanners, setAdBanners] = useState({
+    header_leaderboard: {
+      slotId: 'header_leaderboard',
+      name: 'Top Header Leaderboard (970x90)',
+      dimensions: '970x90',
+      badgeText: '🔥 MEGA SALE',
+      title: 'UPGRADE YOUR RIDE TODAY!',
+      subtitle: 'Get up to 30% off genuine motorcycle parts & riding gear.',
+      buttonText: 'Shop Now →',
+      linkUrl: '/spares',
+      imageUrl: '',
+      isEnabled: true,
+    },
+    side_skyscraper: {
+      slotId: 'side_skyscraper',
+      name: 'Side Skyscraper Banner (160x600)',
+      dimensions: '160x600',
+      badgeText: 'AD • SKYSCRAPER (160X600)',
+      title: 'BIKE LEASING & FINANCE',
+      subtitle: 'Same day approval with minimum documentation.',
+      highlightText: 'RATES FROM 11.5%',
+      buttonText: 'APPLY NOW',
+      footerText: 'Terms & conditions apply',
+      linkUrl: '/showroom-memberships',
+      imageUrl: '',
+      isEnabled: true,
+    },
+    square_box: {
+      slotId: 'square_box',
+      name: 'Square Box Banner (250x250)',
+      dimensions: '250x250',
+      badgeText: 'NEW',
+      title: 'Certified Pre-Owned Guarantee',
+      subtitle: 'Multi-point inspection on all verified dealer bikes.',
+      buttonText: 'BROWSE VERIFIED',
+      linkUrl: '/all',
+      imageUrl: '',
+      isEnabled: true,
+    },
+  });
+  const [uploadingAdSlot, setUploadingAdSlot] = useState(null);
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -126,14 +171,16 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [vehiclesData, sparePartsData, bikerGearData, usersData, upgradesData, membershipsData, requestsData] = await Promise.all([
+      const [vehiclesData, sparePartsData, bikerGearData, usersData, upgradesData, membershipsData, requestsData, boostRequestsData, adsData] = await Promise.all([
         getAdminVehicles(),
         getSpareParts(),
         getBikerGear(),
         getAdminUsers(),
         getAdminStorageUpgrades(),
         getMemberships(),
-        getMembershipRequests()
+        getMembershipRequests(),
+        getAdminBoostRequests(),
+        getAdminAdBanners().catch(() => [])
       ]);
       setVehicles(vehiclesData || []);
       setSpareParts(sparePartsData || []);
@@ -142,11 +189,140 @@ const AdminDashboard = () => {
       setUpgrades(upgradesData || []);
       setMemberships(membershipsData || []);
       setMembershipRequests(requestsData || []);
+      setBoostRequests(boostRequestsData || []);
+
+      if (Array.isArray(adsData) && adsData.length > 0) {
+        setAdBanners(prev => {
+          const updated = { ...prev };
+          adsData.forEach(ad => {
+            if (ad && ad.slotId) {
+              updated[ad.slotId] = { ...prev[ad.slotId], ...ad };
+            }
+          });
+          return updated;
+        });
+      }
     } catch (err) {
       console.error(err);
       setError('Failed to fetch dashboard data. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Ad Banner Manager Handlers
+  const handleAdFieldChange = (slotId, field, value) => {
+    setAdBanners(prev => ({
+      ...prev,
+      [slotId]: {
+        ...prev[slotId],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleToggleAdStatus = async (slotId, isEnabled) => {
+    handleAdFieldChange(slotId, 'isEnabled', isEnabled);
+    try {
+      const payload = { ...adBanners[slotId], isEnabled };
+      await updateAdBanner(slotId, payload);
+      showToast(`${adBanners[slotId]?.name || slotId} is now ${isEnabled ? 'Active' : 'Disabled'}.`);
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to update ad status.', false);
+    }
+  };
+
+  const handleAdImageUpload = async (slotId, file) => {
+    if (!file) return;
+    setUploadingAdSlot(slotId);
+    try {
+      const res = await uploadImage(file);
+      const uploadedUrl = res.url || res.imageUrl;
+      if (uploadedUrl) {
+        handleAdFieldChange(slotId, 'imageUrl', uploadedUrl);
+        showToast(`Image uploaded successfully for ${adBanners[slotId]?.name || slotId}.`);
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to upload ad banner image.', false);
+    } finally {
+      setUploadingAdSlot(null);
+    }
+  };
+
+  const handleSaveAdBanner = async (slotId) => {
+    setActionLoading(true);
+    try {
+      const payload = adBanners[slotId];
+      await updateAdBanner(slotId, payload);
+      showToast(`${payload.name} saved successfully.`);
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to save ad banner configuration.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleResetAdBanner = async (slotId) => {
+    const defaultsMap = {
+      header_leaderboard: {
+        slotId: 'header_leaderboard',
+        name: 'Top Header Leaderboard (970x90)',
+        dimensions: '970x90',
+        badgeText: '🔥 MEGA SALE',
+        title: 'UPGRADE YOUR RIDE TODAY!',
+        subtitle: 'Get up to 30% off genuine motorcycle parts & riding gear.',
+        buttonText: 'Shop Now →',
+        linkUrl: '/spares',
+        imageUrl: '',
+        isEnabled: true,
+      },
+      side_skyscraper: {
+        slotId: 'side_skyscraper',
+        name: 'Side Skyscraper Banner (160x600)',
+        dimensions: '160x600',
+        badgeText: 'AD • SKYSCRAPER (160X600)',
+        title: 'BIKE LEASING & FINANCE',
+        subtitle: 'Same day approval with minimum documentation.',
+        highlightText: 'RATES FROM 11.5%',
+        buttonText: 'APPLY NOW',
+        footerText: 'Terms & conditions apply',
+        linkUrl: '/showroom-memberships',
+        imageUrl: '',
+        isEnabled: true,
+      },
+      square_box: {
+        slotId: 'square_box',
+        name: 'Square Box Banner (250x250)',
+        dimensions: '250x250',
+        badgeText: 'NEW',
+        title: 'Certified Pre-Owned Guarantee',
+        subtitle: 'Multi-point inspection on all verified dealer bikes.',
+        buttonText: 'BROWSE VERIFIED',
+        linkUrl: '/all',
+        imageUrl: '',
+        isEnabled: true,
+      },
+    };
+
+    const defaultConfig = defaultsMap[slotId];
+    if (!defaultConfig) return;
+
+    setActionLoading(true);
+    try {
+      await updateAdBanner(slotId, defaultConfig);
+      setAdBanners(prev => ({
+        ...prev,
+        [slotId]: defaultConfig
+      }));
+      showToast(`${defaultConfig.name} reset to initial default design.`);
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to reset ad banner.', false);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -399,6 +575,23 @@ const AdminDashboard = () => {
       showToast('Membership plan created successfully.');
     } catch (err) {
       showToast(err.message || 'Failed to create membership plan.', false);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Update Boost Post Request Status (Admin Approve / Reject)
+  const handleUpdateBoostRequest = async (requestId, newStatus) => {
+    setActionLoading(true);
+    try {
+      const res = await updateBoostRequestStatus(requestId, newStatus);
+      setBoostRequests(boostRequests.map(r => r.id === requestId ? { ...r, status: newStatus } : r));
+      showToast(`Boost request ${newStatus} successfully!`);
+      // Reload vehicles data so any updated boost properties are reflected
+      const updatedVehicles = await getAdminVehicles();
+      setVehicles(updatedVehicles || []);
+    } catch (err) {
+      showToast(err.message || 'Failed to update boost request status.', false);
     } finally {
       setActionLoading(false);
     }
@@ -688,6 +881,33 @@ const AdminDashboard = () => {
             >
               <CheckCircle size={18} />
               <span>Membership Requests</span>
+            </button>
+            <button 
+              className={`admin-menu-item ${activeTab === 'boostRequests' ? 'active' : ''}`}
+              onClick={() => setActiveTab('boostRequests')}
+            >
+              <Sparkles size={18} />
+              <span>Boost Post Approvals</span>
+              {boostRequests.filter(r => r.status === 'pending').length > 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  background: '#f59e0b',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  fontWeight: '900',
+                  padding: '2px 8px',
+                  borderRadius: '999px'
+                }}>
+                  {boostRequests.filter(r => r.status === 'pending').length}
+                </span>
+              )}
+            </button>
+            <button 
+              className={`admin-menu-item ${activeTab === 'adManager' ? 'active' : ''}`}
+              onClick={() => setActiveTab('adManager')}
+            >
+              <Presentation size={18} />
+              <span>Ad Manager</span>
             </button>
           </nav>
 
@@ -1389,6 +1609,683 @@ const AdminDashboard = () => {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Boost Post Approvals */}
+          {activeTab === 'boostRequests' && (
+            <div className="admin-tab-content fade-in">
+              <div className="tab-header">
+                <div>
+                  <h2>Boost Post Remittance Approvals</h2>
+                  <p>Audit bank remittance slips and approve ad boost promotions for private sellers</p>
+                </div>
+              </div>
+
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Target Listing</th>
+                      <th>Seller Info</th>
+                      <th>Package & Price</th>
+                      <th>Bank Slip</th>
+                      <th>Submitted Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {boostRequests.length > 0 ? (
+                      boostRequests.map((r) => (
+                        <tr key={r.id}>
+                          <td>
+                            {r.vehicle ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {r.vehicle.image ? (
+                                  <img 
+                                    src={r.vehicle.image} 
+                                    alt={r.vehicle.title} 
+                                    style={{ width: '48px', height: '40px', objectFit: 'cover', borderRadius: '6px' }}
+                                  />
+                                ) : (
+                                  <div style={{ width: '48px', height: '40px', background: '#e2e8f0', borderRadius: '6px' }} />
+                                )}
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{r.vehicle.title}</span>
+                                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                                    {r.vehicle.price ? `Rs. ${Number(r.vehicle.price).toLocaleString()}` : 'Negotiable'}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <span style={{ color: '#94a3b8', fontSize: '12px' }}>Vehicle #{r.vehicleId}</span>
+                            )}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontWeight: '600', fontSize: '13px' }}>{r.user?.name || 'Seller'}</span>
+                              <span style={{ fontSize: '11px', color: '#64748b' }}>{r.user?.email || 'N/A'}</span>
+                              {r.user?.phone && (
+                                <span style={{ fontSize: '11px', color: '#64748b' }}>+94 {r.user.phone}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '13px' }}>{r.packageName}</span>
+                              <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 'bold' }}>
+                                Rs. {Number(r.amount).toLocaleString('en-LK')}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            {r.slipImage ? (
+                              <a href={r.slipImage} target="_blank" rel="noopener noreferrer" title="Click to view bank slip receipt">
+                                <img 
+                                  src={r.slipImage} 
+                                  alt="Bank slip receipt" 
+                                  style={{ 
+                                    width: '60px', 
+                                    height: '60px', 
+                                    objectFit: 'cover', 
+                                    borderRadius: '8px', 
+                                    border: '1px solid #e2e8f0', 
+                                    cursor: 'zoom-in' 
+                                  }} 
+                                />
+                              </a>
+                            ) : (
+                              <span style={{ color: '#94a3b8', fontSize: '11px' }}>No Slip</span>
+                            )}
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              {new Date(r.createdAt).toLocaleDateString()}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`badge-status badge-status-${r.status}`} style={{ textTransform: 'capitalize' }}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td>
+                            {r.status === 'pending' ? (
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                  className="admin-action-btn"
+                                  style={{ padding: '6px 12px', fontSize: '11px', background: '#22c55e', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
+                                  onClick={() => handleUpdateBoostRequest(r.id, 'approved')}
+                                  disabled={actionLoading}
+                                >
+                                  Approve
+                                </button>
+                                <button 
+                                  className="action-btn-delete"
+                                  style={{ padding: '6px 12px', fontSize: '11px', background: '#ef4444', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
+                                  onClick={() => handleUpdateBoostRequest(r.id, 'rejected')}
+                                  disabled={actionLoading}
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>Processed</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="table-empty-row">No boost post requests found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 8: Ad Manager */}
+          {activeTab === 'adManager' && (
+            <div className="admin-tab-content fade-in">
+              <div className="table-controls">
+                <div className="search-bar-wrapper">
+                  <h3 className="text-lg font-bold text-foreground">Advertisement Banner Manager</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Upload custom banner images or edit titles, call-to-action buttons, and target URLs for top header (970x90), side skyscraper (160x600), and square box (250x250) ads.
+                  </p>
+                </div>
+              </div>
+
+              <div className="ad-manager-grid">
+                {/* 1. Header Leaderboard Ad (970x90) */}
+                <div className="ad-manager-card">
+                  <div className="ad-card-header">
+                    <div>
+                      <span className="ad-slot-badge">SLOT 1</span>
+                      <h4>Top Header Leaderboard (970x90)</h4>
+                    </div>
+                    <label className="ad-toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={!!adBanners['header_leaderboard']?.isEnabled}
+                        onChange={e => handleToggleAdStatus('header_leaderboard', e.target.checked)}
+                      />
+                      <span className="ad-toggle-slider"></span>
+                      <span className="ad-toggle-label">
+                        {adBanners['header_leaderboard']?.isEnabled ? 'Active' : 'Disabled'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="ad-preview-box">
+                    <span className="ad-preview-label"><Eye size={14} /> Live Banner Preview</span>
+                    <LeaderboardAdBanner ad={adBanners['header_leaderboard']} isPreview={true} />
+                  </div>
+
+                  <div className="ad-form-grid">
+                    <div className="ad-form-group ad-full-width">
+                      <label>Upload Custom Banner Image (970x90)</label>
+                      <div className="ad-upload-row">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="upload-header-ad"
+                          style={{ display: 'none' }}
+                          onChange={e => handleAdImageUpload('header_leaderboard', e.target.files[0])}
+                        />
+                        <label htmlFor="upload-header-ad" className="btn btn-secondary ad-upload-btn">
+                          <Upload size={14} />
+                          {uploadingAdSlot === 'header_leaderboard' ? 'Uploading Image...' : 'Choose Image File'}
+                        </label>
+                        {adBanners['header_leaderboard']?.imageUrl && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleAdFieldChange('header_leaderboard', 'imageUrl', '')}
+                          >
+                            Remove Image
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Image URL (Optional Direct Link)</label>
+                      <input
+                        type="text"
+                        placeholder="https://..."
+                        value={adBanners['header_leaderboard']?.imageUrl || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'imageUrl', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Badge Tagline Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['header_leaderboard']?.badgeText || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'badgeText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Button Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['header_leaderboard']?.buttonText || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'buttonText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Headline Title</label>
+                      <input
+                        type="text"
+                        value={adBanners['header_leaderboard']?.title || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Subtitle / Description</label>
+                      <input
+                        type="text"
+                        value={adBanners['header_leaderboard']?.subtitle || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'subtitle', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Target Click URL</label>
+                      <input
+                        type="text"
+                        value={adBanners['header_leaderboard']?.linkUrl || ''}
+                        onChange={e => handleAdFieldChange('header_leaderboard', 'linkUrl', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="ad-card-actions">
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => handleSaveAdBanner('header_leaderboard')}
+                      disabled={actionLoading}
+                    >
+                      Save Leaderboard Banner
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleResetAdBanner('header_leaderboard')}
+                      disabled={actionLoading}
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Side Skyscraper Ad (160x600) */}
+                <div className="ad-manager-card">
+                  <div className="ad-card-header">
+                    <div>
+                      <span className="ad-slot-badge">SLOT 2</span>
+                      <h4>Side Skyscraper Banner (160x600)</h4>
+                    </div>
+                    <label className="ad-toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={!!adBanners['side_skyscraper']?.isEnabled}
+                        onChange={e => handleToggleAdStatus('side_skyscraper', e.target.checked)}
+                      />
+                      <span className="ad-toggle-slider"></span>
+                      <span className="ad-toggle-label">
+                        {adBanners['side_skyscraper']?.isEnabled ? 'Active' : 'Disabled'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="ad-preview-box">
+                    <span className="ad-preview-label"><Eye size={14} /> Live Banner Preview</span>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <SkyscraperAdBanner ad={adBanners['side_skyscraper']} isPreview={true} />
+                    </div>
+                  </div>
+
+                  <div className="ad-form-grid">
+                    <div className="ad-form-group ad-full-width">
+                      <label>Upload Custom Banner Image (160x600)</label>
+                      <div className="ad-upload-row">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="upload-side-ad"
+                          style={{ display: 'none' }}
+                          onChange={e => handleAdImageUpload('side_skyscraper', e.target.files[0])}
+                        />
+                        <label htmlFor="upload-side-ad" className="btn btn-secondary ad-upload-btn">
+                          <Upload size={14} />
+                          {uploadingAdSlot === 'side_skyscraper' ? 'Uploading Image...' : 'Choose Image File'}
+                        </label>
+                        {adBanners['side_skyscraper']?.imageUrl && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleAdFieldChange('side_skyscraper', 'imageUrl', '')}
+                          >
+                            Remove Image
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Image URL (Optional Direct Link)</label>
+                      <input
+                        type="text"
+                        placeholder="https://..."
+                        value={adBanners['side_skyscraper']?.imageUrl || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'imageUrl', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Headline Title</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.title || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Highlight Box Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.highlightText || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'highlightText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Subtitle / Description</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.subtitle || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'subtitle', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Button Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.buttonText || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'buttonText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Footer Terms Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.footerText || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'footerText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Target Click URL</label>
+                      <input
+                        type="text"
+                        value={adBanners['side_skyscraper']?.linkUrl || ''}
+                        onChange={e => handleAdFieldChange('side_skyscraper', 'linkUrl', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="ad-card-actions">
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => handleSaveAdBanner('side_skyscraper')}
+                      disabled={actionLoading}
+                    >
+                      Save Skyscraper Banner
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleResetAdBanner('side_skyscraper')}
+                      disabled={actionLoading}
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Square Box Ad (250x250) */}
+                <div className="ad-manager-card">
+                  <div className="ad-card-header">
+                    <div>
+                      <span className="ad-slot-badge">SLOT 3</span>
+                      <h4>Square Box Banner (250x250)</h4>
+                    </div>
+                    <label className="ad-toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={!!adBanners['square_box']?.isEnabled}
+                        onChange={e => handleToggleAdStatus('square_box', e.target.checked)}
+                      />
+                      <span className="ad-toggle-slider"></span>
+                      <span className="ad-toggle-label">
+                        {adBanners['square_box']?.isEnabled ? 'Active' : 'Disabled'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="ad-preview-box">
+                    <span className="ad-preview-label"><Eye size={14} /> Live Banner Preview</span>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <SquareBoxAdBanner ad={adBanners['square_box']} isPreview={true} />
+                    </div>
+                  </div>
+
+                  <div className="ad-form-grid">
+                    <div className="ad-form-group ad-full-width">
+                      <label>Upload Custom Banner Image (250x250)</label>
+                      <div className="ad-upload-row">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="upload-square-ad"
+                          style={{ display: 'none' }}
+                          onChange={e => handleAdImageUpload('square_box', e.target.files[0])}
+                        />
+                        <label htmlFor="upload-square-ad" className="btn btn-secondary ad-upload-btn">
+                          <Upload size={14} />
+                          {uploadingAdSlot === 'square_box' ? 'Uploading Image...' : 'Choose Image File'}
+                        </label>
+                        {adBanners['square_box']?.imageUrl && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleAdFieldChange('square_box', 'imageUrl', '')}
+                          >
+                            Remove Image
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Image URL (Optional Direct Link)</label>
+                      <input
+                        type="text"
+                        placeholder="https://..."
+                        value={adBanners['square_box']?.imageUrl || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'imageUrl', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Badge Tag Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.badgeText || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'badgeText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Button Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.buttonText || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'buttonText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Headline Title</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.title || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Subtitle / Description</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.subtitle || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'subtitle', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Target Click URL</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.linkUrl || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'linkUrl', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="ad-card-actions">
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => handleSaveAdBanner('side_skyscraper')}
+                      disabled={actionLoading}
+                    >
+                      Save Skyscraper Banner
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleResetAdBanner('side_skyscraper')}
+                      disabled={actionLoading}
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Square Box Ad (250x250) */}
+                <div className="ad-manager-card">
+                  <div className="ad-card-header">
+                    <div>
+                      <span className="ad-slot-badge">SLOT 3</span>
+                      <h4>Square Box Banner (250x250)</h4>
+                    </div>
+                    <label className="ad-toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={!!adBanners['square_box']?.isEnabled}
+                        onChange={e => handleAdFieldChange('square_box', 'isEnabled', e.target.checked)}
+                      />
+                      <span className="ad-toggle-slider"></span>
+                      <span className="ad-toggle-label">
+                        {adBanners['square_box']?.isEnabled ? 'Active' : 'Disabled'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="ad-preview-box">
+                    <span className="ad-preview-label"><Eye size={14} /> Live Banner Preview</span>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <SquareBoxAdBanner ad={adBanners['square_box']} />
+                    </div>
+                  </div>
+
+                  <div className="ad-form-grid">
+                    <div className="ad-form-group ad-full-width">
+                      <label>Upload Custom Banner Image (250x250)</label>
+                      <div className="ad-upload-row">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="upload-square-ad"
+                          style={{ display: 'none' }}
+                          onChange={e => handleAdImageUpload('square_box', e.target.files[0])}
+                        />
+                        <label htmlFor="upload-square-ad" className="btn btn-secondary ad-upload-btn">
+                          <Upload size={14} />
+                          {uploadingAdSlot === 'square_box' ? 'Uploading Image...' : 'Choose Image File'}
+                        </label>
+                        {adBanners['square_box']?.imageUrl && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleAdFieldChange('square_box', 'imageUrl', '')}
+                          >
+                            Remove Image
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Image URL (Optional Direct Link)</label>
+                      <input
+                        type="text"
+                        placeholder="https://..."
+                        value={adBanners['square_box']?.imageUrl || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'imageUrl', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Badge Tag Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.badgeText || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'badgeText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group">
+                      <label>Button Text</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.buttonText || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'buttonText', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Headline Title</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.title || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Subtitle / Description</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.subtitle || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'subtitle', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="ad-form-group ad-full-width">
+                      <label>Target Click URL</label>
+                      <input
+                        type="text"
+                        value={adBanners['square_box']?.linkUrl || ''}
+                        onChange={e => handleAdFieldChange('square_box', 'linkUrl', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="ad-card-actions">
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => handleSaveAdBanner('square_box')}
+                      disabled={actionLoading}
+                    >
+                      Save Square Banner
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleResetAdBanner('square_box')}
+                      disabled={actionLoading}
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -5,6 +5,7 @@ import {
   deleteVehicle,
   getVehicles,
   patchVehicle,
+  updateVehicleWithFormData,
 } from '../api/bikeApi';
 
 const VehiclesContext = createContext(null);
@@ -47,10 +48,13 @@ export function VehiclesProvider({ children }) {
     return created;
   };
 
-  // Update (user vehicles only)
+  // Update (supports both JSON patch and FormData for image edits)
   const updateVehicle = async (id, patch) => {
-    const updated = await patchVehicle(id, patch);
-    setVehicles((prev) => prev.map((v) => (v.id === id ? updated : v)));
+    const isFormData = typeof FormData !== 'undefined' && patch instanceof FormData;
+    const updated = isFormData
+      ? await updateVehicleWithFormData(id, patch)
+      : await patchVehicle(id, patch);
+    setVehicles((prev) => prev.map((v) => (String(v.id) === String(id) ? updated : v)));
     return updated;
   };
 

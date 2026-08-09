@@ -1,0 +1,467 @@
+/* ==========================================================================
+   AD BANNER COMPONENTS CSS
+   ========================================================================== */
+
+/* Outer Ad Wrappers */
+.ad-banner-container {
+  display: block;
+  text-decoration: none !important;
+  color: inherit;
+  font-family: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ad-banner-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.25);
+}
+
+.ad-banner-tag {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Custom Uploaded Image Mode */
+.ad-image-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #071120 0%, #0f172a 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ad-uploaded-img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   1. Leaderboard Header Banner (970x90)
+   -------------------------------------------------------------------------- */
+.ad-leaderboard-wrap {
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+  border-radius: 14px;
+}
+
+.ad-leaderboard-wrap .ad-image-frame {
+  width: 100%;
+  height: auto;
+  min-height: auto;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  display: block;
+}
+
+.ad-leaderboard-wrap .ad-uploaded-img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+.ad-leaderboard-card {
+  width: 100%;
+  min-height: 90px;
+  background: linear-gradient(135deg, #0b1329 0%, #172036 50%, #0f172a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  gap: 16px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ad-leaderboard-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.ad-badge-sale {
+  background: #ffd600;
+  color: #090d16;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(255, 214, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-leaderboard-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ad-leaderboard-title {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.ad-leaderboard-subtitle {
+  color: #94a3b8;
+  font-size: 0.84rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.ad-btn-yellow {
+  background: #ffd600;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.ad-banner-container:hover .ad-btn-yellow {
+  background: #ffe033;
+  transform: translateX(3px);
+}
+
+/* --------------------------------------------------------------------------
+   2. Skyscraper Side Banner (160x600)
+   -------------------------------------------------------------------------- */
+.ad-skyscraper-wrap {
+  width: 160px;
+  height: 600px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.ad-skyscraper-card {
+  width: 160px;
+  height: 600px;
+  background: linear-gradient(180deg, #071120 0%, #0d1e36 40%, #08111e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 14px 20px 14px;
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.ad-skyscraper-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.ad-shield-icon {
+  width: 42px;
+  height: 48px;
+  color: #38bdf8;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 4px 8px rgba(56, 189, 248, 0.3));
+}
+
+.ad-skyscraper-title {
+  color: #38bdf8;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  line-height: 1.35;
+  margin: 0 0 14px 0;
+  text-transform: uppercase;
+}
+
+.ad-skyscraper-subtitle {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 0;
+  font-weight: 400;
+}
+
+.ad-rate-box {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 16px 10px;
+  width: 100%;
+  margin: 20px 0;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.ad-rate-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ad-rate-value {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffd600;
+}
+
+.ad-skyscraper-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ad-btn-cyan {
+  width: 100%;
+  background: #00a8ff;
+  color: #071120;
+  font-weight: 900;
+  font-size: 0.82rem;
+  padding: 11px 0;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background-color 0.15s ease;
+}
+
+.ad-banner-container:hover .ad-btn-cyan {
+  background: #38c8ff;
+}
+
+.ad-terms-text {
+  font-size: 0.65rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Square Box Banner (250x250)
+   -------------------------------------------------------------------------- */
+.ad-square-wrap {
+  width: 250px;
+  height: 250px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.ad-square-card {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle at top left, #2a1508 0%, #0d121d 65%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 20px;
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.ad-square-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ad-badge-orange {
+  background: #ff9800;
+  color: #0d121d;
+  font-weight: 900;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.ad-square-title {
+  color: #ffd600;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.ad-square-subtitle {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.ad-btn-full-yellow {
+  width: 100%;
+  background: #ffd600;
+  color: #0f172a;
+  font-weight: 900;
+  font-size: 0.82rem;
+  padding: 11px 0;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background-color 0.15s ease;
+}
+
+.ad-banner-container:hover .ad-btn-full-yellow {
+  background: #ffe033;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .ad-leaderboard-wrap {
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .ad-skyscraper-wrap,
+  .ad-square-wrap {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto 16px auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .ad-leaderboard-wrap {
+    width: 100%;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .ad-leaderboard-wrap .ad-image-frame {
+    width: 100%;
+    height: 72px;
+    min-height: 72px;
+    border-radius: 10px;
+    background: #0f172a;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  }
+
+  .ad-leaderboard-wrap .ad-uploaded-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 10px;
+  }
+
+  .ad-banner-tag {
+    font-size: 7px;
+    letter-spacing: 0.3px;
+    padding: 1px 4px;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 3px;
+    z-index: 10;
+  }
+
+  .ad-leaderboard-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .ad-leaderboard-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ad-leaderboard-title {
+    font-size: 0.95rem;
+  }
+
+  .ad-leaderboard-subtitle {
+    font-size: 0.78rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile-Only In-Feed Ad Wrapper (Between Bike Ad Posts)
+   -------------------------------------------------------------------------- */
+.mobile-infeed-ad-wrapper {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-infeed-ad-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 12px 0;
+    margin: 8px 0;
+    grid-column: 1 / -1;
+  }
+
+  .mobile-infeed-ad-wrapper .ad-square-wrap {
+    margin-bottom: 0;
+  }
+}
+

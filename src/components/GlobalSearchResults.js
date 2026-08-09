@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Loader2, Search, X } from 'lucide-react';
 import { getVehicles } from '../api/bikeApi';
 import VehicleCard from './VehicleCard';
+import { SquareBoxAdBanner } from './AdBannerComponents';
 import {
   filtersToApiParams,
   filtersToQueryString,
@@ -11,7 +12,7 @@ import {
 } from '../utils/vehicleSearchParams';
 import './GlobalSearchResults.css';
 
-const GlobalSearchResults = ({ searchFilters, onClearSearch }) => {
+const GlobalSearchResults = ({ searchFilters, onClearSearch, squareBoxAd }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -119,9 +120,23 @@ const GlobalSearchResults = ({ searchFilters, onClearSearch }) => {
               </p>
               {count > 0 ? (
                 <div className="global-search-results__grid">
-                  {vehicles.map((vehicle) => (
-                    <VehicleCard key={vehicle.id} vehicle={vehicle} />
-                  ))}
+                  {vehicles.map((vehicle, index) => {
+                    const isSecond = index === 1;
+                    const isEverySix = index > 1 && (index + 1) % 6 === 0;
+                    const hasSquareBox = squareBoxAd && squareBoxAd.isEnabled !== false && squareBoxAd.isEnabled !== 0 && squareBoxAd.isEnabled !== 'false' && squareBoxAd.isEnabled !== '0';
+                    const showMobileSquareAd = (isSecond || isEverySix) && hasSquareBox;
+
+                    return (
+                      <React.Fragment key={vehicle.id}>
+                        <VehicleCard vehicle={vehicle} />
+                        {showMobileSquareAd && (
+                          <div className="mobile-infeed-ad-wrapper">
+                            <SquareBoxAdBanner ad={squareBoxAd} />
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="global-search-results__empty">

@@ -1,12 +1,22 @@
 @import './HeadingStat.css';
 
 .featured-listings {
-  padding: 54px 0 72px;
+  padding: 24px 0 72px;
   background: #f4f6f8;
 }
 
 .featured-listings .container {
   max-width: 1200px;
+}
+
+.featured-card--urgent {
+  border: 2.5px solid #ef4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 14px 34px rgba(15, 23, 42, 0.1) !important;
+}
+
+.featured-card--pinned {
+  border: 2.5px solid #6366f1 !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 14px 34px rgba(15, 23, 42, 0.1) !important;
 }
 
 @media (min-width: 1536px) {

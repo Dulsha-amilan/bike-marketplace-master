@@ -22,9 +22,12 @@ import ScrollToTop from './components/ScrollToTop';
 // NEW: vehicles store + form
 import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
 import AddVehicleForm from './components/AddVehicleForm';
+import EditVehicleForm from './components/EditVehicleForm';
 import Hero from './components/Hero';
 import GlobalSearchResults from './components/GlobalSearchResults';
 import ShowroomMembershipsPage from './components/ShowroomMembershipsPage';
+import { getAdBanners } from './api/bikeApi';
+import { SquareBoxAdBanner } from './components/AdBannerComponents';
 import {
   filtersToQueryString,
   hasActiveSearchFilters,
@@ -111,6 +114,25 @@ function AppContent() {
   const [showSearchResults, setShowSearchResults] = useState(() =>
     hasActiveSearchFilters(parseFiltersFromSearchParams(searchParams))
   );
+  const [adBanners, setAdBanners] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+    getAdBanners()
+      .then(ads => {
+        if (isMounted && Array.isArray(ads)) {
+          const map = {};
+          ads.forEach(ad => {
+            map[ad.slotId] = ad;
+          });
+          setAdBanners(map);
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load ad banners for Home page:', err.message);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     const fromUrl = parseFiltersFromSearchParams(searchParams);
@@ -320,6 +342,7 @@ function AppContent() {
               <GlobalSearchResults
                 searchFilters={searchFilters}
                 onClearSearch={handleClearGlobalSearch}
+                squareBoxAd={adBanners['square_box']}
               />
             )}
 
@@ -333,7 +356,25 @@ function AppContent() {
             </section>
 
             {!showSearchResults && (
-              <FeaturedListings translations={translations[language]} />
+              <>
+                {/* 1. Original Full-Width Featured Listings UI with Top Leaderboard Banner */}
+                <FeaturedListings
+                  translations={translations[language]}
+                  adBanner={adBanners['header_leaderboard']}
+                  squareBoxAd={adBanners['square_box']}
+                />
+
+                {/* 3. Square Box (250x250) Ad Banner Section */}
+                {adBanners['square_box'] && adBanners['square_box'].isEnabled !== false && (
+                  <section className="home-ad-showcase-section">
+                    <div className="container">
+                      <div className="home-ad-showcase-row">
+                        <SquareBoxAdBanner ad={adBanners['square_box']} />
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </>
             )}
           </>
         );
@@ -371,6 +412,11 @@ function AppContent() {
                 <Route path="/post-ad" element={
                   <ProtectedRoute>
                     <AddVehicleForm />
+                  </ProtectedRoute>
+                } />
+                <Route path="/edit-vehicle/:id" element={
+                  <ProtectedRoute>
+                    <EditVehicleForm />
                   </ProtectedRoute>
                 } />
                 <Route path="/showroom-membership" element={<ShowroomMembershipsPage />} />
