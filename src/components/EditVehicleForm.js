@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useVehicles } from './vehiclesStore';
 import { Button } from './ui/button';
 import { useAuth } from './AuthContext';
-import { getVehicleById, getMyApprovedMembershipRequest } from '../api/bikeApi';
+import { getVehicleById, getMyApprovedMembershipRequest, getAdBanners } from '../api/bikeApi';
+import { SkyscraperAdBanner } from './AdBannerComponents';
 import verifiedIcon from '../Images/verififedbutton.png';
 import VehicleCard from './VehicleCard';
 import { Input } from './ui/input';
@@ -237,6 +238,41 @@ export default function EditVehicleForm() {
 
   // Toggle for card preview on mobile step 4
   const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
+
+  // Skyscraper Ad Banner state
+  const [adBanners, setAdBanners] = useState({
+    side_skyscraper: {
+      slotId: 'side_skyscraper',
+      name: 'Side Skyscraper Banner (160x600)',
+      dimensions: '160x600',
+      title: 'BIKE LEASING & FINANCE',
+      subtitle: 'Same day approval with minimum documentation.',
+      highlightText: 'RATES FROM 11.5%',
+      buttonText: 'APPLY NOW',
+      footerText: 'Terms & conditions apply',
+      linkUrl: '/showroom-membership',
+      imageUrl: '',
+      isEnabled: true,
+    }
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    getAdBanners()
+      .then(ads => {
+        if (isMounted && Array.isArray(ads)) {
+          const map = {};
+          ads.forEach(ad => {
+            map[ad.slotId] = ad;
+          });
+          setAdBanners(prev => ({ ...prev, ...map }));
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to fetch ad banners for EditVehicleForm:', err.message);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   // Fetch the vehicle data on mount and populate form
   useEffect(() => {
@@ -699,8 +735,18 @@ export default function EditVehicleForm() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-4">
-      <div className="mx-auto max-w-6xl pb-12">
+    <main className="min-h-screen bg-slate-50/80 py-6 md:py-10 px-2 sm:px-4">
+      <div className="post-ad-page-layout">
+        {/* Left Skyscraper Ad (Desktop Only) */}
+        <aside className="post-ad-side-ad post-ad-side-ad--left" aria-label="Left Advertisement Banner">
+          <div className="post-ad-sticky-ad">
+            <SkyscraperAdBanner ad={adBanners['side_skyscraper']} />
+          </div>
+        </aside>
+
+        {/* Main Edit Vehicle Form Content */}
+        <div className="post-ad-main-content">
+          <div className="w-full pb-12">
         {!updatedVehicle ? (
           <>
             {/* Edit hero and guidance */}
@@ -1718,6 +1764,15 @@ export default function EditVehicleForm() {
           </div>
         </div>
       )}
+          </div>
+        </div>
+
+        {/* Right Skyscraper Ad (Desktop Only) */}
+        <aside className="post-ad-side-ad post-ad-side-ad--right" aria-label="Right Advertisement Banner">
+          <div className="post-ad-sticky-ad">
+            <SkyscraperAdBanner ad={adBanners['side_skyscraper']} />
+          </div>
+        </aside>
       </div>
     </main>
   );

@@ -128,7 +128,7 @@ const GlobalSearchResults = ({ searchFilters, onClearSearch, squareBoxAd }) => {
 
                     return (
                       <React.Fragment key={vehicle.id}>
-                        <VehicleCard vehicle={vehicle} />
+                        <VehicleCard vehicle={vehicle} horizontal />
                         {showMobileSquareAd && (
                           <div className="mobile-infeed-ad-wrapper">
                             <SquareBoxAdBanner ad={squareBoxAd} />

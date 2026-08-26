@@ -9,7 +9,6 @@ import QuickFilters from './components/QuickFilters';
 import FeaturedListings from './components/FeaturedListings';
 import SpareParts from './components/SpareParts';
 import BikerGear from './components/BikerGear';
-import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
 
 import './styles/globals.css';
@@ -27,7 +26,6 @@ import Hero from './components/Hero';
 import GlobalSearchResults from './components/GlobalSearchResults';
 import ShowroomMembershipsPage from './components/ShowroomMembershipsPage';
 import { getAdBanners } from './api/bikeApi';
-import { SquareBoxAdBanner } from './components/AdBannerComponents';
 import {
   filtersToQueryString,
   hasActiveSearchFilters,
@@ -356,25 +354,11 @@ function AppContent() {
             </section>
 
             {!showSearchResults && (
-              <>
-                {/* 1. Original Full-Width Featured Listings UI with Top Leaderboard Banner */}
-                <FeaturedListings
-                  translations={translations[language]}
-                  adBanner={adBanners['header_leaderboard']}
-                  squareBoxAd={adBanners['square_box']}
-                />
-
-                {/* 3. Square Box (250x250) Ad Banner Section */}
-                {adBanners['square_box'] && adBanners['square_box'].isEnabled !== false && (
-                  <section className="home-ad-showcase-section">
-                    <div className="container">
-                      <div className="home-ad-showcase-row">
-                        <SquareBoxAdBanner ad={adBanners['square_box']} />
-                      </div>
-                    </div>
-                  </section>
-                )}
-              </>
+              <FeaturedListings
+                translations={translations[language]}
+                adBanner={adBanners['header_leaderboard']}
+                squareBoxAd={adBanners['square_box']}
+              />
             )}
           </>
         );
@@ -428,7 +412,6 @@ function AppContent() {
               setLanguage={setLanguage}
               translations={translations[language]}
             />
-            <Chatbot language={language} translations={translations[language]} />
           </>
         } />
       </Routes>

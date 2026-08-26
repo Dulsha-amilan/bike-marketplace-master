@@ -94,8 +94,23 @@
 
 .global-search-results__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .global-search-results {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .global-search-results__shell {
+    padding: 1rem 0.75rem;
+    border-radius: 14px;
+  }
+
+  .global-search-results__grid {
+    gap: 8px;
+  }
 }
 
 .global-search-results__state {

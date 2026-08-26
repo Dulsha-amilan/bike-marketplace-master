@@ -18,10 +18,57 @@ const formatPrice = price => {
   return `Rs: ${num.toLocaleString('en-LK', { maximumFractionDigits: 0 })}`;
 };
 
-const toISODate = date => {
+const formatTimeAgo = date => {
+  if (!date) return 'Recently';
   const parsed = new Date(date);
-  return Number.isNaN(parsed.getTime()) ? 'Recently' : parsed.toISOString().slice(0, 10);
+  if (Number.isNaN(parsed.getTime())) return 'Recently';
+  const now = new Date();
+  const diffMs = now - parsed;
+  if (diffMs < 0) return 'Just now';
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHours < 1) return 'Just now';
+  if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'}`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 30) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+  const diffMonths = Math.floor(diffDays / 30);
+  return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'}`;
 };
+
+const MemberBadgeIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
+    <path d="M10 3.2L12.1 7.6L16.8 8.2L13.4 11.5L14.2 16.2L10 13.9L5.8 16.2L6.6 11.5L3.2 8.2L7.9 7.6L10 3.2Z" fill="#EAB308" />
+  </svg>
+);
+
+const VerifiedBadgeIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
+    <path d="M5.8 10.2L8.6 13L14.4 7.2" stroke="#0284C7" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ShowroomBadgeIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="10" cy="10" r="10" fill="#F59E0B" />
+    <path d="M5.5 10L10 6L14.5 10V15H5.5V10Z" fill="#0F172A" />
+    <rect x="8.5" y="11.5" width="3" height="3.5" fill="#F59E0B" />
+  </svg>
+);
+
+const PinnedBadgeIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
+    <path d="M12.5 3L17 7.5L15 9.5L14.2 8.7L11.5 11.4C11.8 12.6 11.4 13.9 10.4 14.9L9.7 15.6L4.4 10.3L5.1 9.6C6.1 8.6 7.4 8.2 8.6 8.5L11.3 5.8L10.5 5L12.5 3ZM6.5 13.5L2 18" stroke="#6366F1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+  </svg>
+);
+
+const UrgentBadgeIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
+    <path d="M10 5.5V11M10 14V14.5" stroke="#EF4444" strokeWidth="2.4" strokeLinecap="round" />
+  </svg>
+);
 
 const VehicleLightbox = ({ allImages, title, currentImageIndex, closeLightbox, prevImage, nextImage }) => (
   <div
@@ -193,86 +240,146 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
               alt={title}
               loading="lazy"
               className="vehicle-card__image"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&auto=format&fit=crop&q=80';
+              }}
             />
-            <span className="vehicle-card__media-shade" aria-hidden="true" />
-            <div className="vehicle-card__badges">
-              {isPinnedActive && (
-                <span className="vehicle-card__badge" style={{ background: '#3730A3', color: '#FFFFFF', fontWeight: '900', border: '1px solid #818CF8' }}>
-                  ⭐ PINNED TOP
-                </span>
-              )}
-              {isUrgentActive && (
-                <span className="vehicle-card__badge" style={{ background: '#DC2626', color: '#FFFFFF', fontWeight: '900', border: '1px solid #FCA5A5' }}>
-                  🚨 URGENT
-                </span>
-              )}
-              {vehicle.source === 'showroom' && (
-                <span className="vehicle-card__badge" style={{ background: '#0F172A', color: '#F59E0B', fontWeight: '900', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
-                  ★ Showroom
-                </span>
-              )}
-              {vehicle.condition && (
-                <span className="vehicle-card__badge vehicle-card__badge--new">
-                  {vehicle.condition}
-                </span>
-              )}
-              {vehicle.type && (
-                <span className="vehicle-card__badge vehicle-card__badge--type">
-                  {vehicle.type}
-                </span>
+            <div className="vehicle-card__media-header">
+              <div className="vehicle-card__badges-wrap">
+                {isPinnedActive && (
+                  <span className="vehicle-card__badge" style={{ background: '#3730A3', color: '#FFFFFF', fontWeight: '900', border: '1px solid #818CF8' }}>
+                    ⭐ PINNED TOP
+                  </span>
+                )}
+                {isUrgentActive && (
+                  <span className="vehicle-card__badge" style={{ background: '#DC2626', color: '#FFFFFF', fontWeight: '900', border: '1px solid #FCA5A5' }}>
+                    🚨 URGENT
+                  </span>
+                )}
+                {vehicle.source === 'showroom' && (
+                  <span className="vehicle-card__badge" style={{ background: '#0F172A', color: '#F59E0B', fontWeight: '900', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                    ★ Showroom
+                  </span>
+                )}
+                {vehicle.condition && (
+                  <span className="vehicle-card__badge vehicle-card__badge--new">
+                    {vehicle.condition}
+                  </span>
+                )}
+                {vehicle.type && (
+                  <span className="vehicle-card__badge vehicle-card__badge--type">
+                    {vehicle.type}
+                  </span>
+                )}
+              </div>
+
+              {isOwner && (
+                <div className="vehicle-card__owner-btns">
+                  {hasPendingBoost ? (
+                    <button
+                      type="button"
+                      className="vehicle-card__boost-btn vehicle-card__boost-btn--pending"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
+                      title="Boost Request Pending Admin Approval"
+                    >
+                      <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
+                      <span>Boost Pending</span>
+                    </button>
+                  ) : isApproved ? (
+                    <button
+                      type="button"
+                      className="vehicle-card__boost-btn"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
+                      title="Boost this listing"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-400" />
+                      <span>Boost</span>
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="vehicle-card__edit-btn"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/edit-vehicle/${id}`); }}
+                    title="Edit this listing"
+                    aria-label="Edit listing"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
             </div>
+
             {allImages.length > 1 && (
               <span className="vehicle-card__photo-count">
                 <Camera aria-hidden="true" />
                 {allImages.length} photos
               </span>
             )}
-            {isOwner && (
-              <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
-                {hasPendingBoost ? (
-                  <button
-                    type="button"
-                    className="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-extrabold text-[10px] rounded-full shadow-lg border border-amber-400/50 flex items-center gap-1"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
-                    title="Boost Request Pending Admin Approval"
-                  >
-                    <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
-                    <span>Boost Pending</span>
-                  </button>
-                ) : isApproved ? (
-                  <button
-                    type="button"
-                    className="px-2.5 py-1 bg-[#0B1530] hover:bg-slate-800 text-amber-400 font-extrabold text-[10px] rounded-full shadow-lg hover:scale-105 transition-all border border-amber-400/40 flex items-center gap-1"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
-                    title="Boost this listing"
-                  >
-                    <Sparkles className="w-3 h-3 text-amber-400" />
-                    <span>Boost</span>
-                  </button>
-                ) : null}
-                <button
-                  type="button"
-                  className="p-2 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg hover:scale-110 transition-all"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/edit-vehicle/${id}`); }}
-                  title="Edit this listing"
-                  aria-label="Edit listing"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
           </button>
 
           <div className="vehicle-card__main">
             <div className="vehicle-card__details">
-              <div className="vehicle-card__make">
+              {/* Desktop Header / Make */}
+              <div className="vehicle-card__make vehicle-card__make--desktop">
                 {makeLine || 'Bike'}
                 {vehicle.year ? ` - ${vehicle.year}` : ''}
               </div>
-              <h3 className="vehicle-card__title">{title}</h3>
-              
-              <div className="vehicle-card__meta-list">
+
+              {/* Line 1: Title */}
+              <h3 className="vehicle-card__title">
+                <Link to={`/vehicle/${id}`}>{title}</Link>
+              </h3>
+
+              {/* Line 2 on Mobile: Mileage | Condition / Year */}
+              <div className="vehicle-card__subtitle-mobile">
+                {mileageVal != null ? `${Number(mileageVal).toLocaleString()} km` : '0 km'} | {vehicle.condition || 'Brand New'}{vehicle.year ? ` ${vehicle.year}` : ''}
+              </div>
+
+              {/* Line 3 on Mobile: Trust Badges */}
+              <div className="vehicle-card__trust-badges-mobile">
+                {vehicle.source === 'showroom' && approvedRequest ? (
+                  <span className="trust-badge trust-badge--showroom">
+                    <ShowroomBadgeIcon />
+                    <span>SHOWROOM</span>
+                  </span>
+                ) : (
+                  <span className="trust-badge trust-badge--member">
+                    <MemberBadgeIcon />
+                    <span>MEMBER</span>
+                  </span>
+                )}
+                <span className="trust-badge trust-badge--verified">
+                  <VerifiedBadgeIcon />
+                  <span>VERIFIED SELLER</span>
+                </span>
+                {isPinnedActive && (
+                  <span className="trust-badge trust-badge--pinned">
+                    <PinnedBadgeIcon />
+                    <span>PINNED</span>
+                  </span>
+                )}
+                {isUrgentActive && (
+                  <span className="trust-badge trust-badge--urgent">
+                    <UrgentBadgeIcon />
+                    <span>URGENT</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Line 4 on Mobile: Location, Category */}
+              <div className="vehicle-card__location-mobile">
+                <span>{location || 'Sri Lanka'}, {vehicle.type ? vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1) : 'Motorbikes'}</span>
+              </div>
+
+              {/* Line 5 on Mobile: Price & Time Ago */}
+              <div className="vehicle-card__price-row vehicle-card__price-row--mobile">
+                <div className="vehicle-card__price">{formatPrice(price)}</div>
+                <span className="vehicle-card__time-ago">{formatTimeAgo(postedAt)}</span>
+              </div>
+
+              {/* Desktop-only meta list */}
+              <div className="vehicle-card__meta-list vehicle-card__meta-list--desktop">
                 <div className="vehicle-card__meta-item">
                   <FiMapPin className="meta-icon" aria-hidden="true" />
                   <span className="meta-label">Location:</span>
@@ -318,22 +425,13 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
               </div>
 
               {description && (
-                <p className="vehicle-card__description">
+                <p className="vehicle-card__description vehicle-card__description--desktop">
                   {description}
                 </p>
               )}
 
-              <div className="vehicle-card__price-row vehicle-card__price-row--mobile">
-                <div>
-                  <span className="vehicle-card__price-label">Price</span>
-                  <div className="vehicle-card__price">{formatPrice(price)}</div>
-                </div>
-                {vehicle.registerYear && (
-                  <span className="vehicle-card__reg">Reg: {vehicle.registerYear}</span>
-                )}
-              </div>
-
-              <div className="vehicle-card__specs" aria-label="Vehicle specifications">
+              {/* Desktop-only specs */}
+              <div className="vehicle-card__specs vehicle-card__specs--desktop" aria-label="Vehicle specifications">
                 {specItems.map(({ key, Icon, className, label }) => (
                   <span key={key} className="vehicle-card__spec">
                     <Icon className={`vehicle-card__spec-icon ${className}`} aria-hidden="true" />
@@ -356,7 +454,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
 
               <div className="vehicle-card__posted">
                 <FiCalendar aria-hidden="true" />
-                <span>Posted: {toISODate(postedAt)}</span>
+                <span>Posted: {formatTimeAgo(postedAt)}</span>
               </div>
 
               <Button asChild className="vehicle-card__button" size="sm">
@@ -409,38 +507,41 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 z-10 max-w-[85%]">
-            {isPinnedActive && (
-              <span className="bg-indigo-700 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-indigo-400 flex items-center gap-1">
-                ⭐ PINNED
-              </span>
-            )}
-            {isUrgentActive && (
-              <span className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-red-300 flex items-center gap-1 animate-pulse">
-                🚨 URGENT
-              </span>
-            )}
-            {vehicle.source === 'showroom' && (
-              <span className="bg-[#0F172A] text-amber-400 text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-amber-400/30 flex items-center gap-1">
-                ★ Showroom
-              </span>
-            )}
-            {vehicle.condition && (
-              <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
-                {vehicle.condition}
-              </span>
-            )}
-            {vehicle.type && (
-              <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide capitalize">
-                {vehicle.type}
-              </span>
-            )}
+          <div className="vehicle-card__media-header">
+            <div className="vehicle-card__badges-wrap">
+              {isPinnedActive && (
+                <span className="bg-indigo-700 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-indigo-400 flex items-center gap-1">
+                  ⭐ PINNED
+                </span>
+              )}
+              {isUrgentActive && (
+                <span className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-red-300 flex items-center gap-1 animate-pulse">
+                  🚨 URGENT
+                </span>
+              )}
+              {vehicle.source === 'showroom' && (
+                <span className="bg-[#0F172A] text-amber-400 text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider border border-amber-400/30 flex items-center gap-1">
+                  ★ Showroom
+                </span>
+              )}
+              {vehicle.condition && (
+                <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                  {vehicle.condition}
+                </span>
+              )}
+              {vehicle.type && (
+                <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide capitalize">
+                  {vehicle.type}
+                </span>
+              )}
+            </div>
+
             {isOwner && (
-              <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
+              <div className="vehicle-card__owner-btns">
                 {hasPendingBoost ? (
                   <button
                     type="button"
-                    className="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-extrabold text-[10px] rounded-full shadow-lg border border-amber-400/50 flex items-center gap-1"
+                    className="vehicle-card__boost-btn vehicle-card__boost-btn--pending"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
                     title="Boost Request Pending Admin Approval"
                   >
@@ -450,7 +551,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
                 ) : isApproved ? (
                   <button
                     type="button"
-                    className="px-2.5 py-1 bg-[#0B1530] hover:bg-slate-800 text-amber-400 font-extrabold text-[10px] rounded-full shadow-lg hover:scale-105 transition-all border border-amber-400/40 flex items-center gap-1"
+                    className="vehicle-card__boost-btn"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsBoostModalOpen(true); }}
                     title="Boost this listing"
                   >
@@ -460,7 +561,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
                 ) : null}
                 <button
                   type="button"
-                  className="p-2 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg hover:scale-110 transition-all"
+                  className="vehicle-card__edit-btn"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/edit-vehicle/${id}`); }}
                   title="Edit this listing"
                   aria-label="Edit listing"

@@ -465,3 +465,50 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   Post Ad & Edit Vehicle Page Skyscraper Ads Layout (Desktop Only)
+   -------------------------------------------------------------------------- */
+.post-ad-page-layout {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 20px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.post-ad-main-content {
+  flex: 0 1 1060px;
+  max-width: 1060px;
+  width: 100%;
+  min-width: 0;
+}
+
+.post-ad-side-ad {
+  display: none;
+  width: 160px;
+  flex: 0 0 160px;
+  flex-shrink: 0;
+  align-self: stretch;
+  height: auto;
+  position: relative;
+}
+
+.post-ad-sticky-ad {
+  position: sticky;
+  top: 130px;
+  display: flex;
+  justify-content: center;
+  z-index: 20;
+}
+
+@media (min-width: 1200px) {
+  .post-ad-side-ad {
+    display: block;
+  }
+}
+
+

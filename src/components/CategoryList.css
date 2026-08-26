@@ -703,7 +703,7 @@
   }
 
   .category-page .cards {
-    gap: 12px;
+    gap: 8px !important;
   }
 }
 

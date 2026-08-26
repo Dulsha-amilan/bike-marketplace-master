@@ -108,17 +108,7 @@
   margin: 0 auto;
 }
 
-.home-ad-showcase-section {
-  padding: 24px 0 40px 0;
-}
 
-.home-ad-showcase-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  flex-wrap: wrap;
-}
 
 
 .glass-filters {
