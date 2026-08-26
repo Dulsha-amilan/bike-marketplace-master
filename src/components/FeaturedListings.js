@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarDays, Gauge, MapPin, Home, Bike, Pencil, Sparkles, Clock, Zap, Droplet, Cpu, Phone, User } from 'lucide-react';
+import { ArrowRight, CalendarDays, Gauge, MapPin, Home, Bike, Pencil, Sparkles, Clock } from 'lucide-react';
 import { resolveMediaUrl } from '../utils/resolveMediaUrl';
 import { useVehicles } from './vehiclesStore';
 import { useAuth } from './AuthContext';
