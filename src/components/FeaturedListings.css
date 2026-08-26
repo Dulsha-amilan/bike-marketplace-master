@@ -496,7 +496,8 @@
     background: #f1f5f9 !important;
   }
 
-  .featured-card__badges {
+  .featured-card__badges,
+  .featured-card__badges-wrap {
     display: none !important;
   }
 

@@ -551,7 +551,8 @@
     display: none !important;
   }
 
-  .vehicle-card__badges {
+  .vehicle-card__badges,
+  .vehicle-card__badges-wrap {
     display: none !important;
   }
 
