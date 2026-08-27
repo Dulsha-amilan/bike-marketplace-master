@@ -1,17 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { FaHandshake } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick, onSearch }) => {
     const { user } = useAuth();
-    const [mounted, setMounted] = useState(false);
     const navigate = useNavigate();
+    const contentRef = useRef(null);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    useGSAP(() => {
+        if (!contentRef.current) return;
+
+        gsap.to(contentRef.current, {
+            opacity: 0,
+            y: -40,
+            ease: 'power1.out',
+            scrollTrigger: {
+                start: 0,
+                end: 350,
+                scrub: true,
+                invalidateOnRefresh: true,
+            },
+        });
+    }, { scope: contentRef });
 
     return (
         <div className="hero-container hero-sticky relative min-h-[680px] lg:min-h-screen flex items-center justify-center bg-black text-white pb-12 lg:pb-0 z-0">
@@ -39,9 +58,8 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick, on
 
                 {/* Left Content (Text Section & Trust Badges) */}
                 <div 
-                    className={`w-full transition-all duration-700 ease-out ${
-                        mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-                    }`}
+                    ref={contentRef}
+                    className="w-full"
                 >
                     <div className="max-w-2xl text-left">
                         {/* 3-Line Racing Italic Title */}
