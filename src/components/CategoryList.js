@@ -179,7 +179,19 @@ const CustomSearchDropdown = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 820;
+  });
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 820);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -192,9 +204,9 @@ const CustomSearchDropdown = ({
   }, []);
 
   const filteredOptions = useMemo(() => {
-    if (!search.trim()) return options;
+    if (isMobile || !search.trim()) return options;
     return options.filter(opt => opt.toLowerCase().includes(search.trim().toLowerCase()));
-  }, [options, search]);
+  }, [options, search, isMobile]);
 
   return (
     <div className="filter-dropdown-wrap" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
@@ -205,7 +217,7 @@ const CustomSearchDropdown = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           textAlign: 'left',
           width: '100%',
           cursor: 'pointer'
@@ -238,26 +250,28 @@ const CustomSearchDropdown = ({
             gap: '6px'
           }}
         >
-          {/* Search box inside dropdown */}
-          <div style={{ position: 'relative', width: '100%' }}>
-            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#94a3b8' }} />
-            <input
-              type="text"
-              placeholder={searchPlaceholder}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '7px 10px 7px 30px',
-                fontSize: '0.82rem',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                outline: 'none',
-                background: '#f8fafc'
-              }}
-              autoFocus
-            />
-          </div>
+          {/* Search box inside dropdown — disabled on mobile */}
+          {!isMobile && (
+            <div style={{ position: 'relative', width: '100%' }}>
+              <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#94a3b8' }} />
+              <input
+                type="text"
+                placeholder={searchPlaceholder}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '7px 10px 7px 30px',
+                  fontSize: '0.82rem',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  background: '#f8fafc'
+                }}
+                autoFocus
+              />
+            </div>
+          )}
 
           {/* Options list */}
           <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>

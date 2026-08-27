@@ -48,7 +48,19 @@ const CustomSearchDropdown = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 820;
+  });
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 820);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -70,12 +82,12 @@ const CustomSearchDropdown = ({
   }, [options]);
 
   const filteredOptions = useMemo(() => {
-    if (!search.trim()) return normalizedOptions;
+    if (isMobile || !search.trim()) return normalizedOptions;
     const query = search.trim().toLowerCase();
     return normalizedOptions.filter(opt =>
       opt.label.toLowerCase().includes(query) || opt.value.toLowerCase().includes(query)
     );
-  }, [normalizedOptions, search]);
+  }, [normalizedOptions, search, isMobile]);
 
   const selectedOpt = normalizedOptions.find(
     opt => String(opt.value).toLowerCase() === String(value).toLowerCase()
@@ -99,35 +111,37 @@ const CustomSearchDropdown = ({
 
       {isOpen && (
         <div className={`searchable-dropdown-popover animate-in fade-in slide-in-from-top-2 duration-150 ${dropUp ? 'drop-up' : ''}`}>
-          {/* Search box inside dropdown */}
-          <div className="searchable-dropdown-search-box">
-            <Search className="search-box-icon" size={15} />
-            <input
-              type="text"
-              className="search-box-input"
-              placeholder={searchPlaceholder}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                if (allowCustomInput) {
-                  onChange(e.target.value);
-                }
-              }}
-              autoFocus
-            />
-            {search && (
-              <button
-                type="button"
-                className="search-box-clear"
-                onClick={() => {
-                  setSearch('');
-                  if (allowCustomInput) onChange('');
+          {/* Search box inside dropdown — disabled on mobile screens to prevent keyboard popup */}
+          {!isMobile && (
+            <div className="searchable-dropdown-search-box">
+              <Search className="search-box-icon" size={15} />
+              <input
+                type="text"
+                className="search-box-input"
+                placeholder={searchPlaceholder}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  if (allowCustomInput) {
+                    onChange(e.target.value);
+                  }
                 }}
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
+                autoFocus
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="search-box-clear"
+                  onClick={() => {
+                    setSearch('');
+                    if (allowCustomInput) onChange('');
+                  }}
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Options container with custom scrollbar & scroll arrows */}
           <div className="searchable-dropdown-options-container">

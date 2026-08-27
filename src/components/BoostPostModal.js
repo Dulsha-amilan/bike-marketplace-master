@@ -281,20 +281,12 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                   );
                 })}
               </div>
-
-              <button
-                type="button"
-                onClick={handleProceedToRemittance}
-                className="w-full py-3.5 sm:py-4 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-slate-900/10"
-              >
-                Proceed to Bank Transfer →
-              </button>
             </div>
           )}
 
           {/* STEP 2: Remittance Settlement */}
           {step === 2 && (
-            <form onSubmit={handleFormSubmit} className="space-y-6">
+            <form id="boost-step2-form" onSubmit={handleFormSubmit} className="space-y-6">
               <div className="text-center space-y-1">
                 <h4 className="text-lg font-black text-[#0B1530] tracking-tight">
                   Remittance Settlement
@@ -411,34 +403,6 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                   )}
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2.5 sm:gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="px-4 sm:px-5 py-3 sm:py-3.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs shrink-0 whitespace-nowrap"
-                >
-                  ← Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-3 sm:py-3.5 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-[11px] sm:text-xs uppercase tracking-normal sm:tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 text-center"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      Submitting Slip...
-                    </>
-                  ) : (
-                    <>
-                      <span>Submit Slip for Approval</span>
-                      <ShieldCheck className="w-4 h-4 text-[#ffd600] shrink-0" />
-                    </>
-                  )}
-                </button>
-              </div>
             </form>
           )}
 
@@ -482,6 +446,53 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
           )}
 
         </div>
+
+        {/* Pinned Bottom Footer - Always visible on mobile & desktop */}
+        {step === 1 && (
+          <div className="boost-modal-footer">
+            <button
+              type="button"
+              onClick={handleProceedToRemittance}
+              className="boost-modal-action-btn"
+            >
+              <span>Proceed to Bank Transfer</span>
+              <span className="boost-modal-btn-price">({selectedPkg.priceFormatted})</span>
+              <span>→</span>
+            </button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="boost-modal-footer">
+            <div className="flex items-center gap-2.5 sm:gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="px-4 sm:px-5 py-3 sm:py-3.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs shrink-0 whitespace-nowrap"
+              >
+                ← Back
+              </button>
+              <button
+                type="submit"
+                form="boost-step2-form"
+                disabled={submitting}
+                className="flex-1 py-3 sm:py-3.5 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-[11px] sm:text-xs uppercase tracking-normal sm:tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 text-center"
+              >
+                {submitting ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Submitting Slip...
+                  </>
+                ) : (
+                  <>
+                    <span>Submit Slip for Approval</span>
+                    <ShieldCheck className="w-4 h-4 text-[#ffd600] shrink-0" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

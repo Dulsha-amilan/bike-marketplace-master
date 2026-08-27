@@ -236,17 +236,76 @@
   box-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
 }
 
+/* Modal Sticky Footer - Always visible on mobile & desktop */
+.boost-modal-footer {
+  flex-shrink: 0;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -8px 24px rgba(10, 11, 16, 0.08);
+  z-index: 40;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.boost-modal-action-btn {
+  width: 100%;
+  padding: 14px 18px;
+  background: #0a0b10;
+  color: #ffffff;
+  border: 1px solid rgba(255, 214, 0, 0.35);
+  border-radius: 16px;
+  font-size: 0.88rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(10, 11, 16, 0.25);
+  transition: all 0.2s ease;
+}
+
+.boost-modal-action-btn:hover {
+  background: #161824;
+  border-color: #ffd600;
+  color: #ffd600;
+  transform: translateY(-1px);
+}
+
+.boost-modal-action-btn:active {
+  transform: scale(0.985);
+}
+
+.boost-modal-btn-price {
+  color: #ffd600;
+  font-weight: 900;
+}
+
 /* ===== Responsive Mobile Optimizations ===== */
 @media (max-width: 640px) {
   .boost-modal-overlay {
-    padding: 0.75rem 0.5rem;
+    padding: 0;
     align-items: flex-end;
   }
 
   .boost-modal-container {
-    border-radius: 24px 24px 16px 16px;
-    max-height: calc(100vh - 1rem);
+    border-radius: 26px 26px 0 0;
+    max-height: 92dvh;
+    max-height: calc(100dvh - 16px);
     width: 100%;
+    margin-bottom: 0;
+  }
+
+  .boost-modal-footer {
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 12px));
+  }
+
+  .boost-modal-action-btn {
+    padding: 13px 16px;
+    font-size: 0.82rem;
   }
 
   .boost-modal-header {

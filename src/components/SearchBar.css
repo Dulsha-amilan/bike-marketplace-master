@@ -307,7 +307,7 @@
   color: #64748b;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   .search-bar {
     padding: 0;
   }
@@ -316,12 +316,20 @@
     grid-template-columns: 1fr;
   }
   
+  /* Disable search box on mobile so keyboard never opens */
+  .searchable-dropdown-search-box {
+    display: none !important;
+  }
+
   .searchable-dropdown-popover {
     z-index: 99999 !important;
+    padding: 6px;
+    gap: 4px;
   }
 
   .searchable-dropdown-list {
-    max-height: 165px;
+    max-height: 220px;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
