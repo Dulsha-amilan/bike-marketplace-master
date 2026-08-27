@@ -349,7 +349,18 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
                         </div>
                       </div>
 
-                      <Link className="featured-card__action" to={`/vehicle/${vehicle.id}`}>
+                      <Link
+                        className="featured-card__action"
+                        to={`/vehicle/${vehicle.id}`}
+                        onClick={() => {
+                          window.scrollTo(0, 0);
+                          if (document.documentElement) document.documentElement.scrollTop = 0;
+                          if (document.body) document.body.scrollTop = 0;
+                          if (window.__lenis) {
+                            window.__lenis.scrollTo(0, { immediate: true, force: true });
+                          }
+                        }}
+                      >
                         View Details
                         <ArrowRight aria-hidden="true" />
                       </Link>

@@ -19,16 +19,30 @@ const Hero = ({ translations, searchFilters, setSearchFilters, onPostAdClick, on
     useGSAP(() => {
         if (!contentRef.current) return;
 
-        gsap.to(contentRef.current, {
-            opacity: 0,
-            y: -40,
-            ease: 'power1.out',
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const totalDistance = isMobile ? 560 : 720;
+
+        const tl = gsap.timeline({
             scrollTrigger: {
                 start: 0,
-                end: 350,
-                scrub: true,
+                end: totalDistance,
+                scrub: 0.6,
                 invalidateOnRefresh: true,
             },
+        });
+
+        // 1. Keep text 100% solid & readable during initial scroll
+        tl.to(contentRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.35,
+        })
+        // 2. Then gently and smoothly fade out as user scrolls further down
+        .to(contentRef.current, {
+            opacity: 0,
+            y: -35,
+            duration: 0.65,
+            ease: 'power1.out',
         });
     }, { scope: contentRef });
 

@@ -1,16 +1,19 @@
-/* BoostPostModal.css */
+/* BoostPostModal.css - 4-Color Master UI/UX */
 .boost-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background-color: rgba(11, 21, 48, 0.85);
+  background-color: rgba(10, 11, 16, 0.85);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem 1rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   animation: boostFadeIn 0.25s ease-out forwards;
+  box-sizing: border-box;
 }
 
 @keyframes boostFadeIn {
@@ -26,13 +29,16 @@
   background: #ffffff;
   width: 100%;
   max-width: 680px;
-  max-height: calc(100vh - 3rem);
+  max-height: min(88vh, 740px);
   margin: auto;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   border-radius: 28px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 25px 60px -12px rgba(10, 11, 16, 0.4);
+  border: 1px solid rgba(10, 11, 16, 0.12);
   position: relative;
+  box-sizing: border-box;
+  overflow: hidden; /* Clips all children to the 28px border-radius, eliminating scrollbar corner clipping */
   animation: boostScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -51,8 +57,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 1.75rem 1rem;
+  padding: 1.35rem 1.65rem 0.95rem;
   border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+  background: #ffffff;
 }
 
 .boost-modal-close-btn {
@@ -70,9 +78,9 @@
 }
 
 .boost-modal-close-btn:hover {
-  background: #0b1530;
+  background: #0a0b10;
   color: #ffffff;
-  border-color: #0b1530;
+  border-color: #0a0b10;
 }
 
 /* Steps Indicator */
@@ -81,27 +89,62 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0.75rem 1.75rem;
+  padding: 0.75rem 1rem;
   background: #f8fafc;
   font-size: 0.75rem;
   font-weight: 800;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .boost-step-pill {
   padding: 4px 12px;
   border-radius: 9999px;
+  white-space: nowrap;
+  font-size: 0.74rem;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .boost-step-pill.active {
-  background: #0b1530;
-  color: #ffffff;
-  box-shadow: 0 2px 4px rgba(11, 21, 48, 0.15);
+  background: #0a0b10;
+  color: #ffd600;
+  border: 1px solid rgba(255, 214, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(10, 11, 16, 0.2);
 }
 
 .boost-step-pill.inactive {
   background: #e2e8f0;
   color: #64748b;
+}
+
+/* Modal Scrollable Body */
+.boost-modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(10, 11, 16, 0.2) transparent;
+}
+
+.boost-modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.boost-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.boost-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(10, 11, 16, 0.2);
+  border-radius: 999px;
+}
+
+.boost-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(10, 11, 16, 0.35);
 }
 
 /* Package Cards */
@@ -114,6 +157,8 @@
   background: #ffffff;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .boost-package-card:hover {
@@ -123,39 +168,40 @@
 }
 
 .boost-package-card.selected {
-  border-color: #0b1530;
-  background: #f8fafc;
-  box-shadow: 0 12px 30px -8px rgba(11, 21, 48, 0.12);
+  border-color: #0a0b10;
+  background: #fafbfc;
+  box-shadow: 0 12px 30px -8px rgba(10, 11, 16, 0.16);
 }
 
 .boost-package-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 9999px;
   font-size: 0.65rem;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .boost-package-badge.bump {
-  background: #fef3c7;
+  background: rgba(255, 214, 0, 0.16);
   color: #92400e;
-  border: 1px solid #fcd34d;
+  border: 1px solid rgba(255, 214, 0, 0.5);
 }
 
 .boost-package-badge.pinned {
-  background: #e0e7ff;
-  color: #3730a3;
-  border: 1px solid #c7d2fe;
+  background: #0a0b10;
+  color: #ffd600;
+  border: 1px solid rgba(255, 214, 0, 0.4);
 }
 
 .boost-package-badge.urgent {
   background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
+  color: #e50914;
+  border: 1px solid rgba(229, 9, 20, 0.35);
 }
 
 /* Bank Box */
@@ -167,12 +213,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-sizing: border-box;
 }
 
 .bank-copy-btn {
   padding: 6px 12px;
-  background: #fef08a;
-  color: #0f172a;
+  background: #ffd600;
+  color: #0a0b10;
   border-radius: 8px;
   font-weight: 800;
   font-size: 0.75rem;
@@ -185,19 +232,43 @@
 }
 
 .bank-copy-btn:hover {
-  background: #fde047;
+  background: #facc15;
+  box-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
 }
 
-/* Custom Scrollbar for modal */
-.boost-modal-container::-webkit-scrollbar {
-  width: 6px;
-}
+/* ===== Responsive Mobile Optimizations ===== */
+@media (max-width: 640px) {
+  .boost-modal-overlay {
+    padding: 0.75rem 0.5rem;
+    align-items: flex-end;
+  }
 
-.boost-modal-container::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .boost-modal-container {
+    border-radius: 24px 24px 16px 16px;
+    max-height: calc(100vh - 1rem);
+    width: 100%;
+  }
 
-.boost-modal-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  .boost-modal-header {
+    padding: 1.15rem 1rem 0.85rem;
+  }
+
+  .boost-steps-bar {
+    padding: 0.55rem 0.5rem;
+    gap: 4px;
+  }
+
+  .boost-step-pill {
+    padding: 3px 8px;
+    font-size: 0.68rem;
+  }
+
+  .boost-package-card {
+    padding: 0.9rem;
+    border-radius: 16px;
+  }
+
+  .bank-account-card {
+    padding: 0.85rem;
+  }
 }

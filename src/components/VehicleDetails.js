@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Bike,
@@ -84,6 +84,8 @@ const buildDescription = vehicle => {
 const VehicleDetails = ({ allVehicles = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const passedVehicle = location.state?.vehicle;
   const { user } = useAuth();
 
   const [idx, setIdx] = useState(0);
@@ -94,21 +96,33 @@ const VehicleDetails = ({ allVehicles = [] }) => {
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      if (window.__lenis) {
+        window.__lenis.scrollTo(0, { immediate: true, force: true });
+        window.__lenis.resize();
+      }
+    };
+
+    scrollToTop();
+    const t = setTimeout(scrollToTop, 60);
     setIdx(0);
     setShareMessage('');
+    return () => clearTimeout(t);
   }, [id]);
 
   const vehicle = useMemo(
-    () => allVehicles.find(v => String(v.id) === String(id)),
-    [allVehicles, id]
+    () => (passedVehicle && String(passedVehicle.id) === String(id) ? passedVehicle : null) || allVehicles.find(v => String(v.id) === String(id)),
+    [passedVehicle, allVehicles, id]
   );
 
   useEffect(() => {
     let alive = true;
     setRemoteError('');
 
-    if (!vehicle && id) {
+    if (id) {
       getVehicleById(id)
         .then(data => {
           if (!alive) return;
@@ -116,12 +130,12 @@ const VehicleDetails = ({ allVehicles = [] }) => {
         })
         .catch(error => {
           if (!alive) return;
-          console.error(error);
-          setRemoteError('Failed to load listing from server.');
-          setRemoteVehicle(null);
+          if (!vehicle) {
+            console.error(error);
+            setRemoteError('Failed to load listing from server.');
+            setRemoteVehicle(null);
+          }
         });
-    } else {
-      setRemoteVehicle(null);
     }
 
     return () => {
@@ -130,6 +144,23 @@ const VehicleDetails = ({ allVehicles = [] }) => {
   }, [vehicle, id]);
 
   const activeVehicle = vehicle || remoteVehicle;
+
+  useEffect(() => {
+    if (activeVehicle) {
+      const scrollToTop = () => {
+        window.scrollTo(0, 0);
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+        if (window.__lenis) {
+          window.__lenis.scrollTo(0, { immediate: true, force: true });
+          window.__lenis.resize();
+        }
+      };
+      scrollToTop();
+      const t = setTimeout(scrollToTop, 60);
+      return () => clearTimeout(t);
+    }
+  }, [activeVehicle]);
 
   const photos = useMemo(() => {
     if (!activeVehicle) return [];
@@ -244,10 +275,26 @@ const VehicleDetails = ({ allVehicles = [] }) => {
     return (
       <main className="vehicle-details-page">
         <div className="vd-container">
-          <div className="vd-loading" aria-label="Loading listing">
-            <span />
-            <span />
-            <span />
+          <div className="vd-topbar">
+            <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+              <ArrowLeft size={18} aria-hidden="true" />
+              <span className="vd-back-link-text">Back to listings</span>
+            </button>
+          </div>
+
+          <div className="vd-loading-card">
+            <div className="vd-loading-graphic">
+              <div className="vd-spinner-ring" />
+              <Bike className="vd-loading-bike" />
+            </div>
+            <h2 className="vd-loading-title">Loading Listing Details...</h2>
+            <p className="vd-loading-subtitle">Retrieving verified bike specs, pricing, and seller details</p>
+            
+            <div className="vd-loading-shimmer-box">
+              <div className="vd-shimmer-line vd-shimmer-line--lg" />
+              <div className="vd-shimmer-line vd-shimmer-line--md" />
+              <div className="vd-shimmer-line vd-shimmer-line--sm" />
+            </div>
           </div>
         </div>
       </main>
@@ -260,63 +307,35 @@ const VehicleDetails = ({ allVehicles = [] }) => {
         <div className="vd-topbar">
           <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
             <ArrowLeft size={18} aria-hidden="true" />
-            Back to listings
+            <span className="vd-back-link-text">Back to listings</span>
           </button>
           {user && activeVehicle?.userId && String(user.id) === String(activeVehicle.userId) && (
-            <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <div className="vd-owner-actions">
               {activeVehicle.boostRequests?.some(r => r.status === 'pending') ? (
                 <button
                   type="button"
+                  className="vd-owner-btn vd-owner-btn--pending"
                   onClick={() => setIsBoostModalOpen(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: 'rgba(245, 158, 11, 0.15)',
-                    color: '#D97706',
-                    border: '1px solid rgba(245, 158, 11, 0.6)',
-                    padding: '8px 16px',
-                    borderRadius: '10px',
-                    fontWeight: 800,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
                 >
                   <Clock size={15} className="animate-pulse" />
-                  Boost Pending Review
+                  <span>Boost Pending</span>
                 </button>
               ) : (!activeVehicle.approvalStatus || activeVehicle.approvalStatus === 'approved') ? (
                 <button
                   type="button"
+                  className="vd-owner-btn vd-owner-btn--boost"
                   onClick={() => setIsBoostModalOpen(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: '#0B1530',
-                    color: '#F59E0B',
-                    border: '1px solid rgba(245, 158, 11, 0.5)',
-                    padding: '8px 16px',
-                    borderRadius: '10px',
-                    fontWeight: 800,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(11,21,48,0.2)',
-                    transition: 'all 0.2s'
-                  }}
                 >
                   <Sparkles size={15} />
-                  Boost Listing
+                  <span>Boost Listing</span>
                 </button>
               ) : null}
               <Link
                 to={`/edit-vehicle/${id}`}
-                className="vd-back-link"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#0ea5e9', color: '#fff', padding: '8px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '13px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(14,165,233,0.2)' }}
+                className="vd-owner-btn vd-owner-btn--edit"
               >
                 <Pencil size={15} />
-                Edit Listing
+                <span>Edit Listing</span>
               </Link>
             </div>
           )}

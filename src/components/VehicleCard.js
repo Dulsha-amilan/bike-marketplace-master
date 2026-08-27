@@ -174,6 +174,27 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
     setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length);
   };
 
+  const navigateToDetails = event => {
+    if (event) {
+      if (
+        event.target.closest('.vehicle-card__owner-btns') ||
+        event.target.closest('.vehicle-card__boost-btn') ||
+        event.target.closest('.vehicle-card__edit-btn')
+      ) {
+        return;
+      }
+    }
+
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true, force: true });
+    }
+
+    navigate(`/vehicle/${id}`, { state: { vehicle } });
+  };
+
   useEffect(() => {
     if (!isLightboxOpen) return;
 
@@ -228,12 +249,22 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
 
     return (
       <>
-        <Card className={`vehicle-card vehicle-card--ad ${isUrgentActive ? 'vehicle-card--urgent' : ''} ${isPinnedActive ? 'vehicle-card--pinned' : ''}`}>
+        <Card 
+          className={`vehicle-card vehicle-card--ad ${isUrgentActive ? 'vehicle-card--urgent' : ''} ${isPinnedActive ? 'vehicle-card--pinned' : ''}`}
+          onClick={navigateToDetails}
+          style={{ cursor: 'pointer' }}
+        >
           <button
             className="vehicle-card__media"
-            onClick={openLightbox}
+            onClick={(e) => {
+              if (typeof window !== 'undefined' && window.innerWidth <= 820) {
+                navigateToDetails(e);
+              } else {
+                openLightbox(e);
+              }
+            }}
             type="button"
-            aria-label={`Open photos for ${title}`}
+            aria-label={`View details for ${title}`}
           >
             <img
               src={resolveMediaUrl(image)}
@@ -318,7 +349,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
             )}
           </button>
 
-          <div className="vehicle-card__main">
+          <div className="vehicle-card__main" onClick={navigateToDetails} style={{ cursor: 'pointer' }}>
             <div className="vehicle-card__details">
               {/* Desktop Header / Make */}
               <div className="vehicle-card__make vehicle-card__make--desktop">
@@ -328,7 +359,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
 
               {/* Line 1: Title */}
               <h3 className="vehicle-card__title">
-                <Link to={`/vehicle/${id}`}>{title}</Link>
+                <Link to={`/vehicle/${id}`} onClick={navigateToDetails}>{title}</Link>
               </h3>
 
               {/* Line 2 on Mobile: Mileage | Condition / Year */}
@@ -458,7 +489,19 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
               </div>
 
               <Button asChild className="vehicle-card__button" size="sm">
-                <Link to={`/vehicle/${id}`}>View Details</Link>
+                <Link
+                  to={`/vehicle/${id}`}
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    if (document.documentElement) document.documentElement.scrollTop = 0;
+                    if (document.body) document.body.scrollTop = 0;
+                    if (window.__lenis) {
+                      window.__lenis.scrollTo(0, { immediate: true, force: true });
+                    }
+                  }}
+                >
+                  View Details
+                </Link>
               </Button>
             </div>
           </div>
@@ -486,7 +529,11 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
 
   return (
     <>
-      <Card className={`vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 ${isPreview ? '' : 'h-full'} flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto ${isUrgentActive ? 'ring-2 ring-red-500 shadow-lg shadow-red-500/25' : ''} ${isPinnedActive ? 'ring-2 ring-indigo-500 shadow-lg shadow-indigo-500/25' : ''}`}>
+      <Card 
+        className={`vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 ${isPreview ? '' : 'h-full'} flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto ${isUrgentActive ? 'ring-2 ring-red-500 shadow-lg shadow-red-500/25' : ''} ${isPinnedActive ? 'ring-2 ring-indigo-500 shadow-lg shadow-indigo-500/25' : ''}`}
+        onClick={isPreview ? undefined : navigateToDetails}
+        style={{ cursor: isPreview ? 'default' : 'pointer' }}
+      >
         <div 
           className={`vehicle-media relative aspect-[16/9] overflow-hidden ${isPreview ? 'cursor-default' : 'cursor-pointer'} bg-gray-900`} 
           onClick={isPreview ? undefined : openLightbox}
@@ -636,7 +683,13 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
           </div>
 
           <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-            <Link to={`/vehicle/${id}`}>View Details</Link>
+            <Link
+              to={`/vehicle/${id}`}
+              state={{ vehicle }}
+              onClick={navigateToDetails}
+            >
+              View Details
+            </Link>
           </Button>
         </CardFooter>
       </Card>

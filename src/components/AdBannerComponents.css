@@ -204,13 +204,13 @@
 .ad-shield-icon {
   width: 42px;
   height: 48px;
-  color: #38bdf8;
+  color: #ffd600;
   margin-bottom: 18px;
-  filter: drop-shadow(0 4px 8px rgba(56, 189, 248, 0.3));
+  filter: drop-shadow(0 4px 12px rgba(255, 214, 0, 0.4));
 }
 
 .ad-skyscraper-title {
-  color: #38bdf8;
+  color: #ffd600;
   font-size: 0.95rem;
   font-weight: 900;
   letter-spacing: 0.5px;
@@ -228,7 +228,7 @@
 }
 
 .ad-rate-box {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(10, 11, 16, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 16px 10px;
@@ -263,8 +263,8 @@
 
 .ad-btn-cyan {
   width: 100%;
-  background: #00a8ff;
-  color: #071120;
+  background: linear-gradient(135deg, #e50914 0%, #b91c1c 100%);
+  color: #ffffff;
   font-weight: 900;
   font-size: 0.82rem;
   padding: 11px 0;
@@ -273,11 +273,14 @@
   cursor: pointer;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  transition: background-color 0.15s ease;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 .ad-banner-container:hover .ad-btn-cyan {
-  background: #38c8ff;
+  background: #ff1e27;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.5);
 }
 
 .ad-terms-text {
@@ -319,14 +322,15 @@
 }
 
 .ad-badge-orange {
-  background: #ff9800;
-  color: #0d121d;
+  background: #e50914;
+  color: #ffffff;
   font-weight: 900;
   font-size: 0.72rem;
   padding: 4px 10px;
   border-radius: 6px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.35);
 }
 
 .ad-square-title {

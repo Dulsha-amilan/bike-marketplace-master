@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2, Bike } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Calendar, Search, SlidersHorizontal, X, Loader2, Bike, ArrowUpDown } from 'lucide-react';
 import VehicleCard from '../components/VehicleCard';
 import { getVehicles, getAdBanners } from '../api/bikeApi';
 import { LeaderboardAdBanner, SkyscraperAdBanner, SquareBoxAdBanner } from './AdBannerComponents';
@@ -57,7 +57,8 @@ const CustomSelectDropdown = ({
   onChange,
   placeholder = "Select option",
   alignRight = false,
-  className = ""
+  className = "",
+  icon = null
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -76,7 +77,11 @@ const CustomSelectDropdown = ({
   const displayLabel = selectedOption ? selectedOption.label : placeholder;
 
   return (
-    <div className={`filter-dropdown-wrap ${className}`} ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+    <div
+      className={`filter-dropdown-wrap ${isOpen ? 'is-open' : ''} ${className}`}
+      ref={containerRef}
+      style={{ position: 'relative', width: '100%', zIndex: isOpen ? 60 : 1 }}
+    >
       <button
         type="button"
         className="select filter-select"
@@ -84,16 +89,19 @@ const CustomSelectDropdown = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           textAlign: 'left',
           width: '100%',
           cursor: 'pointer'
         }}
       >
-        <span style={{ color: '#0f172a', fontWeight: 600, fontSize: '0.88rem' }}>
-          {displayLabel}
-        </span>
-        <ChevronDown className="filter-select-icon" aria-hidden="true" style={{ pointerEvents: 'none' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
+          {icon && <span style={{ display: 'inline-flex', color: '#64748b', flexShrink: 0 }}>{icon}</span>}
+          <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {displayLabel}
+          </span>
+        </div>
+        <ChevronDown className="filter-select-icon" aria-hidden="true" style={{ pointerEvents: 'none', flexShrink: 0, width: '14px', height: '14px', marginLeft: '4px' }} />
       </button>
 
       {isOpen && (
@@ -102,15 +110,16 @@ const CustomSelectDropdown = ({
           style={{
             position: 'absolute',
             left: alignRight ? 'auto' : 0,
-            right: alignRight ? 0 : 'auto',
+            right: 0,
             top: 'calc(100% + 4px)',
-            zIndex: 9999,
+            zIndex: 99999,
             width: '100%',
-            minWidth: '180px',
+            minWidth: '200px',
+            maxWidth: 'calc(100vw - 32px)',
             background: '#ffffff',
             border: '1px solid #cbd5e1',
             borderRadius: '14px',
-            boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+            boxShadow: '0 20px 30px -5px rgba(10, 11, 16, 0.25), 0 10px 14px -5px rgba(10, 11, 16, 0.15)',
             padding: '6px',
             display: 'flex',
             flexDirection: 'column',
@@ -879,6 +888,7 @@ const CategoryList = ({ allVehicles = [] }) => {
         value={sortBy}
         onChange={val => setSortBy(val)}
         alignRight={true}
+        icon={<ArrowUpDown size={13} />}
       />
     </div>
   );
@@ -1096,10 +1106,20 @@ const CategoryList = ({ allVehicles = [] }) => {
             <Search aria-hidden="true" />
             <input
               type="search"
-              placeholder={`Search ${label.toLowerCase()}`}
+              placeholder={`Search ${label.toLowerCase()}...`}
               value={keywords}
               onChange={event => setKeywords(event.target.value)}
             />
+            {keywords && (
+              <button
+                type="button"
+                className="toolbar-search-clear"
+                onClick={() => setKeywords('')}
+                aria-label="Clear search"
+              >
+                <X size={13} />
+              </button>
+            )}
           </label>
 
           {sortControl}
@@ -1176,6 +1196,9 @@ const CategoryList = ({ allVehicles = [] }) => {
                     })}
                     {!displayVehicles.length && (
                       <div className="empty">
+                        <div className="empty-icon-wrap" aria-hidden="true">
+                          <Bike className="empty-bike-icon" />
+                        </div>
                         <h3>No {label.toLowerCase()} found</h3>
                         <p>Try removing a filter or searching a different model.</p>
                         <button className="btn btn-primary" type="button" onClick={resetFilters}>

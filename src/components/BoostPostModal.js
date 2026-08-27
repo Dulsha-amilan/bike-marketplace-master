@@ -64,6 +64,20 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
       } else {
         setStep(1);
       }
+
+      // Lock body scroll and pause Lenis smooth scroll while modal is active
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      if (window.__lenis) {
+        window.__lenis.stop();
+      }
+
+      return () => {
+        document.body.style.overflow = originalOverflow || '';
+        if (window.__lenis) {
+          window.__lenis.start();
+        }
+      };
     }
   }, [isOpen, vehicle, pendingRequest]);
 
@@ -125,8 +139,12 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
   const formatLKR = (val) => `රු. ${Number(val).toLocaleString('en-LK')}`;
 
   return (
-    <div className="boost-modal-overlay">
-      <div className="boost-modal-container">
+    <div
+      className="boost-modal-overlay"
+      data-lenis-prevent="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="boost-modal-container" data-lenis-prevent="true">
         
         {/* Header */}
         <div className="boost-modal-header">
@@ -146,31 +164,31 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
         {/* Steps Bar */}
         <div className="boost-steps-bar">
           <span className={`boost-step-pill ${step === 1 ? 'active' : 'inactive'}`}>
-            1. Select Package
+            1. Package
           </span>
-          <span>→</span>
+          <span className="text-slate-400 text-xs">→</span>
           <span className={`boost-step-pill ${step === 2 ? 'active' : 'inactive'}`}>
             2. Remittance
           </span>
-          <span>→</span>
+          <span className="text-slate-400 text-xs">→</span>
           <span className={`boost-step-pill ${step === 3 ? 'active' : 'inactive'}`}>
-            3. Audit & Verify
+            3. Audit
           </span>
         </div>
 
         {/* Body Content */}
-        <div className="p-6 space-y-6">
+        <div className="boost-modal-body p-3.5 sm:p-6 space-y-4 sm:space-y-6" data-lenis-prevent="true">
 
           {/* Vehicle Snapshot preview */}
-          <div className="flex items-center gap-4 p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl">
+          <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl">
             {vehicle.image ? (
               <img 
                 src={resolveMediaUrl(vehicle.image)} 
                 alt={vehicle.title} 
-                className="w-16 h-14 object-cover rounded-xl border border-slate-200 shrink-0 bg-white"
+                className="w-14 h-12 sm:w-16 sm:h-14 object-cover rounded-xl border border-slate-200 shrink-0 bg-white"
               />
             ) : (
-              <div className="w-16 h-14 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold text-xs shrink-0">
+              <div className="w-14 h-12 sm:w-16 sm:h-14 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold text-xs shrink-0">
                 Bike
               </div>
             )}
@@ -181,7 +199,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
               <h4 className="text-sm font-extrabold text-slate-900 truncate">
                 {vehicle.title}
               </h4>
-              <p className="text-xs font-bold text-amber-600">
+              <p className="text-xs font-bold text-amber-600 truncate">
                 {vehicle.price ? formatLKR(vehicle.price) : 'Negotiable'} • {vehicle.location || 'Sri Lanka'}
               </p>
             </div>
@@ -197,7 +215,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
 
           {/* STEP 1: Select Boost Package */}
           {step === 1 && (
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               <div className="text-center space-y-1">
                 <h4 className="text-base font-extrabold text-[#0B1530]">
                   Choose Your Promotion Strategy
@@ -207,7 +225,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                 </p>
               </div>
 
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 {PACKAGES.map((pkg) => {
                   const Icon = pkg.icon;
                   const isSelected = selectedPkgId === pkg.id;
@@ -217,45 +235,45 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                       onClick={() => setSelectedPkgId(pkg.id)}
                       className={`boost-package-card ${isSelected ? 'selected' : ''}`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-[#0B1530] text-amber-400' : 'bg-slate-100 text-slate-600'
+                      <div className="flex items-start justify-between gap-2 sm:gap-3">
+                        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
+                            isSelected ? 'bg-[#0a0b10] text-[#ffd600]' : 'bg-slate-100 text-slate-600'
                           }`}>
-                            <Icon className="w-5 h-5" />
+                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h5 className="text-base font-black text-slate-900">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                              <h5 className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                                 {pkg.title}
                               </h5>
                               <span className={`boost-package-badge ${pkg.badgeClass}`}>
                                 {pkg.badgeText}
                               </span>
                             </div>
-                            <span className="text-[11px] font-bold text-slate-400">
+                            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 block">
                               {pkg.duration}
                             </span>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
-                          <span className="text-lg font-black text-slate-900 block">
+                        <div className="text-right shrink-0 pl-1.5">
+                          <span className="text-base sm:text-lg font-black text-slate-900 block whitespace-nowrap">
                             {pkg.priceFormatted}
                           </span>
                           <div className={`w-5 h-5 rounded-full border-2 ml-auto mt-1 flex items-center justify-center ${
-                            isSelected ? 'border-[#0B1530] bg-[#0B1530] text-white' : 'border-slate-300'
+                            isSelected ? 'border-[#0a0b10] bg-[#0a0b10] text-white' : 'border-slate-300'
                           }`}>
                             {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-3 pt-3 border-t border-slate-100/80 text-xs space-y-1">
-                        <p className="text-slate-700 font-bold leading-relaxed">
+                      <div className="mt-2.5 pt-2.5 border-t border-slate-100/80 text-xs space-y-1">
+                        <p className="text-slate-700 font-bold leading-relaxed text-[11px] sm:text-xs">
                           {pkg.descriptionSi}
                         </p>
-                        <p className="text-slate-400 font-medium text-[11px]">
+                        <p className="text-slate-400 font-medium text-[10px] sm:text-[11px]">
                           {pkg.descriptionEn}
                         </p>
                       </div>
@@ -267,7 +285,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
               <button
                 type="button"
                 onClick={handleProceedToRemittance}
-                className="w-full py-4 bg-[#0B1530] hover:bg-slate-800 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-slate-900/10"
+                className="w-full py-3.5 sm:py-4 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-slate-900/10"
               >
                 Proceed to Bank Transfer →
               </button>
@@ -395,18 +413,18 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-2.5 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-5 py-3.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs"
+                  className="px-4 sm:px-5 py-3 sm:py-3.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-2xl text-xs shrink-0 whitespace-nowrap"
                 >
                   ← Back
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3.5 bg-[#0B1530] hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 sm:py-3.5 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-[11px] sm:text-xs uppercase tracking-normal sm:tracking-wider transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 text-center"
                 >
                   {submitting ? (
                     <>
@@ -415,7 +433,8 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                     </>
                   ) : (
                     <>
-                      Submit Bank Slip for Approval <ShieldCheck className="w-4 h-4 text-amber-400" />
+                      <span>Submit Slip for Approval</span>
+                      <ShieldCheck className="w-4 h-4 text-[#ffd600] shrink-0" />
                     </>
                   )}
                 </button>
@@ -425,16 +444,16 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
 
           {/* STEP 3: Audit & Pending Status */}
           {step === 3 && (
-            <div className="text-center py-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 bg-amber-50 border border-amber-200 text-amber-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
-                <Clock className="w-8 h-8 animate-pulse" />
+            <div className="text-center py-4 sm:py-6 space-y-4 sm:space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-amber-50 border border-amber-200 text-amber-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <Clock className="w-7 h-7 sm:w-8 sm:h-8 animate-pulse" />
               </div>
 
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider">
                   Pending Admin Audit
                 </div>
-                <h4 className="text-xl font-black text-[#0B1530]">
+                <h4 className="text-lg sm:text-xl font-black text-[#0a0b10]">
                   {pendingRequest ? 'Boost Request Already Pending Approval' : 'Bank Slip Submitted Successfully!'}
                 </h4>
                 <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
@@ -445,7 +464,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs space-y-1.5 max-w-md mx-auto">
+              <div className="p-3.5 sm:p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs space-y-1.5 max-w-md mx-auto">
                 <p><span className="font-bold text-slate-600">Selected Package:</span> {pendingRequest ? pendingRequest.packageName : selectedPkg.title}</p>
                 <p><span className="font-bold text-slate-600">Amount Settled:</span> {pendingRequest ? `රු. ${Number(pendingRequest.amount).toLocaleString('en-LK')}` : selectedPkg.priceFormatted}</p>
                 <p><span className="font-bold text-slate-600">Listing Title:</span> {vehicle.title}</p>
@@ -455,7 +474,7 @@ export default function BoostPostModal({ isOpen, onClose, vehicle }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full max-w-md mx-auto py-3.5 bg-[#0B1530] hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all"
+                className="w-full max-w-md mx-auto py-3.5 bg-[#0a0b10] hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all"
               >
                 Done / Close Window
               </button>
