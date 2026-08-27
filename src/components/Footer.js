@@ -9,8 +9,20 @@ import './Footer.css';
 
 const Footer = ({ language, setLanguage, translations = {} }) => {
   return (
-    <footer className="footer">
-      <div className="container">
+    <footer className="footer relative overflow-hidden">
+      {/* Background Video with Dark Overlay */}
+      <div className="footer-video-bg" aria-hidden="true">
+        <video
+          src={`${process.env.PUBLIC_URL}/Motorcycles_riding_with_motion_blur_202608271629.mp4`}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="footer-video-overlay" />
+      </div>
+
+      <div className="container relative z-10">
         <div className="footer-content">
           {/* Logo and Description */}
           <div className="footer-section">
@@ -93,7 +105,7 @@ const Footer = ({ language, setLanguage, translations = {} }) => {
               </p>
               <p>
                 <FiMail className="contact-icon" aria-hidden="true" />
-                <a href="mailto:info@bikehublk.com" aria-label="Email info@bikehublk.com">info@bikehublk.com</a>
+                <a href="mailto:sadthepianist@gmail.com" aria-label="Email sadthepianist@gmail.com">sadthepianist@gmail.com</a>
               </p>
               <p>
                 <FiMapPin className="contact-icon" aria-hidden="true" />

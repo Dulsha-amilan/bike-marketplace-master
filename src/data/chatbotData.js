@@ -15,7 +15,7 @@ export const chatbotResponses = {
     
     help: "I'm here to help! 🤝 Common questions:\n• How to search for bikes?\n• Payment methods\n• Delivery options\n• Warranty information\n• Insurance guidance\n\nFor urgent matters, contact our support team at +94 11 234 5678",
     
-    contact: "📞 Contact Information:\n• Phone: +94 11 234 5678\n• Email: info@bikehublk.com\n• WhatsApp: +94 77 123 4567\n• Address: 123 Main Street, Colombo 03\n\nSupport hours: 9:00 AM - 8:00 PM (Mon-Sat)",
+    contact: "📞 Contact Information:\n• Phone: +94 11 234 5678\n• Email: sadthepianist@gmail.com\n• WhatsApp: +94 77 123 4567\n• Address: 123 Main Street, Colombo 03\n\nSupport hours: 9:00 AM - 8:00 PM (Mon-Sat)",
     
     thanks: "You're welcome! 😊 Is there anything else I can help you with today? I'm here to make yourBIKE EKA.COM experience as smooth as possible!",
     
@@ -37,7 +37,7 @@ export const chatbotResponses = {
     
     help: "මම උදව් කිරීමට මෙහි සිටිමි! 🤝 පොදු ප්‍රශ්න:\n• බයිසිකල් සෙවීම කෙසේද?\n• ගෙවීම් ක්‍රම\n• බෙදාහැරීමේ විකල්ප\n• වගකීම් තොරතුරු\n• රක්ෂණ මාර්ගෝපදේශ\n\nදුගන්‍න අවශ්‍ය කරන්න කරුණු සඳහා, +94 11 234 5678 අපගේ සහාය කණ්ඩායමට අමතන්න",
     
-    contact: "📞 සම්පර්ක තොරතුරු:\n• දුරකථනය: +94 11 234 5678\n• ඊමේල්: info@bikehublk.com\n• WhatsApp: +94 77 123 4567\n• ලිපිනය: 123 ප්‍රධාන වීදිය, කොළඹ 03\n\nසහාය පැය: පෙ.ව. 9:00 - රාත්‍රි 8:00 (සඳුදා-සෙනසුරුදා)",
+    contact: "📞 සම්පර්ක තොරතුරු:\n• දුරකථනය: +94 11 234 5678\n• ඊමේල්: sadthepianist@gmail.com\n• WhatsApp: +94 77 123 4567\n• ලිපිනය: 123 ප්‍රධාන වීදිය, කොළඹ 03\n\nසහාය පැය: පෙ.ව. 9:00 - රාත්‍රි 8:00 (සඳුදා-සෙනසුරුදා)",
     
     thanks: "ඔබට සාදරයෙන් පිළිගනිමු! 😊 අද මට ඔබට උදව් කළ හැකි වෙනත් කිසිවක් තිබේද? ඔබේBIKE EKA.COM අත්දැකීම හැකි තරම් සුමට කිරීමට මම මෙහි සිටිමි!",
     

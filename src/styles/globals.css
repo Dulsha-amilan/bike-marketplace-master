@@ -122,10 +122,9 @@ html.lenis, html.lenis body {
   z-index: 10;
   background: #ffffff;
   border-radius: 2.5rem 2.5rem 0 0;
-  min-height: 100vh;
   margin-top: -2.5rem;
   padding-top: 3.5rem;
-  padding-bottom: 4rem;
+  padding-bottom: 2rem;
   box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.45);
 }
 
@@ -139,7 +138,7 @@ html.lenis, html.lenis body {
     border-radius: 1.75rem 1.75rem 0 0;
     margin-top: -1.75rem;
     padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-bottom: 1.5rem;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
   }
 }

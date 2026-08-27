@@ -391,10 +391,10 @@
 
   .ad-leaderboard-wrap .ad-image-frame {
     width: 100%;
-    height: 72px;
-    min-height: 72px;
+    height: auto;
+    min-height: auto;
     border-radius: 10px;
-    background: #0f172a;
+    background: transparent;
     display: block;
     position: relative;
     overflow: hidden;
@@ -403,9 +403,9 @@
 
   .ad-leaderboard-wrap .ad-uploaded-img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
     display: block;
     border-radius: 10px;
   }
