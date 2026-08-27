@@ -80,6 +80,30 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
 
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
   const [selectedVehicleForBoost, setSelectedVehicleForBoost] = useState(null);
+  const [navigatingId, setNavigatingId] = useState(null);
+
+  const handleCardClick = (vehicle, event) => {
+    if (event) {
+      if (
+        event.target.closest('.featured-card__owner-btns') ||
+        event.target.closest('.featured-card__boost-btn') ||
+        event.target.closest('.featured-card__edit-btn')
+      ) {
+        return;
+      }
+    }
+
+    setNavigatingId(vehicle.id);
+
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true, force: true });
+    }
+
+    navigate(`/vehicle/${vehicle.id}`, { state: { vehicle } });
+  };
 
   const latestVehicles = useMemo(() => {
     return [...allVehicles]
@@ -161,8 +185,23 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
                   <React.Fragment key={vehicle.id}>
                     <article 
                       className={`featured-card ${isUrgentActive ? 'featured-card--urgent' : ''} ${isPinnedActive ? 'featured-card--pinned' : ''}`}
+                      onClick={(e) => handleCardClick(vehicle, e)}
+                      style={{ cursor: 'pointer', position: 'relative' }}
                     >
-                      <Link className="featured-card__media" to={`/vehicle/${vehicle.id}`}>
+                      {navigatingId === vehicle.id && (
+                        <div className="card-nav-loading-overlay">
+                          <div className="card-nav-loading-badge">
+                            <div className="card-nav-spinner" />
+                            <span>Loading...</span>
+                          </div>
+                        </div>
+                      )}
+                      <Link
+                        className="featured-card__media"
+                        to={`/vehicle/${vehicle.id}`}
+                        state={{ vehicle }}
+                        onClick={(e) => handleCardClick(vehicle, e)}
+                      >
                         <img
                           src={resolveMediaUrl(vehicle.image)}
                           alt={vehicle.title}
@@ -263,7 +302,13 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
 
                         {/* Line 1: Title */}
                         <h3>
-                          <Link to={`/vehicle/${vehicle.id}`}>{vehicle.title}</Link>
+                          <Link
+                            to={`/vehicle/${vehicle.id}`}
+                            state={{ vehicle }}
+                            onClick={(e) => handleCardClick(vehicle, e)}
+                          >
+                            {vehicle.title}
+                          </Link>
                         </h3>
 
                         {/* Line 2 on Mobile: Mileage | Condition / Year */}
@@ -352,14 +397,8 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
                       <Link
                         className="featured-card__action"
                         to={`/vehicle/${vehicle.id}`}
-                        onClick={() => {
-                          window.scrollTo(0, 0);
-                          if (document.documentElement) document.documentElement.scrollTop = 0;
-                          if (document.body) document.body.scrollTop = 0;
-                          if (window.__lenis) {
-                            window.__lenis.scrollTo(0, { immediate: true, force: true });
-                          }
-                        }}
+                        state={{ vehicle }}
+                        onClick={(e) => handleCardClick(vehicle, e)}
                       >
                         View Details
                         <ArrowRight aria-hidden="true" />

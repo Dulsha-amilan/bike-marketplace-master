@@ -44,7 +44,7 @@ const MemberBadgeIcon = () => (
 const VerifiedBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
     <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
-    <path d="M5.8 10.2L8.6 13L14.4 7.2" stroke="#E50914" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5.8 10.2L8.6 13L14.4 7.2" stroke="#0284C7" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -141,6 +141,7 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const allImages = [image, ...(gallery || [])].filter(Boolean).map(resolveMediaUrl);
   const makeLine = [vehicle.make, vehicle.model].filter(Boolean).join(' ');
@@ -184,6 +185,8 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
         return;
       }
     }
+
+    setIsNavigating(true);
 
     window.scrollTo(0, 0);
     if (document.documentElement) document.documentElement.scrollTop = 0;
@@ -252,8 +255,16 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
         <Card 
           className={`vehicle-card vehicle-card--ad ${isUrgentActive ? 'vehicle-card--urgent' : ''} ${isPinnedActive ? 'vehicle-card--pinned' : ''}`}
           onClick={navigateToDetails}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', position: 'relative' }}
         >
+          {isNavigating && (
+            <div className="card-nav-loading-overlay">
+              <div className="card-nav-loading-badge">
+                <div className="card-nav-spinner" />
+                <span>Loading...</span>
+              </div>
+            </div>
+          )}
           <button
             className="vehicle-card__media"
             onClick={(e) => {
@@ -532,8 +543,16 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
       <Card 
         className={`vehicle-card overflow-hidden hover:shadow-xl transition-all duration-300 ${isPreview ? '' : 'h-full'} flex flex-col group border-border/50 hover:-translate-y-1 bg-card max-w-sm w-full mx-auto ${isUrgentActive ? 'ring-2 ring-red-500 shadow-lg shadow-red-500/25' : ''} ${isPinnedActive ? 'ring-2 ring-indigo-500 shadow-lg shadow-indigo-500/25' : ''}`}
         onClick={isPreview ? undefined : navigateToDetails}
-        style={{ cursor: isPreview ? 'default' : 'pointer' }}
+        style={{ cursor: isPreview ? 'default' : 'pointer', position: 'relative' }}
       >
+        {isNavigating && (
+          <div className="card-nav-loading-overlay">
+            <div className="card-nav-loading-badge">
+              <div className="card-nav-spinner" />
+              <span>Loading...</span>
+            </div>
+          </div>
+        )}
         <div 
           className={`vehicle-media relative aspect-[16/9] overflow-hidden ${isPreview ? 'cursor-default' : 'cursor-pointer'} bg-gray-900`} 
           onClick={isPreview ? undefined : openLightbox}

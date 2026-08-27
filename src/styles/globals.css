@@ -142,3 +142,78 @@ html.lenis, html.lenis body {
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
   }
 }
+
+/* ─── Instant Card Click Navigation Loading Overlay ─── */
+.card-nav-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 99;
+  background: rgba(10, 11, 16, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  animation: cardNavFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  cursor: wait;
+  pointer-events: all;
+}
+
+@keyframes cardNavFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.card-nav-loading-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #ffffff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid #ffd600;
+  animation: badgePop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes badgePop {
+  from {
+    transform: scale(0.85);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.card-nav-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: #e50914;
+  border-right-color: #ffd600;
+  border-radius: 50%;
+  animation: cardNavSpin 0.7s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cardNavSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card-nav-loading-badge span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0a0b10;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
