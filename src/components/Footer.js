@@ -101,7 +101,7 @@ const Footer = ({ language, setLanguage, translations = {} }) => {
             <div className="contact-info">
               <p>
                 <FiPhone className="contact-icon" aria-hidden="true" />
-                <a href="tel:+94714029197" aria-label="Call 0714029197">0714029197</a>
+                <a href="tel:+94756533513" aria-label="Call 0756533513">0756533513</a>
               </p>
               <p>
                 <FiMail className="contact-icon" aria-hidden="true" />
