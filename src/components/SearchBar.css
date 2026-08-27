@@ -41,26 +41,33 @@
 .search-field input:focus,
 .search-field select:focus {
   outline: none;
-  border-color: #FFD600;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+  border-color: #E50914;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.25);
 }
 
 .search-button {
-  background: #333;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
+  background: linear-gradient(135deg, #E50914 0%, #B91C1C 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   height: 48px;
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.4);
+  letter-spacing: 0.02em;
 }
 
 .search-button:hover {
-  background: #555;
+  background: linear-gradient(135deg, #ff1e27 0%, #d3101b 100%);
+  box-shadow: 0 6px 24px rgba(229, 9, 20, 0.65);
   transform: translateY(-2px);
+}
+
+.search-button:active {
+  transform: translateY(0);
 }
 
 /* Custom Searchable Dropdown Matching Image 1 */

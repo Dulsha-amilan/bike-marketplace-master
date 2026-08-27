@@ -180,7 +180,7 @@ const CustomSearchDropdown = ({
   );
 };
 
-const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, onSearch }) => {
+const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, onSearch, dropUp = false }) => {
   const handleInputChange = (field, value) => {
     setSearchFilters(prev => ({
       ...prev,
@@ -212,6 +212,7 @@ const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, on
             placeholder={translations.allBrands || 'All Brands'}
             searchPlaceholder="Search brand..."
             allLabel={translations.allBrands || 'All Brands'}
+            dropUp={dropUp}
           />
         </div>
 
@@ -226,6 +227,7 @@ const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, on
             searchPlaceholder="Search model..."
             allowCustomInput={true}
             allLabel="All Models"
+            dropUp={dropUp}
           />
         </div>
 
@@ -239,6 +241,7 @@ const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, on
             placeholder="Any Price"
             searchPlaceholder="Search price range..."
             allLabel="Any Price"
+            dropUp={dropUp}
           />
         </div>
 
@@ -252,7 +255,7 @@ const SearchBar = ({ searchFilters = {}, setSearchFilters, translations = {}, on
             placeholder="All Locations"
             searchPlaceholder="Search district..."
             allLabel="All Locations"
-            dropUp={true}
+            dropUp={dropUp}
           />
         </div>
 

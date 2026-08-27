@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { AnimateOnScroll } from './AnimateOnScroll';
 import './QuickFilters.css';
 
 import scootersImg from '../Images/categories/scooters.png';
@@ -69,48 +70,52 @@ const QuickFilters = ({ translations }) => {
   return (
     <section className="category-browse" aria-label={title}>
       <div className="category-browse__shell">
-        <header className="category-browse__header">
-          <div>
-            <span className="category-browse__eyebrow">Browse</span>
-            <h2 className="category-browse__title">{title}</h2>
-            <p className="category-browse__subtitle">
-              Find the perfect bike for your next ride
-            </p>
-          </div>
-          <Link to="/browse/all" className="category-browse__view-all">
-            View all bikes
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </header>
-
-        <div className="category-grid">
-          {CATEGORIES.map(({ id, name, desc, image, accent }) => (
-            <Link
-              key={id}
-              to={`/browse/${id}`}
-              className="category-card"
-              aria-label={`Browse ${name}`}
-              title={name}
-              style={{ '--cat-accent': accent }}
-            >
-              <div
-                className="category-card__bg"
-                style={{ backgroundImage: `url(${image})` }}
-                aria-hidden="true"
-              />
-              <div className="category-card__overlay" aria-hidden="true" />
-              <span className="category-card__arrow-badge">
-                <ArrowRight className="category-card__arrow" size={16} aria-hidden="true" />
-              </span>
-              <div className="category-card__content">
-                <div className="category-card__body">
-                  <span className="category-card__name">{name}</span>
-                  <span className="category-card__desc">{desc}</span>
-                </div>
-              </div>
+        <AnimateOnScroll variant="fadeUp" delay={0.05} duration={0.7}>
+          <header className="category-browse__header">
+            <div>
+              <span className="category-browse__eyebrow">Browse</span>
+              <h2 className="category-browse__title">{title}</h2>
+              <p className="category-browse__subtitle">
+                Find the perfect bike for your next ride
+              </p>
+            </div>
+            <Link to="/browse/all" className="category-browse__view-all">
+              View all bikes
+              <ArrowRight size={16} aria-hidden="true" />
             </Link>
-          ))}
-        </div>
+          </header>
+        </AnimateOnScroll>
+
+        <AnimateOnScroll variant="fadeUp" staggerChildren={true} stagger={0.06} delay={0.15}>
+          <div className="category-grid">
+            {CATEGORIES.map(({ id, name, desc, image, accent }) => (
+              <Link
+                key={id}
+                to={`/browse/${id}`}
+                className="category-card"
+                aria-label={`Browse ${name}`}
+                title={name}
+                style={{ '--cat-accent': accent }}
+              >
+                <div
+                  className="category-card__bg"
+                  style={{ backgroundImage: `url(${image})` }}
+                  aria-hidden="true"
+                />
+                <div className="category-card__overlay" aria-hidden="true" />
+                <span className="category-card__arrow-badge">
+                  <ArrowRight className="category-card__arrow" size={16} aria-hidden="true" />
+                </span>
+                <div className="category-card__content">
+                  <div className="category-card__body">
+                    <span className="category-card__name">{name}</span>
+                    <span className="category-card__desc">{desc}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </AnimateOnScroll>
       </div>
     </section>
   );

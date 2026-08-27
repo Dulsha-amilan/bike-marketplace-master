@@ -37,36 +37,36 @@ const formatTimeAgo = date => {
 const MemberBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
     <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
-    <path d="M10 3.2L12.1 7.6L16.8 8.2L13.4 11.5L14.2 16.2L10 13.9L5.8 16.2L6.6 11.5L3.2 8.2L7.9 7.6L10 3.2Z" fill="#EAB308" />
+    <path d="M10 3.2L12.1 7.6L16.8 8.2L13.4 11.5L14.2 16.2L10 13.9L5.8 16.2L6.6 11.5L3.2 8.2L7.9 7.6L10 3.2Z" fill="#FFD600" />
   </svg>
 );
 
 const VerifiedBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
     <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
-    <path d="M5.8 10.2L8.6 13L14.4 7.2" stroke="#0284C7" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5.8 10.2L8.6 13L14.4 7.2" stroke="#E50914" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const ShowroomBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
-    <circle cx="10" cy="10" r="10" fill="#F59E0B" />
-    <path d="M5.5 10L10 6L14.5 10V15H5.5V10Z" fill="#0F172A" />
-    <rect x="8.5" y="11.5" width="3" height="3.5" fill="#F59E0B" />
+    <circle cx="10" cy="10" r="10" fill="#FFD600" />
+    <path d="M5.5 10L10 6L14.5 10V15H5.5V10Z" fill="#0A0B10" />
+    <rect x="8.5" y="11.5" width="3" height="3.5" fill="#FFD600" />
   </svg>
 );
 
 const PinnedBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
     <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
-    <path d="M12.5 3L17 7.5L15 9.5L14.2 8.7L11.5 11.4C11.8 12.6 11.4 13.9 10.4 14.9L9.7 15.6L4.4 10.3L5.1 9.6C6.1 8.6 7.4 8.2 8.6 8.5L11.3 5.8L10.5 5L12.5 3ZM6.5 13.5L2 18" stroke="#6366F1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <path d="M12.5 3L17 7.5L15 9.5L14.2 8.7L11.5 11.4C11.8 12.6 11.4 13.9 10.4 14.9L9.7 15.6L4.4 10.3L5.1 9.6C6.1 8.6 7.4 8.2 8.6 8.5L11.3 5.8L10.5 5L12.5 3ZM6.5 13.5L2 18" stroke="#FFD600" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
   </svg>
 );
 
 const UrgentBadgeIcon = () => (
   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true" style={{ display: 'block' }}>
     <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
-    <path d="M10 5.5V11M10 14V14.5" stroke="#EF4444" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M10 5.5V11M10 14V14.5" stroke="#E50914" strokeWidth="2.4" strokeLinecap="round" />
   </svg>
 );
 
@@ -248,17 +248,17 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
             <div className="vehicle-card__media-header">
               <div className="vehicle-card__badges-wrap">
                 {isPinnedActive && (
-                  <span className="vehicle-card__badge" style={{ background: '#3730A3', color: '#FFFFFF', fontWeight: '900', border: '1px solid #818CF8' }}>
+                  <span className="vehicle-card__badge" style={{ background: '#0A0B10', color: '#FFD600', fontWeight: '900', border: '1px solid #FFD600' }}>
                     ⭐ PINNED TOP
                   </span>
                 )}
                 {isUrgentActive && (
-                  <span className="vehicle-card__badge" style={{ background: '#DC2626', color: '#FFFFFF', fontWeight: '900', border: '1px solid #FCA5A5' }}>
+                  <span className="vehicle-card__badge" style={{ background: '#E50914', color: '#FFFFFF', fontWeight: '900', border: '1px solid rgba(255, 255, 255, 0.4)' }}>
                     🚨 URGENT
                   </span>
                 )}
                 {vehicle.source === 'showroom' && (
-                  <span className="vehicle-card__badge" style={{ background: '#0F172A', color: '#F59E0B', fontWeight: '900', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                  <span className="vehicle-card__badge" style={{ background: '#0A0B10', color: '#FFD600', fontWeight: '900', border: '1px solid rgba(255, 214, 0, 0.5)' }}>
                     ★ Showroom
                   </span>
                 )}

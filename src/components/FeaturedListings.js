@@ -6,6 +6,7 @@ import { useVehicles } from './vehiclesStore';
 import { useAuth } from './AuthContext';
 import BoostPostModal from './BoostPostModal';
 import { LeaderboardAdBanner, SquareBoxAdBanner } from './AdBannerComponents';
+import { AnimateOnScroll } from './AnimateOnScroll';
 import './FeaturedListings.css';
 import verifiedIcon from '../Images/verififedbutton.png';
 
@@ -114,32 +115,35 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
                 <LeaderboardAdBanner ad={adBanner} />
               </div>
             )}
-            <div className="featured-header">
-              <div>
-                <span className="featured-eyebrow">Latest ads</span>
-                <h2 id="featured-title">{translations?.featured || 'Featured'}</h2>
-              </div>
-              <div
-                className="heading-stat"
-                role="status"
-                aria-live="polite"
-                aria-label={`${listingCount} latest ${listingCount === 1 ? 'listing' : 'listings'}`}
-              >
-                <div className="heading-stat-icon" aria-hidden="true">
-                  <Bike />
-                  <span className="heading-stat-live" />
+            <AnimateOnScroll variant="fadeUp" delay={0.05}>
+              <div className="featured-header">
+                <div>
+                  <span className="featured-eyebrow">Latest ads</span>
+                  <h2 id="featured-title">{translations?.featured || 'Featured'}</h2>
                 </div>
-                <div className="heading-stat-body">
-                  <div className="heading-stat-row">
-                    <span className="heading-stat-value">{listingCount.toLocaleString()}</span>
+                <div
+                  className="heading-stat"
+                  role="status"
+                  aria-live="polite"
+                  aria-label={`${listingCount} latest ${listingCount === 1 ? 'listing' : 'listings'}`}
+                >
+                  <div className="heading-stat-icon" aria-hidden="true">
+                    <Bike />
+                    <span className="heading-stat-live" />
                   </div>
-                  <span className="heading-stat-label">Latest listings</span>
-                  <span className="heading-stat-hint">Recently posted on BikeEeka</span>
+                  <div className="heading-stat-body">
+                    <div className="heading-stat-row">
+                      <span className="heading-stat-value">{listingCount.toLocaleString()}</span>
+                    </div>
+                    <span className="heading-stat-label">Latest listings</span>
+                    <span className="heading-stat-hint">Recently posted on BikeEeka</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </AnimateOnScroll>
 
-            <div className="featured-grid">
+            <AnimateOnScroll variant="fadeUp" staggerChildren={true} stagger={0.07} delay={0.12}>
+              <div className="featured-grid">
               {latestVehicles.map((vehicle, index) => {
                 const approvedRequest = vehicle.user?.membershipRequests?.find(r => r.status === 'approved') || vehicle.user?.membershipRequests?.[0];
                 const isOwner = user && vehicle.userId && String(user.id) === String(vehicle.userId);
@@ -358,7 +362,8 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
                   </React.Fragment>
                 );
               })}
-            </div>
+              </div>
+            </AnimateOnScroll>
           </div>
         </div>
       </section>

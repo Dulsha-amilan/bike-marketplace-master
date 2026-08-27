@@ -1,15 +1,36 @@
 /* Global Base Styles */
 :root {
-  /* Tweak these if you want a slightly warmer/yellow tint to match your brand */
-  --filters-glass-bg: 255, 255, 255;        /* base tint (white) */
-  --filters-glass-alpha: 0.16;              /* translucency */
-  --filters-glass-blur: 22px;               /* blur radius */
-  --filters-border: 255, 255, 255;          /* border/highlight */
-  --filters-shadow: 2, 6, 23;               /* slate-950-ish for shadow */
-  --filters-radius: 16px;                   /* corner radius */
+  /* 4-Color Master Palette */
+  --c-black-base: #0a0b10;
+  --c-black-surface: #12141d;
+  --c-black-card: #161824;
+  --c-black-glass: rgba(10, 12, 18, 0.88);
+  --c-black-glass-hover: rgba(16, 19, 28, 0.95);
+  
+  --c-red-racing: #E50914;
+  --c-red-hover: #ff1e27;
+  --c-red-glow: rgba(229, 9, 20, 0.4);
+  --c-red-subtle: rgba(229, 9, 20, 0.15);
+  
+  --c-yellow-sport: #FFD600;
+  --c-yellow-amber: #F59E0B;
+  --c-yellow-glow: rgba(255, 214, 0, 0.35);
+  
+  --c-white: #FFFFFF;
+  --c-white-muted: #94A3B8;
+  --c-white-dim: #CBD5E1;
+
+  /* Legacy & Glass compatibility tokens */
+  --filters-glass-bg: 10, 12, 18;
+  --filters-glass-alpha: 0.88;
+  --filters-glass-blur: 24px;
+  --filters-border: 255, 255, 255;
+  --filters-shadow: 0, 0, 0;
+  --filters-radius: 16px;
   --brand: #FFD600;
   --brand-600: #FFC107;
   --brand-700: #FFA000;
+  --brand-red: #E50914;
   --line: #e5e7eb;
   --bg: #fff;
   --muted: #6b7280;
@@ -54,4 +75,71 @@ body {
 /* Safari/iOS viewport fixes and smooth scrolling in drawers */
 html, body {
   height: -webkit-fill-available; /* iOS Safari */
+}
+
+/* ─── Lenis Smooth Scroll Recommended Rules ─── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ─── Hero: stays sticky so card can scroll over it ─── */
+.hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 680px;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* ─── Home Page Wrapper ─── */
+.home-scroll-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  position: relative;
+  width: 100%;
+}
+
+/* ─── Card that slides over the hero (Image 1 Adobe style) ─── */
+.card-reveal {
+  position: relative;
+  z-index: 10;
+  background: #ffffff;
+  border-radius: 2.5rem 2.5rem 0 0;
+  min-height: 100vh;
+  margin-top: -2.5rem;
+  padding-top: 3.5rem;
+  padding-bottom: 4rem;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.card-reveal .filters-section,
+.card-reveal .featured-listings {
+  background: transparent !important;
+}
+
+@media (max-width: 768px) {
+  .card-reveal {
+    border-radius: 1.75rem 1.75rem 0 0;
+    margin-top: -1.75rem;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  }
 }

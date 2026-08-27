@@ -1,21 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { SlidersHorizontal, ChevronDown, X, RotateCcw } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import LanguageToggle from './LanguageToggle';
+import SearchBar from './SearchBar';
 import bikeekaLogo from '../Images/bikeeka.com logos.png';
 import './Header.css';
 
-const Header = ({ language, setLanguage, translations, currentPage, setCurrentPage, onPostAdClick }) => {
+const Header = ({ 
+  language, 
+  setLanguage, 
+  translations, 
+  currentPage, 
+  setCurrentPage, 
+  onPostAdClick,
+  searchFilters,
+  setSearchFilters,
+  onSearch,
+  onClearSearch
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const dropdownRef = useRef(null);
   const userMenuRef = useRef(null);
+  const filterPanelRef = useRef(null);
+  const filterTriggerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
 
   const isHome = currentPage === 'home' && (location.pathname === '/' || location.pathname === '');
+
+  const activeFilterCount = useMemo(() => {
+    if (!searchFilters) return 0;
+    let count = 0;
+    if (searchFilters.brand && String(searchFilters.brand).trim()) count++;
+    if (searchFilters.model && String(searchFilters.model).trim()) count++;
+    if (searchFilters.priceRange && String(searchFilters.priceRange).trim()) count++;
+    if (searchFilters.location && String(searchFilters.location).trim()) count++;
+    return count;
+  }, [searchFilters]);
 
   const handleLogoClick = () => {
     setCurrentPage('home');
@@ -42,11 +68,20 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
       }
+      if (
+        filterPanelRef.current &&
+        !filterPanelRef.current.contains(event.target) &&
+        filterTriggerRef.current &&
+        !filterTriggerRef.current.contains(event.target)
+      ) {
+        setIsFilterOpen(false);
+      }
     };
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
         setIsDropdownOpen(false);
         setIsUserMenuOpen(false);
+        setIsFilterOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -56,6 +91,11 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
       document.removeEventListener('keyup', handleEsc);
     };
   }, []);
+
+  // Close filter whenever navigating away or changing page
+  useEffect(() => {
+    setIsFilterOpen(false);
+  }, [location.pathname, currentPage]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -117,6 +157,26 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
             >
               {translations.home}
             </button>
+
+            {/* Filter Bikes Button — Visible ONLY on Home page */}
+            {isHome && (
+              <button
+                ref={filterTriggerRef}
+                type="button"
+                className={`nav-filter-trigger ${isFilterOpen ? 'is-active' : ''} ${activeFilterCount > 0 ? 'has-active-filters' : ''}`}
+                onClick={() => setIsFilterOpen(prev => !prev)}
+                aria-expanded={isFilterOpen}
+                aria-label="Filter Bikes"
+              >
+                <SlidersHorizontal size={14} className="nav-filter-icon" />
+                <span>{translations.filterBikes || 'Filter Bikes'}</span>
+                {activeFilterCount > 0 && (
+                  <span className="nav-filter-badge">{activeFilterCount}</span>
+                )}
+                <ChevronDown size={13} className={`nav-filter-chevron ${isFilterOpen ? 'rotate' : ''}`} />
+              </button>
+            )}
+
             <LanguageToggle language={language} setLanguage={setLanguage} />
 
             {user?.role !== 'admin' && (
@@ -198,6 +258,22 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
 
           {/* Mobile */}
           <div className="mobile-nav" ref={dropdownRef}>
+            {/* Quick Filter pill for mobile on Home page */}
+            {isHome && (
+              <button
+                type="button"
+                className={`mobile-nav-filter-btn ${isFilterOpen ? 'is-active' : ''} ${activeFilterCount > 0 ? 'has-active-filters' : ''}`}
+                onClick={() => setIsFilterOpen(prev => !prev)}
+                aria-label="Filter Bikes"
+              >
+                <SlidersHorizontal size={14} />
+                <span>Filter</span>
+                {activeFilterCount > 0 && (
+                  <span className="mobile-filter-badge">{activeFilterCount}</span>
+                )}
+              </button>
+            )}
+
             <button
               className="dropdown-toggle"
               onClick={toggleDropdown}
@@ -235,6 +311,25 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
                       {translations.home}
                     </button>
                   </div>
+                  {isHome && (
+                    <div className="dropdown-item">
+                      <button
+                        className="dropdown-link"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          setIsFilterOpen(true);
+                        }}
+                      >
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                          <SlidersHorizontal size={16} />
+                          {translations.filterBikes || 'Filter Bikes'}
+                          {activeFilterCount > 0 && (
+                            <span className="nav-filter-badge">{activeFilterCount}</span>
+                          )}
+                        </span>
+                      </button>
+                    </div>
+                  )}
                   <div className="dropdown-item">
                     <LanguageToggle language={language} setLanguage={setLanguage} />
                   </div>
@@ -328,6 +423,76 @@ const Header = ({ language, setLanguage, translations, currentPage, setCurrentPa
           </div>
 
         </div>
+
+      {/* Floating Filter Popover — visible ONLY on Home page when toggled */}
+      {isHome && isFilterOpen && (
+        <div 
+          className="nav-filter-overlay" 
+          onClick={() => setIsFilterOpen(false)}
+        >
+          <div 
+            className="nav-filter-panel" 
+            ref={filterPanelRef}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="nav-filter-panel-header">
+              <div className="nav-filter-panel-title">
+                <div className="nav-filter-icon-badge">
+                  <SlidersHorizontal size={17} />
+                </div>
+                <div>
+                  <h3 className="nav-filter-heading">{translations.filterBikes || 'Filter & Search Bikes'}</h3>
+                  <p className="nav-filter-subheading">Select brand, model, price, or location to filter listings</p>
+                </div>
+                {activeFilterCount > 0 && (
+                  <span className="nav-filter-pill-active">
+                    {activeFilterCount} {activeFilterCount === 1 ? 'Filter Applied' : 'Filters Applied'}
+                  </span>
+                )}
+              </div>
+
+              <div className="nav-filter-panel-actions">
+                {activeFilterCount > 0 && (
+                  <button 
+                    type="button" 
+                    className="nav-filter-reset-action"
+                    onClick={() => {
+                      if (onClearSearch) onClearSearch();
+                    }}
+                    title="Reset all filters"
+                  >
+                    <RotateCcw size={13} />
+                    <span>Reset</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="nav-filter-close-action"
+                  onClick={() => setIsFilterOpen(false)}
+                  aria-label="Close Filter Panel"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="nav-filter-panel-body">
+              <SearchBar
+                searchFilters={searchFilters}
+                setSearchFilters={setSearchFilters}
+                translations={translations}
+                dropUp={false}
+                onSearch={(filters) => {
+                  if (onSearch) {
+                    onSearch(filters);
+                  }
+                  setIsFilterOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

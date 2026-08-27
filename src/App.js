@@ -17,6 +17,7 @@ import './App.css';
 import CategoryList from './components/CategoryList';
 import VehicleDetails from './components/VehicleDetails';
 import ScrollToTop from './components/ScrollToTop';
+import SmoothScroll from './components/SmoothScroll';
 
 // NEW: vehicles store + form
 import { VehiclesProvider, useVehicles } from './components/vehiclesStore';
@@ -218,13 +219,25 @@ function AppContent() {
       brand: "Brand",
       condition: "Condition",
       categories: "Categories",
-      title: "Your All-in-One Bike Marketplace",
-      subtitle: "Buy and Sell Bikes Online",
+      title: "Sri Lanka's Trusted Bike Marketplace",
+      subtitle: "Buy or sell your bike with confidence.",
+      heroTitle1: "SRI LANKA'S",
+      heroTitle2: "TRUSTED",
+      heroTitle3: "BIKE MARKETPLACE",
+      heroSubtitle1: "Buy or sell your bike with confidence.",
+      heroSubtitle2: "Verified listings, best prices, and a trusted community.",
+      badgeVerified1: "Verified",
+      badgeVerified2: "Listings",
+      badgePrices1: "Best Prices",
+      badgePrices2: "Guaranteed",
+      badgeConfidence1: "Buy & Sell",
+      badgeConfidence2: "with Confidence",
       postAd: "Post Your Ad",
       model: "Model",
       price: "Price",
       location: "Location",
       search: "Search",
+      filterBikes: "Filter Bikes",
       footerDescription: "Sri Lanka's largest online marketplace for buying and selling motorcycles and scooters.",
       quickLinks: "Quick Links",
       aboutUs: "About Us",
@@ -286,13 +299,25 @@ function AppContent() {
       brand: "සන්නාමය",
       condition: "තත්වය",
       categories: "වර්ග",
-      title: "ශ්‍රී ලංකාවේ බයිසිකල් වෙළඳපොළ",
-      subtitle: "අන්තර්ජාලයෙන් බයිසිකල් මිලදී ගන්න සහ විකුණන්න",
+      title: "ශ්‍රී ලංකාවේ විශ්වාසනීය යතුරුපැදි වෙළඳපොළ",
+      subtitle: "විශ්වාසයෙන් ඔබේ බයිසිකලය මිලදී ගන්න හෝ විකුණන්න.",
+      heroTitle1: "ශ්‍රී ලංකාවේ",
+      heroTitle2: "විශ්වාසනීය",
+      heroTitle3: "යතුරුපැදි වෙළඳපොළ",
+      heroSubtitle1: "විශ්වාසයෙන් ඔබේ බයිසිකලය මිලදී ගන්න හෝ විකුණන්න.",
+      heroSubtitle2: "සත්‍යාපිත දැන්වීම්, හොඳම මිල ගණන් සහ විශ්වාසදායක ප්‍රජාවක්.",
+      badgeVerified1: "සත්‍යාපිත",
+      badgeVerified2: "දැන්වීම්",
+      badgePrices1: "හොඳම මිල",
+      badgePrices2: "සහතිකය",
+      badgeConfidence1: "මිලදී ගන්න සහ විකුණන්න",
+      badgeConfidence2: "විශ්වාසයෙන්",
       postAd: "ඔබේ දැන්වීම පළ කරන්න",
       model: "ආකෘතිය",
       price: "මිල",
       location: "ස්ථානය",
       search: "සොයන්න",
+      filterBikes: "බයිසිකල් පෙරහන",
       footerDescription: "ශ්‍රී ලංකාවේ විශාලතම මෝටර් සයිකල් සහ ස්කූටර් මිලදී ගැනීම සහ විකිණීම සඳහා වන අන්තර්ජාල වෙළඳපොළ.",
       quickLinks: "ඉක්මන් සබැඳි",
       aboutUs: "අප ගැන",
@@ -328,7 +353,8 @@ function AppContent() {
       default:
         return (
           <>
-             <Hero
+            {/* Hero stays pinned/sticky — content below scrolls smoothly over it */}
+            <Hero
               translations={translations[language]}
               searchFilters={searchFilters}
               setSearchFilters={setSearchFilters}
@@ -336,30 +362,35 @@ function AppContent() {
               onSearch={handleGlobalSearch}
             />
 
-            {showSearchResults && (
-              <GlobalSearchResults
-                searchFilters={searchFilters}
-                onClearSearch={handleClearGlobalSearch}
-                squareBoxAd={adBanners['square_box']}
-              />
-            )}
+            {/* White rounded card that slides over the hero (Image 1 style) */}
+            <section className="card-reveal">
+              {showSearchResults && (
+                <div className="container mb-8">
+                  <GlobalSearchResults
+                    searchFilters={searchFilters}
+                    onClearSearch={handleClearGlobalSearch}
+                    squareBoxAd={adBanners['square_box']}
+                  />
+                </div>
+              )}
 
-            <section
-              className={`filters-section relative z-20 ${showSearchResults ? 'mt-6 pb-6' : 'mt-6 lg:mt-[-52px]'}`}
-              aria-label={`${translations[language].categories} filters`}
-            >
-              <div className="container">
-                <QuickFilters translations={translations[language]} />
-              </div>
+              <section
+                className="filters-section relative z-20"
+                aria-label={`${translations[language].categories} filters`}
+              >
+                <div className="container">
+                  <QuickFilters translations={translations[language]} />
+                </div>
+              </section>
+
+              {!showSearchResults && (
+                <FeaturedListings
+                  translations={translations[language]}
+                  adBanner={adBanners['header_leaderboard']}
+                  squareBoxAd={adBanners['square_box']}
+                />
+              )}
             </section>
-
-            {!showSearchResults && (
-              <FeaturedListings
-                translations={translations[language]}
-                adBanner={adBanners['header_leaderboard']}
-                squareBoxAd={adBanners['square_box']}
-              />
-            )}
           </>
         );
     }
@@ -387,6 +418,10 @@ function AppContent() {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               onPostAdClick={handlePostAdClick}
+              searchFilters={searchFilters}
+              setSearchFilters={setSearchFilters}
+              onSearch={handleGlobalSearch}
+              onClearSearch={handleClearGlobalSearch}
             />
             <main className="main-content">
               <Routes>
@@ -438,6 +473,7 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
+      <SmoothScroll />
       <ScrollToTop />
       <AuthProvider>
         {/* Wrap everything with VehiclesProvider to supply allVehicles + actions */}
