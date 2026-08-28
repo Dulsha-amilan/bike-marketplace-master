@@ -184,6 +184,8 @@ const VehicleCard = ({ vehicle, horizontal = false, isPreview = false }) => {
       ) {
         return;
       }
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     setIsNavigating(true);

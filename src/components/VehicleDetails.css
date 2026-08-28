@@ -38,14 +38,24 @@
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(10, 11, 16, 0.04);
   white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
   transition: border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.vd-back-link:hover {
-  border-color: #e50914;
-  color: #e50914;
-  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.12);
-  transform: translateX(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .vd-back-link:hover {
+    border-color: #e50914;
+    color: #e50914;
+    box-shadow: 0 4px 16px rgba(229, 9, 20, 0.12);
+    transform: translateX(-3px);
+  }
+}
+
+.vd-back-link:active {
+  transform: scale(0.97);
+  background-color: #f8fafc;
 }
 
 .vd-owner-actions {

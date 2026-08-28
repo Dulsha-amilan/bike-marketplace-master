@@ -91,6 +91,8 @@ const FeaturedListings = ({ translations, adBanner, squareBoxAd }) => {
       ) {
         return;
       }
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     setNavigatingId(vehicle.id);

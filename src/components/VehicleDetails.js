@@ -95,7 +95,11 @@ const VehicleDetails = ({ allVehicles = [] }) => {
   const [shareMessage, setShareMessage] = useState('');
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
 
-  const handleBack = () => {
+  const handleBack = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
       navigate(-1);
     } else {
