@@ -323,7 +323,13 @@ export default function ShowroomMembershipsPage() {
         
         {/* Back Button */}
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
+              navigate(-1);
+            } else {
+              navigate('/');
+            }
+          }}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold mb-8 transition-colors text-sm"
         >
           <ArrowLeft className="h-4 w-4" />

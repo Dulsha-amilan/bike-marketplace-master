@@ -95,6 +95,14 @@ const VehicleDetails = ({ allVehicles = [] }) => {
   const [shareMessage, setShareMessage] = useState('');
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
 
+  const handleBack = () => {
+    if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   useEffect(() => {
     const scrollToTop = () => {
       window.scrollTo(0, 0);
@@ -261,7 +269,7 @@ const VehicleDetails = ({ allVehicles = [] }) => {
           <div className="vd-state-card">
             <h1>Listing not found</h1>
             <p>{remoteError}</p>
-            <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+            <button type="button" className="vd-back-link" onClick={handleBack}>
               <ArrowLeft size={18} aria-hidden="true" />
               Go back
             </button>
@@ -276,7 +284,7 @@ const VehicleDetails = ({ allVehicles = [] }) => {
       <main className="vehicle-details-page">
         <div className="vd-container">
           <div className="vd-topbar">
-            <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+            <button type="button" className="vd-back-link" onClick={handleBack}>
               <ArrowLeft size={18} aria-hidden="true" />
               <span className="vd-back-link-text">Back to listings</span>
             </button>
@@ -305,7 +313,7 @@ const VehicleDetails = ({ allVehicles = [] }) => {
     <main className="vehicle-details-page">
       <div className="vd-container">
         <div className="vd-topbar">
-          <button type="button" className="vd-back-link" onClick={() => navigate(-1)}>
+          <button type="button" className="vd-back-link" onClick={handleBack}>
             <ArrowLeft size={18} aria-hidden="true" />
             <span className="vd-back-link-text">Back to listings</span>
           </button>

@@ -1026,7 +1026,7 @@ export default function AddVehicleForm() {
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-muted-foreground gap-1 px-1">
                           <span>
                             {!isTitleCustom && (form.make || form.model)
-                              ? "✨ Auto-filled from Brand & Model. You can freely edit or customize it anytime."
+                              ? "Auto-filled from Brand & Model. You can freely edit or customize it anytime."
                               : "Use the brand, model, year, and best selling point."}
                           </span>
                           <span className={`font-semibold ${form.title.length >= 100 ? 'text-red-500' : (form.title.length > 80 ? 'text-amber-500' : 'text-muted-foreground')}`}>
