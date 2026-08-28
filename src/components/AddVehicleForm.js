@@ -52,6 +52,20 @@ const SRI_LANKA_DISTRICTS = [
   'Monaragala', 'Ratnapura', 'Kegalle',
 ];
 
+// Helper to auto-generate a clean Ad Title from Make and Model
+const generateAutoTitle = (makeStr, modelStr) => {
+  const m = (makeStr || '').trim();
+  const mod = (modelStr || '').trim();
+  if (!m && !mod) return '';
+  if (!m) return mod;
+  if (!mod) return m;
+  // If model already begins with the make name (e.g. "Yamaha R15" with make "Yamaha"), avoid duplication
+  if (mod.toLowerCase().startsWith(m.toLowerCase())) {
+    return mod;
+  }
+  return `${m} ${mod}`;
+};
+
 
 function TailwindDatePicker({ value, onChange, placeholder = "Select Model Year", className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -210,6 +224,7 @@ export default function AddVehicleForm() {
   const [error, setError] = useState('');
   const [postedVehicle, setPostedVehicle] = useState(null);
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
+  const [isTitleCustom, setIsTitleCustom] = useState(false);
 
   // Suggestions state
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
@@ -321,6 +336,19 @@ export default function AddVehicleForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'title') {
+      const autoVal = generateAutoTitle(form.make, form.model);
+      setIsTitleCustom(value.trim() !== '' && value.trim() !== autoVal.trim());
+      setForm((prev) => ({ ...prev, title: value }));
+      return;
+    }
+    if (name === 'model') {
+      setForm((prev) => {
+        const nextTitle = !isTitleCustom ? generateAutoTitle(prev.make, value) : prev.title;
+        return { ...prev, model: value, title: nextTitle };
+      });
+      return;
+    }
     setForm((prev) => {
       const next = { ...prev, [name]: type === 'checkbox' ? checked : value };
       if (name === 'negotiable' && checked) {
@@ -336,7 +364,10 @@ export default function AddVehicleForm() {
 
   const handleMakeChange = (e) => {
     const val = e.target.value;
-    setForm(prev => ({ ...prev, make: val }));
+    setForm(prev => {
+      const nextTitle = !isTitleCustom ? generateAutoTitle(val, prev.model) : prev.title;
+      return { ...prev, make: val, title: nextTitle };
+    });
     
     if (val.trim() === '') {
       setBrandSuggestions(COMMON_BRANDS);
@@ -347,6 +378,14 @@ export default function AddVehicleForm() {
       setBrandSuggestions(filtered);
     }
     setShowBrandSuggestions(true);
+  };
+
+  const handleResetTitleToAuto = () => {
+    setIsTitleCustom(false);
+    setForm(prev => ({
+      ...prev,
+      title: generateAutoTitle(prev.make, prev.model)
+    }));
   };
 
   const handleMakeFocus = () => {
@@ -549,6 +588,7 @@ export default function AddVehicleForm() {
     setPostedVehicle(null);
     setStep(1);
     setAttemptedNext(false);
+    setIsTitleCustom(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -917,7 +957,10 @@ export default function AddVehicleForm() {
                                 type="button"
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors font-medium text-foreground"
                                 onClick={() => {
-                                  setForm(prev => ({ ...prev, make: brand }));
+                                  setForm(prev => {
+                                    const nextTitle = !isTitleCustom ? generateAutoTitle(brand, prev.model) : prev.title;
+                                    return { ...prev, make: brand, title: nextTitle };
+                                  });
                                   setShowBrandSuggestions(false);
                                 }}
                               >
@@ -956,9 +999,21 @@ export default function AddVehicleForm() {
 
                       {/* Ad Title */}
                       <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-1.5">
-                          Ad Title <span className="text-destructive">*</span>
-                        </Label>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-1.5">
+                            Ad Title <span className="text-destructive">*</span>
+                          </Label>
+                          {isTitleCustom && (form.make || form.model) && (
+                            <button
+                              type="button"
+                              onClick={handleResetTitleToAuto}
+                              className="text-xs text-amber-600 hover:text-amber-700 font-semibold hover:underline flex items-center gap-1 transition-colors"
+                              title="Auto-fill title from Brand and Model"
+                            >
+                              ↺ Reset to Auto Title ({generateAutoTitle(form.make, form.model)})
+                            </button>
+                          )}
+                        </div>
                         <Input
                           id="title"
                           name="title"
@@ -969,7 +1024,11 @@ export default function AddVehicleForm() {
                           className={`h-11 md:h-12 rounded-lg text-sm focus:ring-amber-500/20 focus:border-amber-400 ${attemptedNext && form.title.trim() === '' ? 'border-destructive bg-destructive/5' : ''}`}
                         />
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-muted-foreground gap-1 px-1">
-                          <span>Use the brand, model, year, and best selling point.</span>
+                          <span>
+                            {!isTitleCustom && (form.make || form.model)
+                              ? "✨ Auto-filled from Brand & Model. You can freely edit or customize it anytime."
+                              : "Use the brand, model, year, and best selling point."}
+                          </span>
                           <span className={`font-semibold ${form.title.length >= 100 ? 'text-red-500' : (form.title.length > 80 ? 'text-amber-500' : 'text-muted-foreground')}`}>
                             {form.title.length}/100 characters
                           </span>
